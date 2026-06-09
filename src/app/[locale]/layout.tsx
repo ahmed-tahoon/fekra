@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
-import { Inter, Cairo } from 'next/font/google';
+import { Plus_Jakarta_Sans, Cairo } from 'next/font/google';
 
 import { routing, localeDirection, isValidLocale, type Locale } from '@/i18n/routing';
 import { ThemeProvider } from '@/components/providers/theme-provider';
@@ -16,7 +16,12 @@ import { siteConfig } from '@/lib/seo/config';
 
 import '../globals.css';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+  weight: ['400', '500', '600', '700', '800'],
+});
 const cairo = Cairo({ subsets: ['arabic'], variable: '--font-arabic', display: 'swap' });
 
 export function generateStaticParams() {
@@ -60,7 +65,7 @@ export default async function LocaleLayout({
       lang={locale}
       dir={localeDirection[locale]}
       suppressHydrationWarning
-      className={`${inter.variable} ${cairo.variable}`}
+      className={`${jakarta.variable} ${cairo.variable}`}
     >
       <body className="min-h-dvh flex flex-col bg-background text-foreground">
         {/* WebGL fluid-simulation cursor — site-wide overlay on every page */}

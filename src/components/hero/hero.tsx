@@ -41,9 +41,9 @@ export function Hero() {
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 text-center sm:px-6">
         <div className="relative">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(45,212,191,0.16),transparent_70%)] blur-2xl" aria-hidden />
-          <h1 className="hero-rise mx-auto max-w-3xl text-balance text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl" style={{ animationDelay: '0.1s' }}>
+          <h1 className="hero-rise mx-auto whitespace-nowrap text-[clamp(1.75rem,4.4vw,3rem)] font-extrabold leading-[1.14] tracking-tight" style={{ animationDelay: '0.1s' }}>
             {t('titlePre')}
-            <span className="mt-2 block text-5xl leading-[1.02] sm:text-6xl lg:text-7xl">
+            <span className="mt-1.5 block text-[clamp(2rem,5.2vw,3.5rem)] leading-[1.05]">
               <RotatingText words={t.raw('rotating') as string[]} className="hero-gradient-text" />
             </span>
           </h1>
