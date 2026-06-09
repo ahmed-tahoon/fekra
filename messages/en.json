@@ -1,0 +1,145 @@
+{
+  "Meta": {
+    "siteName": "Fekra",
+    "tagline": "Outsourcing partner for international B2B teams",
+    "defaultDescription": "Fekra helps international companies scale with reliable outsourcing — engineering, talent, and delivery you can trust."
+  },
+  "DesktopOnly": {
+    "title": "Best viewed on desktop",
+    "body": "The Fekra experience is optimized for larger screens right now. Please open it on a desktop or laptop.",
+    "note": "Mobile version coming soon."
+  },
+  "Nav": {
+    "home": "Home",
+    "services": "Services",
+    "about": "About",
+    "fika": "Fika AI",
+    "blog": "Blog",
+    "careers": "Careers",
+    "contact": "Contact",
+    "contactUs": "Contact Us",
+    "industries": "Industries",
+    "bookCall": "Book a call",
+    "bookCall30": "Book A 30 Min. Call",
+    "toggleTheme": "Toggle theme",
+    "switchLanguage": "العربية",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "TopBar": {
+    "egypt": "+20 110 113 3572",
+    "ksa": "+966 56 161 6057",
+    "whatsapp": "WhatsApp",
+    "email": "info@fekra-egy.com",
+    "getInTouch": "Get in touch"
+  },
+  "Menu": {
+    "services": ["Software Development", "Dedicated Teams", "QA & Testing", "Cloud & DevOps"],
+    "industries": ["Fintech", "Healthcare", "E-commerce", "Logistics"]
+  },
+  "Hero": {
+    "titlePre": "Grow Your Tech Project with Top ",
+    "rotating": ["JavaScript Developers", "Mobile App Developers", "QA Engineers", "Microsoft Developers"],
+    "subtitle": "Fekra is your nearshore partner — dedicated remote teams from Egypt & Saudi Arabia that help you build faster, operate smarter, and ship resilient software.",
+    "primaryCta": "Start a Project",
+    "secondaryCta": "Book a meeting"
+  },
+  "WhatWeDo": {
+    "eyebrow": "What we do",
+    "titlePre": "Streamlining your offshore software ",
+    "titleAccent": "services",
+    "titlePost": " & talent recruitment",
+    "talentIndex": "Talent",
+    "talentKicker": "Have your dedicated team — minus the headache",
+    "talentTitle": "Hiring software developers",
+    "talentBody": "Fekra builds dedicated teams and delivers tailored software solutions from our hubs in Egypt. Our remote experts collaborate efficiently, giving you full control over your team while delivering exceptional quality, flexibility, and cost-effective results.",
+    "talentTags": ["Software developers", "Software testers", "UX/UI designers", "Project managers & business analysts", "Scrum Masters & product owners", "System administrators & DevOps"],
+    "talentCta": "Build Your Team",
+    "talentBadgeValue": "200+",
+    "talentBadgeLabel": "Experts ready to deploy",
+    "talentImageHint": "Building a dedicated team",
+    "buildIndex": "Build",
+    "buildKicker": "Nearshore software development",
+    "buildTitle": "Software solutions",
+    "buildBody": "At Fekra, we provide innovative digital solutions with dedicated remote teams — transforming your ideas into reality with loyalty, innovation, and expansion at the core of our values. Operating from Egypt and Saudi Arabia, we offer flexible, cost-effective services tailored to your business, without compromising quality.",
+    "buildTags": ["Mobile App Development", "Custom Software Development", "Web Development", "Cloud & DevOps", "AI & Data Solutions", "QA & Testing"],
+    "buildCta": "Explore Solutions",
+    "buildBadgeValue": "14+",
+    "buildBadgeLabel": "Industries served",
+    "buildImageHint": "Software solutions"
+  },
+  "Home": {
+    "heroTitle": "Outsourcing that feels like an in-house team",
+    "heroSubtitle": "Fekra gives international B2B clients dependable engineering and talent — with the clarity, trust, and delivery that growing companies need.",
+    "heroPrimaryCta": "Request talent",
+    "heroSecondaryCta": "How it works",
+    "trustTitle": "Trusted by teams who can't afford to gamble on delivery"
+  },
+  "Fika": {
+    "title": "Meet Fika",
+    "subtitle": "Fekra's calm, friendly AI assistant — like a coffee break for your questions.",
+    "intro": "Fika is here to make conversations with Fekra easy: relaxed, helpful, and human.",
+    "cta": "Talk to Fika"
+  },
+  "Blog": {
+    "title": "Insights",
+    "subtitle": "Notes on outsourcing, delivery, and building trustworthy teams.",
+    "readMore": "Read article",
+    "relatedTitle": "Related articles",
+    "backToBlog": "Back to all articles",
+    "publishedOn": "Published on",
+    "by": "by"
+  },
+  "Careers": {
+    "title": "Careers at Fekra",
+    "subtitle": "Build a career with a team that takes delivery — and people — seriously.",
+    "openRoles": "Open roles",
+    "noRoles": "No open roles right now. Check back soon.",
+    "applyNow": "Apply now",
+    "backToCareers": "Back to all roles",
+    "location": "Location",
+    "type": "Type",
+    "department": "Department"
+  },
+  "ApplicationForm": {
+    "title": "Apply for this role",
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "linkedin": "LinkedIn profile",
+    "cv": "CV / Résumé (PDF, max 5MB)",
+    "message": "Anything you'd like us to know?",
+    "submit": "Submit application",
+    "submitting": "Submitting…",
+    "successTitle": "Application received",
+    "successBody": "Thank you — the Fekra team will review your application and be in touch.",
+    "errorGeneric": "Something went wrong. Please try again or email us directly."
+  },
+  "Contact": {
+    "title": "Let's talk",
+    "subtitle": "Tell us what you need and we'll get back to you quickly.",
+    "name": "Full name",
+    "email": "Work email",
+    "company": "Company",
+    "message": "How can we help?",
+    "submit": "Send message",
+    "submitting": "Sending…",
+    "successTitle": "Message sent",
+    "successBody": "Thanks for reaching out — we'll reply shortly.",
+    "errorGeneric": "Something went wrong. Please try again or email us directly.",
+    "bookTitle": "Prefer to book a time?",
+    "bookCta": "Schedule a meeting"
+  },
+  "Footer": {
+    "rights": "All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms",
+    "company": "Company",
+    "resources": "Resources"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "body": "The page you're looking for doesn't exist or has moved.",
+    "cta": "Back to home"
+  }
+}

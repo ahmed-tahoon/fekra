@@ -1,0 +1,21 @@
+# Fekra
+
+> Fekra is an outsourcing partner for international B2B clients, providing
+> reliable engineering, talent, and delivery. The website is bilingual
+> (English / Arabic) and covers services, the Fika AI assistant, a blog,
+> careers, and contact.
+
+## Pages
+- [Home](/en): Overview of Fekra and its outsourcing model.
+- [Services](/en/services): What Fekra offers.
+- [Fika](/en/fika): Fekra's calm, friendly AI assistant persona.
+- [Blog](/en/blog): Insights on outsourcing, delivery, and trust.
+- [Careers](/en/careers): Open roles and how to apply.
+- [Contact](/en/contact): Start a conversation or book a call.
+
+## Arabic
+- [الرئيسية](/ar)
+
+## Notes
+- Content is structured with semantic HTML and clear heading hierarchy.
+- No guarantees are made regarding AI-system visibility or rankings.
