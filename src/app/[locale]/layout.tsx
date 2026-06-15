@@ -7,7 +7,8 @@ import { Plus_Jakarta_Sans, Cairo } from 'next/font/google';
 import { routing, localeDirection, isValidLocale, type Locale } from '@/i18n/routing';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { SplashCursor } from '@/components/hero/splash-cursor';
-import { Header } from '@/components/layout/header';
+import { SiteHeader } from '@/components/hero/site-header';
+import { RouteProgress } from '@/components/layout/route-progress';
 import { DesktopOnly } from '@/components/layout/desktop-only';
 import { Analytics } from '@/components/analytics/analytics';
 import { JsonLd } from '@/components/seo/json-ld';
@@ -72,8 +73,9 @@ export default async function LocaleLayout({
         <SplashCursor />
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
+            <RouteProgress />
             <JsonLd data={[organizationSchema(), websiteSchema()]} />
-            <Header />
+            <SiteHeader />
             <main id="main" className="flex-1">
               {children}
             </main>

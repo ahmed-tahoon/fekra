@@ -22,9 +22,16 @@ const CLIENTS: string[] = [
   '/images/clients/braintech.svg',
 ];
 
-export function TrustedMarquee() {
+export function TrustedMarquee({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   // Duplicate the list so the -50% translate loops seamlessly.
   const row = [...CLIENTS, ...CLIENTS];
+
+  // On dark backgrounds the colored logos are flattened to white; on light
+  // backgrounds they keep their full color.
+  const imgTone =
+    tone === 'light'
+      ? 'opacity-100 dark:[filter:brightness(0)_invert(1)] dark:opacity-75'
+      : 'opacity-75 hover:opacity-100 [filter:brightness(0)_invert(1)]';
 
   return (
     <div
@@ -42,7 +49,7 @@ export function TrustedMarquee() {
               src={src}
               alt="Fekra client"
               loading="lazy"
-              className="h-11 w-auto object-contain opacity-75 transition-opacity duration-300 hover:opacity-100 sm:h-14 [filter:brightness(0)_invert(1)]"
+              className={`h-12 w-auto object-contain transition-all duration-300 sm:h-14 ${imgTone}`}
             />
           </li>
         ))}

@@ -17,6 +17,13 @@ export const contactSchema = z.object({
 
 export type ContactInput = z.infer<typeof contactSchema>;
 
+export const newsletterSchema = z.object({
+  email: z.string().email().max(200),
+  website: honeypot,
+});
+
+export type NewsletterInput = z.infer<typeof newsletterSchema>;
+
 export const applicationSchema = z.object({
   name: z.string().min(2).max(120),
   email: z.string().email().max(200),

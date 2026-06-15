@@ -6,6 +6,7 @@ import { Container } from '@/components/ui/container';
 import { Link } from '@/i18n/routing';
 import { Reveal } from './reveal';
 import { Parallax } from '@/components/effects/parallax';
+import { SectionDecor } from '@/components/decor/section-decor';
 
 type Accent = 'orange' | 'sky';
 
@@ -179,6 +180,7 @@ export function WhatWeDo() {
 
   return (
     <section className="snap-section relative overflow-hidden bg-[#f6f8fc] py-24 text-slate-900 sm:py-32">
+      <SectionDecor variant="features" />
       {/* nice light backdrop — parallax colour blobs + faint dot grid */}
       <Parallax speed={0.18} className="pointer-events-none absolute -left-40 top-0">
         <div className="h-[32rem] w-[32rem] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.16),transparent_70%)] blur-2xl" aria-hidden />

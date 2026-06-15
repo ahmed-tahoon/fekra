@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 import { Container } from '@/components/ui/container';
 import { ButtonLink } from '@/components/ui/button';
 import { ThemeToggle } from './theme-toggle';
-import { LanguageSwitcher } from './language-switcher';
 
 const NAV = [
   { href: '/services', key: 'services' },
@@ -58,7 +57,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-1">
-          <LanguageSwitcher />
+          {/* <LanguageSwitcher /> */}
           <ThemeToggle />
           <ButtonLink href="/contact" size="sm" className="hidden sm:inline-flex">
             {t('bookCall')}

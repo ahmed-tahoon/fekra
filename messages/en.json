@@ -24,7 +24,8 @@
     "toggleTheme": "Toggle theme",
     "switchLanguage": "العربية",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "scheduleCall": "Schedule a Call"
   },
   "TopBar": {
     "egypt": "+20 110 113 3572",
@@ -38,11 +39,27 @@
     "industries": ["Fintech", "Healthcare", "E-commerce", "Logistics"]
   },
   "Hero": {
-    "titlePre": "Grow Your Tech Project with Top ",
-    "rotating": ["JavaScript Developers", "Mobile App Developers", "QA Engineers", "Microsoft Developers"],
-    "subtitle": "Fekra is your nearshore partner — dedicated remote teams from Egypt & Saudi Arabia that help you build faster, operate smarter, and ship resilient software.",
-    "primaryCta": "Start a Project",
-    "secondaryCta": "Book a meeting"
+    "titleLead": "Build Reliable Teams With Our",
+    "titleAccent": "Vetted",
+    "roles": ["Full-Stack Engineers", "Backend Engineers", "Mobile Engineers", "QA Engineers", "DevOps Engineers", "Data Engineers"],
+    "subtitle": "Fekra helps companies scale with carefully vetted engineers, structured technical evaluation, and a transparent delivery process built for speed, quality, and trust.",
+    "primaryCta": "Schedule a Call",
+    "secondaryCta": "Book a Meeting",
+    "globalClients": "50+ Global Clients",
+    "stats": [
+      { "label": "Top Talents", "value": "100+" },
+      { "label": "Projects", "value": "80+" },
+      { "label": "Experience", "value": "8+" },
+      { "label": "Industries Served", "value": "30+" }
+    ],
+    "features": [
+      { "title": "Rigorous Vetting", "subtitle": "Top 3% Talent" },
+      { "title": "Fast & Reliable", "subtitle": "Quick Turnaround" },
+      { "title": "Transparent Process", "subtitle": "Built on Trust" }
+    ],
+    "captions": ["Top Talent", "Delivered Excellence", "Focused Support", "Client Success"],
+    "trustTitle": "50+ companies rely on our top 3% talent to scale their dev teams.",
+    "andMore": "and more"
   },
   "WhatWeDo": {
     "eyebrow": "What we do",
@@ -68,6 +85,19 @@
     "buildBadgeLabel": "Industries served",
     "buildImageHint": "Software solutions"
   },
+  "Vetting": {
+    "title": "Your Success Starts With Our Vetting Process",
+    "topLabel": "Top 3%",
+    "scrollHint": "Scroll to explore each step",
+    "steps": [
+      { "title": "Job application", "body": "We receive more than 2.5M+ applications from talented developers each year." },
+      { "title": "Online tests", "body": "The most promising candidates are assigned a variety of online tests." },
+      { "title": "HR interview", "body": "Next, we screen professionalism, adaptability, and communication skills with a deep-dive HR interview." },
+      { "title": "Written test", "body": "If all goes well, we examine creativity and problem-solving with some written tests." },
+      { "title": "Technical interview", "body": "The last step is a rigorous technical interview held by our in-house experts." },
+      { "title": "Done!", "body": "The top 3% of tech talent are hired and can start client delivery." }
+    ]
+  },
   "Home": {
     "heroTitle": "Outsourcing that feels like an in-house team",
     "heroSubtitle": "Fekra gives international B2B clients dependable engineering and talent — with the clarity, trust, and delivery that growing companies need.",
@@ -83,12 +113,66 @@
   },
   "Blog": {
     "title": "Insights",
-    "subtitle": "Notes on outsourcing, delivery, and building trustworthy teams.",
+    "subtitle": "Practical notes on outsourcing, delivery, and building trustworthy engineering teams.",
+    "eyebrow": "Fekra Blog",
+    "heroTitle": "Insights for building reliable teams",
+    "heroLead": "Insights & guides on",
+    "heroAccent": "building reliable teams",
+    "heroCountPre": "We have published over",
+    "heroCountWord": "articles",
+    "heroCountPost": "on various topics",
+    "allCategories": "All",
+    "more": "More",
+    "topics": [
+      "Artificial Intelligence",
+      "Cloud Computing",
+      "Mobile App Development",
+      "Website Development",
+      "Microsoft Technologies",
+      "Python",
+      "Startup",
+      "UI / UX",
+      "Software Development",
+      "Angular",
+      "WordPress Development"
+    ],
+    "moreTopics": [
+      "DevOps",
+      "Data Science and Analytics",
+      "React",
+      "Node.js",
+      "E-commerce",
+      "Cybersecurity",
+      "Blockchain",
+      "QA & Testing",
+      "Digital Marketing",
+      "Flutter",
+      "Game Development",
+      "Outsourcing"
+    ],
+    "featured": "Featured",
+    "minRead": "min read",
+    "noPosts": "No articles in this category yet.",
     "readMore": "Read article",
     "relatedTitle": "Related articles",
     "backToBlog": "Back to all articles",
     "publishedOn": "Published on",
-    "by": "by"
+    "by": "by",
+    "tableOfContents": "On this page",
+    "share": "Share",
+    "searchPlaceholder": "Search articles…",
+    "quickSummary": "Quick Summary",
+    "sidebarCtaTitle": "Looking to scale your engineering team?",
+    "sidebarCtaButton": "Schedule a Call",
+    "readBy": "Read by",
+    "aboutAuthor": "About the author",
+    "authorBio": "The Fekra team writes about outsourcing, engineering, and building reliable remote teams from Egypt & Saudi Arabia.",
+    "newsletterTitle": "Get the Fekra newsletter",
+    "newsletterSubtitle": "Practical notes on hiring, delivery, and scaling engineering teams — once a month, no noise.",
+    "newsletterPlaceholder": "Enter your email",
+    "newsletterCta": "Subscribe",
+    "newsletterSuccess": "You're in! We'll be in touch.",
+    "newsletterError": "Something went wrong. Please try again."
   },
   "Careers": {
     "title": "Careers at Fekra",

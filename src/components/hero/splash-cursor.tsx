@@ -82,6 +82,9 @@ export function SplashCursor({
     const pointers: any[] = [new (pointerPrototype as any)()];
 
     const { gl, ext } = getWebGLContext(canvas);
+    // Bail out gracefully where WebGL is unavailable (headless browsers,
+    // blocked contexts, some privacy modes) instead of crashing the page.
+    if (!gl) return;
     if (!ext.supportLinearFiltering) {
       config.DYE_RESOLUTION = 256;
       config.SHADING = false;
@@ -101,6 +104,18 @@ export function SplashCursor({
         gl =
           (canvas.getContext('webgl', params) as any) ||
           (canvas.getContext('experimental-webgl', params) as any);
+      if (!gl) {
+        return {
+          gl: null,
+          ext: {
+            formatRGBA: null,
+            formatRG: null,
+            formatR: null,
+            halfFloatTexType: 0,
+            supportLinearFiltering: false,
+          },
+        };
+      }
       let halfFloat;
       let supportLinearFiltering;
       if (isWebGL2) {
