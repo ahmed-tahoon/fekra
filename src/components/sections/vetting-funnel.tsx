@@ -184,6 +184,15 @@ export function VettingFunnel() {
           <span className="text-[#489bc2]">.</span>
         </h2>
 
+        <p
+          className={cn(
+            'mx-auto mt-4 max-w-3xl text-center text-base leading-7 text-slate-600 transition-all delay-100 duration-700 sm:text-lg dark:text-slate-300',
+            revealed ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0',
+          )}
+        >
+          {t('subtitle')}
+        </p>
+
         <div className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           {/* ── Funnel ── */}
           <div className="relative mx-auto w-full max-w-[480px]">
