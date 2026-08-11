@@ -1,0 +1,140 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "services": "Services",
+    "blog": "Blog",
+    "about": "À propos",
+    "careers": "Carrières",
+    "contact": "Nous contacter",
+    "fika": "Découvrir Fika",
+    "bookMeeting": "Réserver 30 minutes",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "skipToContent": "Aller au contenu"
+  },
+  "theme": {
+    "toggle": "Changer de thème",
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système"
+  },
+  "language": {
+    "switch": "Changer de langue",
+    "current": "Langue actuelle",
+    "unavailable": "Pas encore disponible dans cette langue"
+  },
+  "common": {
+    "readMore": "Lire la suite",
+    "learnMore": "En savoir plus",
+    "viewAll": "Tout voir",
+    "loading": "Chargement…",
+    "backToHome": "Retour à l'accueil",
+    "required": "Obligatoire",
+    "optional": "Facultatif",
+    "publishedOn": "Publié le",
+    "updatedOn": "Mis à jour le",
+    "minRead": "{minutes} min de lecture",
+    "breadcrumb": "Fil d'Ariane"
+  },
+  "form": {
+    "name": "Nom",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "company": "Entreprise",
+    "subject": "Objet",
+    "message": "Message",
+    "linkedin": "Profil LinkedIn",
+    "cv": "CV",
+    "cvHint": "PDF, DOC ou DOCX. 5 Mo maximum.",
+    "submit": "Envoyer",
+    "submitting": "Envoi…",
+    "apply": "Postuler à cette offre",
+    "success": "Merci — nous avons bien reçu votre message et reviendrons vers vous rapidement.",
+    "applicationSuccess": "Merci — votre candidature a bien été reçue.",
+    "error": "Une erreur est survenue. Réessayez ou écrivez-nous directement.",
+    "retry": "Réessayer",
+    "consent": "J'accepte le traitement de mes données conformément à la politique de confidentialité.",
+    "errors": {
+      "required": "Ce champ est obligatoire.",
+      "email": "Saisissez une adresse e-mail valide.",
+      "phone": "Saisissez un numéro valide, avec l'indicatif du pays.",
+      "url": "Saisissez une URL valide.",
+      "fileType": "Seuls les fichiers PDF, DOC et DOCX sont acceptés.",
+      "fileSize": "Ce fichier dépasse 5 Mo.",
+      "tooMany": "Trop de tentatives. Patientez une minute puis réessayez."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Analyses sur l'ingénierie, le recrutement et la livraison.",
+    "empty": "Aucun article publié pour le moment.",
+    "related": "Articles similaires",
+    "categories": "Catégories",
+    "allCategories": "Tout",
+    "by": "Par",
+    "heroPre": "Nous avons publié plus de",
+    "heroWord": "articles",
+    "heroPost": "sur des sujets variés",
+    "searchPlaceholder": "Rechercher un article…",
+    "more": "Plus",
+    "resultCount": "{count} articles",
+    "tableOfContents": "Sur cette page",
+    "quickSummary": "En bref",
+    "share": "Partager",
+    "backToBlog": "← Retour au blog",
+    "aboutAuthor": "À propos de l'auteur",
+    "authorBio": "Membre de l'équipe d'ingénierie FEKRA, nous écrivons sur la façon dont nous construisons et livrons avec des équipes distribuées.",
+    "sidebarCtaTitle": "Besoin d'ingénieurs disponibles ce mois-ci ?",
+    "sidebarCtaButton": "Parlons-en",
+    "newsletterTitle": "Recevez le prochain article",
+    "newsletterBody": "Des notes concrètes sur l'ingénierie, le recrutement et la livraison. Sans bruit."
+  },
+  "careers": {
+    "title": "Carrières",
+    "subtitle": "Rejoignez une équipe qui livre.",
+    "empty": "Aucun poste ouvert actuellement — revenez bientôt.",
+    "openRoles": "Postes ouverts",
+    "location": "Lieu",
+    "workModel": "Mode de travail",
+    "department": "Département",
+    "employmentType": "Type de contrat",
+    "applyNow": "Postuler",
+    "closed": "Ce poste n'accepte plus de candidatures."
+  },
+  "contact": {
+    "title": "Parlons de votre projet",
+    "subtitle": "Dites-nous ce que vous construisez, réponse sous un jour ouvré.",
+    "offices": "Notre présence mondiale",
+    "headquarters": "Siège social"
+  },
+  "meeting": {
+    "title": "Réserver un créneau de 30 minutes",
+    "subtitle": "Choisissez l'horaire qui vous convient. Sans engagement.",
+    "timezoneNote": "Les horaires sont affichés dans votre fuseau horaire.",
+    "consentRequired": "Acceptez les cookies marketing pour charger le calendrier de réservation.",
+    "openInNewTab": "Ouvrir la page de réservation dans un nouvel onglet"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "body": "La page recherchée n'existe pas ou a été déplacée.",
+    "cta": "Aller à l'accueil"
+  },
+  "error": {
+    "title": "Une erreur est survenue",
+    "body": "Nous avons rencontré une erreur inattendue. Veuillez réessayer.",
+    "retry": "Réessayer"
+  },
+  "consent": {
+    "title": "Nous utilisons des cookies",
+    "body": "Les cookies essentiels font fonctionner le site. Les cookies d'analyse et de marketing sont facultatifs.",
+    "acceptAll": "Tout accepter",
+    "essentialOnly": "Essentiels uniquement",
+    "preferences": "Préférences",
+    "save": "Enregistrer",
+    "analytics": "Analyse",
+    "marketing": "Marketing"
+  },
+  "a11y": {
+    "reducedMotionNote": "Les animations sont réduites selon votre préférence système."
+  }
+}

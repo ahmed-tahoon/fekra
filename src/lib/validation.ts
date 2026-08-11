@@ -1,0 +1,89 @@
+import { z } from 'zod'
+
+/**
+ * One schema per form, used by the client for instant feedback AND by the route
+ * handler as the authoritative check (21.2). The client copy is a convenience;
+ * the server never trusts it.
+ */
+
+/** 11.2 — accepts international formats instead of forcing a local shape. */
+const phone = z
+  .string()
+  .trim()
+  .regex(/^\+?[\d\s().-]{7,20}$/, 'phone')
+
+const attribution = z.object({
+  locale: z.string().max(5).optional(),
+  sourcePath: z.string().max(512).optional(),
+  utmSource: z.string().max(128).optional(),
+  utmMedium: z.string().max(128).optional(),
+  utmCampaign: z.string().max(128).optional(),
+  referrer: z.string().max(512).optional(),
+})
+
+/**
+ * Bot traps: `website` is a hidden field a human never fills, `startedAt` is the
+ * form render time — a submission faster than 2s is scripted (11.3 / 21.3).
+ * Both are cheap, invisible and add no friction for real prospects.
+ */
+const botTraps = z.object({
+  // Deliberately permissive: a filled honeypot must PARSE so the route can
+  // return a silent 200. Failing validation here would tell the bot it was
+  // caught (and would surface as a form error for the rare autofill victim).
+  website: z.string().optional(),
+  startedAt: z.coerce.number().optional(),
+})
+
+export const contactSchema = z
+  .object({
+    fullName: z.string().trim().min(2).max(120),
+    email: z.email().max(254),
+    phone: phone.optional().or(z.literal('')),
+    company: z.string().trim().max(160).optional(),
+    subject: z.string().trim().min(2).max(200),
+    message: z.string().trim().min(10).max(5000),
+    consent: z.literal(true),
+  })
+  .merge(botTraps)
+  .merge(attribution)
+
+export const newsletterSchema = z
+  .object({ email: z.email().max(254), path: z.string().max(512).optional(), locale: z.string().max(5).optional() })
+  .merge(botTraps)
+
+export const applicationSchema = z
+  .object({
+    fullName: z.string().trim().min(2).max(120),
+    email: z.email().max(254),
+    phone: phone,
+    linkedin: z.url().max(512).optional().or(z.literal('')),
+    coverNote: z.string().trim().max(3000).optional(),
+    jobId: z.union([z.string(), z.number()]),
+    consent: z.literal(true),
+  })
+  .merge(botTraps)
+  .merge(attribution)
+
+export type ContactInput = z.infer<typeof contactSchema>
+export type ApplicationInput = z.infer<typeof applicationSchema>
+
+export const CV = {
+  maxBytes: 5 * 1024 * 1024,
+  // 21.4 — allow-list by MIME *and* extension; anything else is rejected.
+  mimeTypes: [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ],
+  extensions: ['.pdf', '.doc', '.docx'],
+}
+
+export function validateCv(file: File): 'fileType' | 'fileSize' | null {
+  if (file.size > CV.maxBytes) return 'fileSize'
+  const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase()
+  if (!CV.mimeTypes.includes(file.type) || !CV.extensions.includes(ext)) return 'fileType'
+  return null
+}
+
+/** Minimum seconds between form render and submit for a human. */
+export const MIN_FILL_SECONDS = 2

@@ -1,43 +1,88 @@
-import { cn } from '@/lib/utils';
-import { Link } from '@/i18n/routing';
-import type { ComponentProps } from 'react';
+import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
+import type { ComponentProps, ReactNode } from 'react'
+
+import { cn } from '@/lib/cn'
+import type { ResolvedLink } from '@/lib/resolveLink'
+
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost'
+export type ButtonSize = 'sm' | 'md' | 'lg'
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-pill font-semibold whitespace-nowrap transition-colors duration-200 ' +
+  // 16.6 — 44px minimum touch target on every size.
+  'min-h-11 disabled:pointer-events-none disabled:opacity-50 ' +
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
 
-const variants = {
-  primary: 'bg-primary text-primary-foreground hover:opacity-90',
-  outline: 'border border-border bg-transparent hover:bg-muted',
-  ghost: 'hover:bg-muted',
-} as const;
-
-const sizes = {
-  sm: 'h-9 px-3',
-  md: 'h-11 px-5',
-  lg: 'h-12 px-7 text-base',
-} as const;
-
-type Variant = keyof typeof variants;
-type Size = keyof typeof sizes;
-
-export function buttonClasses(variant: Variant = 'primary', size: Size = 'md', className?: string) {
-  return cn(base, variants[variant], sizes[size], className);
+const variants: Record<ButtonVariant, string> = {
+  primary: 'bg-primary text-primary-foreground hover:bg-primary-hover',
+  secondary: 'border border-border bg-card text-foreground hover:bg-background-subtle',
+  ghost: 'text-foreground hover:bg-background-subtle',
 }
+
+const sizes: Record<ButtonSize, string> = {
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-6 py-3 text-sm',
+  lg: 'px-8 py-4 text-base',
+}
+
+export const buttonClass = (variant: ButtonVariant = 'primary', size: ButtonSize = 'md', className?: string) =>
+  cn(base, variants[variant], sizes[size], className)
 
 export function Button({
   variant = 'primary',
   size = 'md',
   className,
   ...props
-}: ComponentProps<'button'> & { variant?: Variant; size?: Size }) {
-  return <button className={buttonClasses(variant, size, className)} {...props} />;
+}: ComponentProps<'button'> & { variant?: ButtonVariant; size?: ButtonSize }) {
+  return <button className={buttonClass(variant, size, className)} {...props} />
 }
 
-export function ButtonLink({
+/**
+ * Renders a resolved CMS link. External links get rel="noopener" and an
+ * accessible "opens in a new tab" hint; internal links use next/link so the
+ * prefetch/scroll behaviour stays consistent.
+ */
+export function LinkButton({
+  link,
   variant = 'primary',
   size = 'md',
   className,
-  ...props
-}: ComponentProps<typeof Link> & { variant?: Variant; size?: Size }) {
-  return <Link className={buttonClasses(variant, size, className)} {...props} />;
+  withArrow,
+  children,
+}: {
+  link: ResolvedLink
+  variant?: ButtonVariant
+  size?: ButtonSize
+  className?: string
+  withArrow?: boolean
+  children?: ReactNode
+}) {
+  const content = (
+    <>
+      {children ?? link.label}
+      {withArrow ? <ArrowRight className="icon-flip size-4" aria-hidden /> : null}
+    </>
+  )
+  const cls = buttonClass(variant, size, className)
+
+  if (link.external) {
+    return (
+      <a
+        href={link.href}
+        className={cls}
+        target={link.newTab ? '_blank' : undefined}
+        rel={link.newTab ? 'noopener noreferrer' : undefined}
+        data-analytics-id={link.analyticsId}
+      >
+        {content}
+      </a>
+    )
+  }
+
+  return (
+    <Link href={link.href} className={cls} data-analytics-id={link.analyticsId}>
+      {content}
+    </Link>
+  )
 }

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["fra1"],
+  "git": { "deploymentEnabled": { "main": true } },
+  "functions": {
+    "src/app/api/apply/route.ts": { "maxDuration": 30 },
+    "src/app/sitemap.ts": { "maxDuration": 30 }
+  },
+  "headers": [
+    {
+      "source": "/cms-api/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/admin/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    }
+  ]
+}

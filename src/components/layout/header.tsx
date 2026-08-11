@@ -1,94 +1,137 @@
-'use client';
+import Image from 'next/image'
+import Link from 'next/link'
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { Link, usePathname } from '@/i18n/routing';
-import { cn } from '@/lib/utils';
-import { Container } from '@/components/ui/container';
-import { ButtonLink } from '@/components/ui/button';
-import { ThemeToggle } from './theme-toggle';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
+import { LinkButton } from '@/components/ui/Button'
+import type { Dictionary } from '@/i18n/getDictionary'
+import type { Locale } from '@/i18n/routing'
+import { localeHref } from '@/i18n/routing'
+import { resolveLink, type PayloadLink } from '@/lib/resolveLink'
 
-const NAV = [
-  { href: '/services', key: 'services' },
-  { href: '/fika', key: 'fika' },
-  { href: '/blog', key: 'blog' },
-  { href: '/careers', key: 'careers' },
-  { href: '/about', key: 'about' },
-] as const;
+import { MobileNav } from './MobileNav'
+import { NavLink } from './NavLink'
 
-export function Header() {
-  const t = useTranslations('Nav');
-  const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+export type HeaderData = {
+  items?: { link?: PayloadLink; children?: { link?: PayloadLink; description?: string }[] }[] | null
+  ctas?: { variant?: 'primary' | 'secondary' | 'ghost'; link?: PayloadLink }[] | null
+  announcement?: { enabled?: boolean; text?: string; link?: PayloadLink } | null
+}
 
-  // The homepage hero ships its own top bar + nav, so suppress the global one there.
-  if (pathname === '/') return null;
+export function Header({
+  data,
+  locale,
+  dict,
+  logo,
+  siteName,
+}: {
+  data: HeaderData
+  locale: Locale
+  dict: Dictionary
+  logo?: { light?: string | null; dark?: string | null }
+  siteName: string
+}) {
+  const items = (data.items ?? [])
+    .map((item) => ({
+      link: resolveLink(item.link, locale),
+      children: (item.children ?? [])
+        .map((c) => ({ link: resolveLink(c.link, locale), description: c.description }))
+        .filter((c) => c.link),
+    }))
+    .filter((i) => i.link)
+
+  const ctas = (data.ctas ?? [])
+    .map((c) => ({ variant: c.variant ?? 'primary', link: resolveLink(c.link, locale) }))
+    .filter((c) => c.link)
+
+  const announcement = data.announcement?.enabled ? resolveLink(data.announcement.link, locale) : null
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center" aria-label="Fekra — home">
-          <Image
-            src="/images/fekra-logo.webp"
-            alt="Fekra"
-            width={663}
-            height={198}
-            className="h-9 w-auto dark:[filter:brightness(0)_invert(1)]"
-          />
-        </Link>
+    <>
+      {/* 23.2 — first tab stop skips the whole nav. */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-100 focus:rounded-pill focus:bg-primary focus:px-5 focus:py-3 focus:text-primary-foreground"
+      >
+        {dict.nav.skipToContent}
+      </a>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-          {NAV.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted',
-                  active && 'text-primary font-medium',
-                )}
-              >
-                {t(item.key)}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="flex items-center gap-1">
-          {/* <LanguageSwitcher /> */}
-          <ThemeToggle />
-          <ButtonLink href="/contact" size="sm" className="hidden sm:inline-flex">
-            {t('bookCall')}
-          </ButtonLink>
-          <button
-            className="rounded-md p-2 md:hidden"
-            aria-label={open ? t('closeMenu') : t('openMenu')}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-          >
-            <span aria-hidden>{open ? '✕' : '☰'}</span>
-          </button>
+      {announcement ? (
+        <div className="bg-primary text-primary-foreground">
+          <div className="container-wide flex items-center justify-center gap-3 py-2 text-sm">
+            <span>{data.announcement?.text}</span>
+            <Link href={announcement.href} className="font-semibold underline underline-offset-4">
+              {announcement.label}
+            </Link>
+          </div>
         </div>
-      </Container>
+      ) : null}
 
-      {open && (
-        <nav className="border-t border-border md:hidden" aria-label="Mobile">
-          <Container className="flex flex-col py-2">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-3 text-sm hover:bg-muted"
-              >
-                {t(item.key)}
-              </Link>
-            ))}
-          </Container>
-        </nav>
-      )}
-    </header>
-  );
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
+        <div className="container-wide flex h-20 items-center justify-between gap-6">
+          <Link href={localeHref(locale, '/')} className="flex items-center gap-2" aria-label={siteName}>
+            {logo?.light ? (
+              <>
+                {/* 15.6 — a light-mode logo on a dark surface disappears; ship both. */}
+                <Image src={logo.light} alt={siteName} width={132} height={36} priority className="dark:hidden" />
+                <Image
+                  src={logo.dark ?? logo.light}
+                  alt={siteName}
+                  width={132}
+                  height={36}
+                  priority
+                  className="hidden dark:block"
+                />
+              </>
+            ) : (
+              <span className="font-display text-2xl font-bold tracking-tight">{siteName}</span>
+            )}
+          </Link>
+
+          <nav aria-label="Main" className="hidden lg:block">
+            <ul className="flex items-center gap-1">
+              {items.map((item) => (
+                <li key={item.link!.href} className="group relative">
+                  <NavLink link={item.link!} hasChildren={item.children.length > 0} />
+                  {item.children.length ? (
+                    <ul className="invisible absolute start-0 top-full z-50 min-w-64 rounded-card border border-border bg-card p-2 opacity-0 shadow-lift transition-[opacity,visibility] group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                      {item.children.map((child) => (
+                        <li key={child.link!.href}>
+                          <Link
+                            href={child.link!.href}
+                            className="block rounded-lg px-3 py-2 transition-colors hover:bg-background-subtle"
+                          >
+                            <span className="block text-sm font-medium">{child.link!.label}</span>
+                            {child.description ? (
+                              <span className="block text-xs text-muted-foreground">{child.description}</span>
+                            ) : null}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="flex items-center gap-1">
+            <LanguageSwitcher
+              current={locale}
+              labels={{ switch: dict.language.switch, unavailable: dict.language.unavailable }}
+            />
+            <ThemeToggle label={dict.theme.toggle} />
+
+            <div className="hidden lg:flex lg:items-center lg:gap-2 lg:ps-2">
+              {ctas.map((cta) => (
+                <LinkButton key={cta.link!.href} link={cta.link!} variant={cta.variant} size="sm" />
+              ))}
+            </div>
+
+            <MobileNav items={items} ctas={ctas} dict={dict} />
+          </div>
+        </div>
+      </header>
+    </>
+  )
 }

@@ -1,0 +1,140 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "services": "Servicios",
+    "blog": "Blog",
+    "about": "Nosotros",
+    "careers": "Empleo",
+    "contact": "Contacto",
+    "fika": "Conoce a Fika",
+    "bookMeeting": "Reservar 30 minutos",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "skipToContent": "Saltar al contenido"
+  },
+  "theme": {
+    "toggle": "Cambiar tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
+  "language": {
+    "switch": "Cambiar idioma",
+    "current": "Idioma actual",
+    "unavailable": "Aún no disponible en este idioma"
+  },
+  "common": {
+    "readMore": "Leer más",
+    "learnMore": "Saber más",
+    "viewAll": "Ver todo",
+    "loading": "Cargando…",
+    "backToHome": "Volver al inicio",
+    "required": "Obligatorio",
+    "optional": "Opcional",
+    "publishedOn": "Publicado el",
+    "updatedOn": "Actualizado el",
+    "minRead": "{minutes} min de lectura",
+    "breadcrumb": "Ruta de navegación"
+  },
+  "form": {
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "company": "Empresa",
+    "subject": "Asunto",
+    "message": "Mensaje",
+    "linkedin": "Perfil de LinkedIn",
+    "cv": "CV",
+    "cvHint": "PDF, DOC o DOCX. Máximo 5 MB.",
+    "submit": "Enviar",
+    "submitting": "Enviando…",
+    "apply": "Postular a esta vacante",
+    "success": "Gracias — recibimos tu mensaje y te responderemos pronto.",
+    "applicationSuccess": "Gracias — hemos recibido tu candidatura.",
+    "error": "Algo salió mal. Inténtalo de nuevo o escríbenos directamente.",
+    "retry": "Reintentar",
+    "consent": "Acepto el tratamiento de mis datos según la Política de Privacidad.",
+    "errors": {
+      "required": "Este campo es obligatorio.",
+      "email": "Introduce un correo electrónico válido.",
+      "phone": "Introduce un teléfono válido con código de país.",
+      "url": "Introduce una URL válida.",
+      "fileType": "Solo se aceptan archivos PDF, DOC y DOCX.",
+      "fileSize": "Este archivo supera los 5 MB.",
+      "tooMany": "Demasiados intentos. Espera un minuto e inténtalo de nuevo."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Ideas sobre ingeniería, contratación y entrega.",
+    "empty": "Todavía no hay artículos publicados.",
+    "related": "Artículos relacionados",
+    "categories": "Categorías",
+    "allCategories": "Todos",
+    "by": "Por",
+    "heroPre": "Hemos publicado más de",
+    "heroWord": "artículos",
+    "heroPost": "sobre distintos temas",
+    "searchPlaceholder": "Buscar artículos…",
+    "more": "Más",
+    "resultCount": "{count} artículos",
+    "tableOfContents": "En esta página",
+    "quickSummary": "En resumen",
+    "share": "Compartir",
+    "backToBlog": "← Volver al blog",
+    "aboutAuthor": "Sobre la autoría",
+    "authorBio": "Parte del equipo de ingeniería de FEKRA; escribimos sobre cómo construimos y entregamos software con equipos distribuidos.",
+    "sidebarCtaTitle": "¿Necesitas ingenieros que empiecen este mes?",
+    "sidebarCtaButton": "Hablemos",
+    "newsletterTitle": "Recibe el próximo en tu correo",
+    "newsletterBody": "Notas prácticas sobre ingeniería, contratación y entrega. Sin ruido."
+  },
+  "careers": {
+    "title": "Empleo",
+    "subtitle": "Únete a un equipo que entrega.",
+    "empty": "No hay vacantes abiertas ahora mismo — vuelve pronto.",
+    "openRoles": "Vacantes abiertas",
+    "location": "Ubicación",
+    "workModel": "Modelo de trabajo",
+    "department": "Departamento",
+    "employmentType": "Tipo de contrato",
+    "applyNow": "Postular ahora",
+    "closed": "Esta vacante ya no acepta candidaturas."
+  },
+  "contact": {
+    "title": "Hablemos de negocios",
+    "subtitle": "Cuéntanos qué estás construyendo y responderemos en un día hábil.",
+    "offices": "Nuestra presencia global",
+    "headquarters": "Sede central"
+  },
+  "meeting": {
+    "title": "Reserva una reunión de 30 minutos",
+    "subtitle": "Elige el horario que te venga bien. Sin compromiso.",
+    "timezoneNote": "Los horarios se muestran en tu zona horaria local.",
+    "consentRequired": "Acepta las cookies de marketing para cargar el calendario de reservas.",
+    "openInNewTab": "Abrir la página de reserva en una pestaña nueva"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "body": "La página que buscas no existe o se ha movido.",
+    "cta": "Ir al inicio"
+  },
+  "error": {
+    "title": "Algo salió mal",
+    "body": "Se produjo un error inesperado. Inténtalo de nuevo.",
+    "retry": "Reintentar"
+  },
+  "consent": {
+    "title": "Usamos cookies",
+    "body": "Las cookies esenciales mantienen el sitio en funcionamiento. Las de analítica y marketing son opcionales.",
+    "acceptAll": "Aceptar todo",
+    "essentialOnly": "Solo esenciales",
+    "preferences": "Preferencias",
+    "save": "Guardar",
+    "analytics": "Analítica",
+    "marketing": "Marketing"
+  },
+  "a11y": {
+    "reducedMotionNote": "Las animaciones se reducen según la preferencia de tu sistema."
+  }
+}
