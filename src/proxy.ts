@@ -5,6 +5,15 @@ import { DEFAULT_LOCALE, LOCALES, isLocale, negotiateLocale } from '@/i18n/routi
 const LOCALE_COOKIE = 'NEXT_LOCALE'
 
 /**
+ * Holding-page mode. Opt-in via env so it can never switch itself on at launch:
+ * an unset variable means the real site. The CMS (/admin, /cms-api) and the API
+ * routes are already excluded by the matcher below, so editors keep working
+ * while the public site is closed.
+ */
+const COMING_SOON = process.env.COMING_SOON === 'true'
+const SOON_PATH = '/coming-soon'
+
+/**
  * Locale routing + staging indexing guard (Next 16 `proxy` convention).
  *
  * URL policy (see i18n/routing.ts): English is unprefixed, other locales are
@@ -14,6 +23,15 @@ const LOCALE_COOKIE = 'NEXT_LOCALE'
  */
 export default function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
+
+  if (COMING_SOON) {
+    // Rewrite, not redirect: every URL keeps working and starts serving the
+    // real page the moment the flag is turned off, with nothing cached as a 3xx.
+    if (pathname === SOON_PATH) return NextResponse.next()
+    const response = NextResponse.rewrite(new URL(SOON_PATH, request.url))
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow')
+    return response
+  }
 
   // /en/about -> /about (301). Never leave two live URLs for the same content.
   if (pathname === `/${DEFAULT_LOCALE}` || pathname.startsWith(`/${DEFAULT_LOCALE}/`)) {

@@ -22,6 +22,13 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     return { rules: [{ userAgent: '*', disallow: '/' }] }
   }
 
+  // robots.txt and sitemap.xml carry a file extension, so the proxy matcher
+  // skips them and they would keep advertising pages that currently serve the
+  // holding page. Close the whole site while it is behind that page (18.13).
+  if (process.env.COMING_SOON === 'true') {
+    return { rules: [{ userAgent: '*', disallow: '/' }] }
+  }
+
   let policy = {
     allowSearchEngines: true,
     allowAiSearchBots: true,

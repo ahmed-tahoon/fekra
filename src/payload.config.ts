@@ -72,6 +72,12 @@ export default buildConfig({
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
     meta: { titleSuffix: ' · FEKRA CMS' },
+    components: {
+      graphics: {
+        Logo: '@/payload/admin/Logo#Logo',
+        Icon: '@/payload/admin/Logo#Icon',
+      },
+    },
     livePreview: {
       breakpoints: [
         { label: 'Mobile', name: 'mobile', width: 390, height: 844 },
