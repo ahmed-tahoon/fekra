@@ -113,3 +113,43 @@
 #nav-global-site-settings::before {
   mask-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M9.671%204.136a2.34%202.34%200%200%201%204.659%200%202.34%202.34%200%200%200%203.319%201.915%202.34%202.34%200%200%201%202.33%204.033%202.34%202.34%200%200%200%200%203.831%202.34%202.34%200%200%201-2.33%204.033%202.34%202.34%200%200%200-3.319%201.915%202.34%202.34%200%200%201-4.659%200%202.34%202.34%200%200%200-3.32-1.915%202.34%202.34%200%200%201-2.33-4.033%202.34%202.34%200%200%200%200-3.831A2.34%202.34%200%200%201%206.35%206.051a2.34%202.34%200%200%200%203.319-1.915%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%223%22%2F%3E%3C%2Fsvg%3E');
 }
+
+/* ── FEKRA brand mark ─────────────────────────────────────────────────────
+ * Lives here, not in a <style> tag inside the Logo component: Payload renders
+ * the Icon into the breadcrumb bar, where an inline <style> ended up painted
+ * as literal text (".fk-brand {…") next to the mark. A stylesheet is the only
+ * place CSS is guaranteed to be parsed as CSS.
+ *
+ * One element with a swapped background-image rather than two <img> toggled by
+ * `display` — Payload's own admin CSS wins that specificity fight and shows
+ * both marks at once.
+ */
+.fk-brand {
+  display: block;
+  background-image: url('/images/fekra-logo.webp');
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+}
+
+html[data-theme='dark'] .fk-brand {
+  background-image: url('/images/fekra-logo-white.webp');
+}
+
+/* Login and unauthorised screens: the full lockup (artwork is 663x198). */
+.fk-brand--full {
+  width: 214px;
+  height: 64px;
+  max-width: 62vw;
+}
+
+/*
+ * Nav and breadcrumb: the slot is small and roughly square, so the wide lockup
+ * would shrink to an illegible smear. Paint the artwork at the box height and
+ * let the narrow box clip it — what remains is the building glyph alone.
+ */
+.fk-brand--mark {
+  width: 22px;
+  height: 24px;
+  background-size: auto 100%;
+}
