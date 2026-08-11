@@ -1,0 +1,140 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "services": "Leistungen",
+    "blog": "Blog",
+    "about": "Über uns",
+    "careers": "Karriere",
+    "contact": "Kontakt",
+    "fika": "Fika kennenlernen",
+    "bookMeeting": "30-Min-Termin buchen",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "skipToContent": "Zum Inhalt springen"
+  },
+  "theme": {
+    "toggle": "Design wechseln",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System"
+  },
+  "language": {
+    "switch": "Sprache wechseln",
+    "current": "Aktuelle Sprache",
+    "unavailable": "In dieser Sprache noch nicht verfügbar"
+  },
+  "common": {
+    "readMore": "Weiterlesen",
+    "learnMore": "Mehr erfahren",
+    "viewAll": "Alle ansehen",
+    "loading": "Wird geladen…",
+    "backToHome": "Zurück zur Startseite",
+    "required": "Pflichtfeld",
+    "optional": "Optional",
+    "publishedOn": "Veröffentlicht am",
+    "updatedOn": "Aktualisiert am",
+    "minRead": "{minutes} Min. Lesezeit",
+    "breadcrumb": "Navigationspfad"
+  },
+  "form": {
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "company": "Unternehmen",
+    "subject": "Betreff",
+    "message": "Nachricht",
+    "linkedin": "LinkedIn-Profil",
+    "cv": "Lebenslauf",
+    "cvHint": "PDF, DOC oder DOCX. Maximal 5 MB.",
+    "submit": "Senden",
+    "submitting": "Wird gesendet…",
+    "apply": "Auf diese Stelle bewerben",
+    "success": "Vielen Dank — wir haben Ihre Nachricht erhalten und melden uns in Kürze.",
+    "applicationSuccess": "Vielen Dank — Ihre Bewerbung ist bei uns eingegangen.",
+    "error": "Etwas ist schiefgelaufen. Bitte erneut versuchen oder direkt per E-Mail melden.",
+    "retry": "Erneut versuchen",
+    "consent": "Ich stimme der Verarbeitung meiner Daten gemäß der Datenschutzerklärung zu.",
+    "errors": {
+      "required": "Dieses Feld ist erforderlich.",
+      "email": "Bitte eine gültige E-Mail-Adresse eingeben.",
+      "phone": "Bitte eine gültige Telefonnummer mit Ländervorwahl eingeben.",
+      "url": "Bitte eine gültige URL eingeben.",
+      "fileType": "Es werden nur PDF-, DOC- und DOCX-Dateien akzeptiert.",
+      "fileSize": "Diese Datei ist größer als 5 MB.",
+      "tooMany": "Zu viele Versuche. Bitte eine Minute warten und erneut versuchen."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Einblicke in Engineering, Recruiting und Delivery.",
+    "empty": "Noch keine Artikel veröffentlicht.",
+    "related": "Ähnliche Artikel",
+    "categories": "Kategorien",
+    "allCategories": "Alle",
+    "by": "Von",
+    "heroPre": "Wir haben über",
+    "heroWord": "Artikel",
+    "heroPost": "zu vielen Themen veröffentlicht",
+    "searchPlaceholder": "Artikel durchsuchen…",
+    "more": "Mehr",
+    "resultCount": "{count} Artikel",
+    "tableOfContents": "Auf dieser Seite",
+    "quickSummary": "Kurz gefasst",
+    "share": "Teilen",
+    "backToBlog": "← Zurück zum Blog",
+    "aboutAuthor": "Über die Autorenschaft",
+    "authorBio": "Teil des FEKRA-Engineering-Teams — wir schreiben darüber, wie wir Software mit verteilten Teams bauen und ausliefern.",
+    "sidebarCtaTitle": "Engineers, die diesen Monat starten können?",
+    "sidebarCtaButton": "Sprechen Sie mit uns",
+    "newsletterTitle": "Den nächsten Beitrag ins Postfach",
+    "newsletterBody": "Praktische Notizen zu Engineering, Recruiting und Delivery. Ohne Rauschen."
+  },
+  "careers": {
+    "title": "Karriere",
+    "subtitle": "Arbeiten Sie in einem Team, das liefert.",
+    "empty": "Aktuell keine offenen Stellen — schauen Sie bald wieder vorbei.",
+    "openRoles": "Offene Stellen",
+    "location": "Standort",
+    "workModel": "Arbeitsmodell",
+    "department": "Abteilung",
+    "employmentType": "Anstellungsart",
+    "applyNow": "Jetzt bewerben",
+    "closed": "Für diese Stelle werden keine Bewerbungen mehr angenommen."
+  },
+  "contact": {
+    "title": "Sprechen wir über Ihr Projekt",
+    "subtitle": "Erzählen Sie uns, was Sie bauen — wir antworten innerhalb eines Werktags.",
+    "offices": "Unsere Standorte weltweit",
+    "headquarters": "Hauptsitz"
+  },
+  "meeting": {
+    "title": "30-Minuten-Termin buchen",
+    "subtitle": "Wählen Sie einen passenden Termin. Unverbindlich.",
+    "timezoneNote": "Zeiten werden in Ihrer lokalen Zeitzone angezeigt.",
+    "consentRequired": "Marketing-Cookies akzeptieren, um den Buchungskalender zu laden.",
+    "openInNewTab": "Buchungsseite in neuem Tab öffnen"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "body": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+    "cta": "Zur Startseite"
+  },
+  "error": {
+    "title": "Etwas ist schiefgelaufen",
+    "body": "Es ist ein unerwarteter Fehler aufgetreten. Bitte erneut versuchen.",
+    "retry": "Erneut versuchen"
+  },
+  "consent": {
+    "title": "Wir verwenden Cookies",
+    "body": "Essenzielle Cookies halten die Website funktionsfähig. Analyse- und Marketing-Cookies sind optional.",
+    "acceptAll": "Alle akzeptieren",
+    "essentialOnly": "Nur essenzielle",
+    "preferences": "Einstellungen",
+    "save": "Auswahl speichern",
+    "analytics": "Analyse",
+    "marketing": "Marketing"
+  },
+  "a11y": {
+    "reducedMotionNote": "Animationen sind entsprechend Ihrer Systemeinstellung reduziert."
+  }
+}

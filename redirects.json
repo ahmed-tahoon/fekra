@@ -1,0 +1,5 @@
+[
+  { "from": "/home", "to": "/", "permanent": true },
+  { "from": "/blog/page/:n", "to": "/blog?page=:n", "permanent": true },
+  { "from": "/category/:slug", "to": "/blog?category=:slug", "permanent": true }
+]

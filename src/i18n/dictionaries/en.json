@@ -1,0 +1,140 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "blog": "Blog",
+    "about": "About",
+    "careers": "Careers",
+    "contact": "Contact Us",
+    "fika": "Meet Fika",
+    "bookMeeting": "Book a 30-Min Meeting",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "skipToContent": "Skip to content"
+  },
+  "theme": {
+    "toggle": "Switch theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "switch": "Change language",
+    "current": "Current language",
+    "unavailable": "Not available in this language yet"
+  },
+  "common": {
+    "readMore": "Read more",
+    "learnMore": "Learn more",
+    "viewAll": "View all",
+    "loading": "Loading…",
+    "backToHome": "Back to home",
+    "required": "Required",
+    "optional": "Optional",
+    "publishedOn": "Published on",
+    "updatedOn": "Updated on",
+    "minRead": "{minutes} min read",
+    "breadcrumb": "Breadcrumb"
+  },
+  "form": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "subject": "Subject",
+    "message": "Message",
+    "linkedin": "LinkedIn profile",
+    "cv": "CV / Resume",
+    "cvHint": "PDF, DOC or DOCX. Max 5 MB.",
+    "submit": "Send",
+    "submitting": "Sending…",
+    "apply": "Apply for this role",
+    "success": "Thank you — we received your message and will reply shortly.",
+    "applicationSuccess": "Thank you — your application has been received.",
+    "error": "Something went wrong. Please try again or email us directly.",
+    "retry": "Try again",
+    "consent": "I agree to the processing of my data as described in the Privacy Policy.",
+    "errors": {
+      "required": "This field is required.",
+      "email": "Enter a valid email address.",
+      "phone": "Enter a valid phone number, including country code.",
+      "url": "Enter a valid URL.",
+      "fileType": "Only PDF, DOC and DOCX files are accepted.",
+      "fileSize": "This file is larger than 5 MB.",
+      "tooMany": "Too many attempts. Please wait a minute and try again."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Insights on engineering, hiring and delivery.",
+    "empty": "No articles published yet.",
+    "related": "Related articles",
+    "categories": "Categories",
+    "allCategories": "All",
+    "by": "By",
+    "heroPre": "We have published over",
+    "heroWord": "articles",
+    "heroPost": "on various topics",
+    "searchPlaceholder": "Search articles…",
+    "more": "More",
+    "resultCount": "{count} articles",
+    "tableOfContents": "On this page",
+    "quickSummary": "In short",
+    "share": "Share",
+    "backToBlog": "← Back to blog",
+    "aboutAuthor": "About the author",
+    "authorBio": "Part of the FEKRA engineering team, writing about how we build and ship software with distributed teams.",
+    "sidebarCtaTitle": "Need engineers who can start this month?",
+    "sidebarCtaButton": "Talk to us",
+    "newsletterTitle": "Get the next one in your inbox",
+    "newsletterBody": "Practical notes on engineering, hiring and delivery. No noise."
+  },
+  "careers": {
+    "title": "Careers",
+    "subtitle": "Build with a team that ships.",
+    "empty": "No open roles right now — check back soon.",
+    "openRoles": "Open roles",
+    "location": "Location",
+    "workModel": "Work model",
+    "department": "Department",
+    "employmentType": "Employment type",
+    "applyNow": "Apply now",
+    "closed": "This role is no longer accepting applications."
+  },
+  "contact": {
+    "title": "Let's talk business",
+    "subtitle": "Tell us what you're building and we'll get back within one business day.",
+    "offices": "Our global presence",
+    "headquarters": "Headquarters"
+  },
+  "meeting": {
+    "title": "Book a 30-minute meeting",
+    "subtitle": "Pick a slot that suits you. No commitment.",
+    "timezoneNote": "Times are shown in your local timezone.",
+    "consentRequired": "Accept marketing cookies to load the booking calendar.",
+    "openInNewTab": "Open the booking page in a new tab"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you're looking for doesn't exist or has moved.",
+    "cta": "Go to homepage"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "We hit an unexpected error. Please try again.",
+    "retry": "Try again"
+  },
+  "consent": {
+    "title": "We use cookies",
+    "body": "Essential cookies keep the site working. Analytics and marketing cookies are optional.",
+    "acceptAll": "Accept all",
+    "essentialOnly": "Essential only",
+    "preferences": "Preferences",
+    "save": "Save choices",
+    "analytics": "Analytics",
+    "marketing": "Marketing"
+  },
+  "a11y": {
+    "reducedMotionNote": "Animations are reduced based on your system preference."
+  }
+}

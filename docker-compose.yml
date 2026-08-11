@@ -1,0 +1,20 @@
+# Local Postgres only. Production runs on Vercel + managed Postgres (see docs/HANDOVER.md).
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fekra
+      POSTGRES_PASSWORD: fekra
+      POSTGRES_DB: fekra
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U fekra']
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:

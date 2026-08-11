@@ -1,0 +1,2051 @@
+{
+  "info": {
+    "_postman_id": "6f63f3bc-5d6d-4c7f-bdd9-c3549223308c",
+    "name": "FEKRA — Sign-up & Content Journeys",
+    "description": "End-to-end API tests for the FEKRA website.\n\n**There is no public user registration in this project.** `users` is admin-only (`create: isAdmin`) and the agreed scope has no visitor accounts. The sign-up surface that does exist is covered here:\n\n1. Newsletter signup\n2. Contact enquiry\n3. Careers application (with CV upload)\n4. CMS authentication\n5. Content publish lifecycle\n\nLeave ~60s between full runs — the rate limiters are per-IP and per-minute.\n\nRun the folders **in order** — the rate-limit assertions depend on how many requests preceded them, and the content folder threads an id between requests.\n\nSetup:\n- Import `FEKRA.local.postman_environment.json`\n- `pnpm dev` and `pnpm seed` must have run\n- Postman → Settings → **disable** 'Automatically follow redirects'\n- Re-attach the two files in the Careers folder if Postman drops the relative paths",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0 · Smoke",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "description": "Uptime probe. Returns 503 if the database is unreachable (25.7)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('database reachable', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "robots.txt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/robots.txt",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "robots.txt"
+              ]
+            },
+            "description": "Production advertises the sitemap and allow-lists crawlers per Site Settings. Anything that is not production is disallow-all at the edge, whatever the CMS says (3.4)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.text();",
+                  "const isProd = pm.collectionVariables.get('env') === 'production';",
+                  "",
+                  "if (isProd) {",
+                  "  pm.test('advertises the sitemap', () => pm.expect(body).to.include('Sitemap:'));",
+                  "  pm.test('search engines are allowed', () => pm.expect(body).to.include('Googlebot'));",
+                  "  pm.test('admin surface is disallowed (21.10)', () => pm.expect(body).to.include('/admin'));",
+                  "} else {",
+                  "  // 3.4 — staging must be un-indexable, so it deliberately omits the sitemap.",
+                  "  pm.test('non-production is disallow-all', () => pm.expect(body).to.match(/User-Agent: \\*\\s*\\nDisallow: \\//));",
+                  "  pm.test('does not advertise a sitemap', () => pm.expect(body).to.not.include('Sitemap:'));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "sitemap.xml",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sitemap.xml",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sitemap.xml"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('has hreflang alternates (14.8)', () => pm.expect(pm.response.text()).to.include('xhtml:link'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "404 returns a real 404 (18.12)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/this-page-does-not-exist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "this-page-does-not-exist"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404, not a soft 200', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Is the app up, and is this environment safe to index?"
+    },
+    {
+      "name": "1 · Newsletter signup",
+      "item": [
+        {
+          "name": "Sign up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/newsletter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "newsletter"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{signupEmail}}\",\n  \"locale\": \"en\",\n  \"path\": \"/blog\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('signupEmail', `qa+news-${Date.now()}@example.com`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('accepted', () => pm.expect(pm.response.json().ok).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rejects an invalid email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/newsletter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "newsletter"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"not-an-email\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Honeypot is accepted but discarded",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/newsletter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "newsletter"
+              ]
+            },
+            "description": "A filled honeypot must look identical to success — telling a bot it was caught teaches it to pass next time.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bot@example.com\",\n  \"website\": \"http://spam.example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 (silent drop)', () => pm.response.to.have.status(200));",
+                  "pm.test('no error leaked', () => pm.expect(pm.response.json()).to.not.have.property('error'));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Footer and blog signup — POST /api/newsletter."
+    },
+    {
+      "name": "2 · Contact enquiry",
+      "item": [
+        {
+          "name": "Submit — valid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contact"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"QA Tester\",\n  \"email\": \"{{contactEmail}}\",\n  \"phone\": \"+201001234567\",\n  \"company\": \"Acme\",\n  \"subject\": \"Partnership enquiry\",\n  \"message\": \"We would like to discuss a long-term engineering engagement.\",\n  \"consent\": true,\n  \"startedAt\": \"{{startedAt}}\",\n  \"locale\": \"en\",\n  \"sourcePath\": \"/contact\",\n  \"utmSource\": \"postman\",\n  \"utmMedium\": \"qa\",\n  \"utmCampaign\": \"collection-run\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Older than MIN_FILL_SECONDS (2s) so the time-trap treats this as human.",
+                  "pm.collectionVariables.set('startedAt', Date.now() - 8000);",
+                  "pm.collectionVariables.set('contactEmail', `qa+contact-${Date.now()}@example.com`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('stored', () => pm.expect(pm.response.json().ok).to.be.true);",
+                  "// 11.7 / 22.6 — the GA4 conversion fires client-side only after this 2xx."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Field validation (422 + per-field codes)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contact"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Q\",\n  \"email\": \"nope\",\n  \"subject\": \"s\",\n  \"message\": \"short\",\n  \"consent\": true,\n  \"startedAt\": \"{{startedAt}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Older than MIN_FILL_SECONDS (2s) so the time-trap treats this as human.",
+                  "pm.collectionVariables.set('startedAt', Date.now() - 8000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('422', () => pm.response.to.have.status(422));",
+                  "const f = pm.response.json().fields;",
+                  "pm.test('names the bad fields', () => { pm.expect(f).to.have.property('fullName'); pm.expect(f).to.have.property('email'); pm.expect(f).to.have.property('message'); });",
+                  "pm.test('email code is specific', () => pm.expect(f.email).to.eql('email'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consent is mandatory (21.7)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contact"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"QA Tester\",\n  \"email\": \"qa@example.com\",\n  \"subject\": \"No consent\",\n  \"message\": \"This submission omits the consent checkbox entirely.\",\n  \"startedAt\": \"{{startedAt}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Older than MIN_FILL_SECONDS (2s) so the time-trap treats this as human.",
+                  "pm.collectionVariables.set('startedAt', Date.now() - 8000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Honeypot is accepted but discarded",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contact"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Spam Bot\",\n  \"email\": \"bot@example.com\",\n  \"subject\": \"Cheap links\",\n  \"message\": \"Buy backlinks now, best price guaranteed.\",\n  \"consent\": true,\n  \"website\": \"http://spam.example\",\n  \"startedAt\": \"{{startedAt}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Older than MIN_FILL_SECONDS (2s) so the time-trap treats this as human.",
+                  "pm.collectionVariables.set('startedAt', Date.now() - 8000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 (silent drop)', () => pm.response.to.have.status(200));",
+                  "pm.test('no error leaked', () => pm.expect(pm.response.json()).to.not.have.property('error'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Submitted faster than a human can type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contact"
+              ]
+            },
+            "description": "The form render time is echoed back; anything under 2s is scripted (11.3).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Fast Bot\",\n  \"email\": \"fast@example.com\",\n  \"subject\": \"Instant\",\n  \"message\": \"Filled and submitted in well under two seconds.\",\n  \"consent\": true,\n  \"startedAt\": \"{{startedAt}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Inside MIN_FILL_SECONDS — the time trap should swallow this.",
+                  "pm.collectionVariables.set('startedAt', Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 (silent drop)', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "POST /api/contact — validation, bot traps, attribution. Exactly five calls, which is the full per-minute budget; the 429 case lives in folder 7."
+    },
+    {
+      "name": "3 · Careers application",
+      "item": [
+        {
+          "name": "Find an open role",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/jobs?where[roleStatus][equals]=open&where[_status][equals]=published&limit=1&depth=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "jobs"
+              ],
+              "query": [
+                {
+                  "key": "where[roleStatus][equals]",
+                  "value": "open"
+                },
+                {
+                  "key": "where[_status][equals]",
+                  "value": "published"
+                },
+                {
+                  "key": "limit",
+                  "value": "1"
+                },
+                {
+                  "key": "depth",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Public read is filtered to published documents at the access-control layer, so no auth is needed here."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const docs = pm.response.json().docs;",
+                  "pm.test('at least one open role', () => pm.expect(docs.length, 'seed a job with `pnpm seed`').to.be.above(0));",
+                  "if (docs.length) {",
+                  "  pm.collectionVariables.set('jobId', docs[0].id);",
+                  "  pm.collectionVariables.set('jobSlug', docs[0].slug);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Job page is reachable and emits JobPosting schema (10.9)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/careers/{{jobSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "careers",
+                "{{jobSlug}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('JobPosting schema present', () => pm.expect(pm.response.text()).to.include('\"@type\":\"JobPosting\"'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject an executable disguised as a CV (21.4)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apply"
+              ]
+            },
+            "description": "Allow-list is by MIME *and* extension. Set the file to postman/fixtures/rejected.exe if Postman lost the path.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "fullName",
+                  "value": "QA Candidate",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "{{applicantEmail}}",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "+201009876543",
+                  "type": "text"
+                },
+                {
+                  "key": "linkedin",
+                  "value": "https://www.linkedin.com/in/qa-candidate",
+                  "type": "text"
+                },
+                {
+                  "key": "coverNote",
+                  "value": "Submitted by the Postman collection.",
+                  "type": "text"
+                },
+                {
+                  "key": "jobId",
+                  "value": "{{jobId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "consent",
+                  "value": "on",
+                  "type": "text"
+                },
+                {
+                  "key": "startedAt",
+                  "value": "{{startedAt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "type": "text"
+                },
+                {
+                  "key": "sourcePath",
+                  "value": "/careers/senior-full-stack-engineer",
+                  "type": "text"
+                },
+                {
+                  "key": "cv",
+                  "type": "file",
+                  "src": "fixtures/rejected.exe"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Older than MIN_FILL_SECONDS (2s) so the time-trap treats this as human.",
+                  "pm.collectionVariables.set('startedAt', Date.now() - 8000);",
+                  "pm.collectionVariables.set('applicantEmail', `qa+apply-${Date.now()}@example.com`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('422', () => pm.response.to.have.status(422));",
+                  "pm.test('rejected as a file-type problem', () => pm.expect(pm.response.json().fields.cv).to.eql('fileType'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Apply — valid PDF",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apply"
+              ]
+            },
+            "description": "Stores the CV in the private applicant-files collection under a derived filename and emails careersEmails.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "fullName",
+                  "value": "QA Candidate",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "{{applicantEmail}}",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "+201009876543",
+                  "type": "text"
+                },
+                {
+                  "key": "linkedin",
+                  "value": "https://www.linkedin.com/in/qa-candidate",
+                  "type": "text"
+                },
+                {
+                  "key": "coverNote",
+                  "value": "Submitted by the Postman collection.",
+                  "type": "text"
+                },
+                {
+                  "key": "jobId",
+                  "value": "{{jobId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "consent",
+                  "value": "on",
+                  "type": "text"
+                },
+                {
+                  "key": "startedAt",
+                  "value": "{{startedAt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "type": "text"
+                },
+                {
+                  "key": "sourcePath",
+                  "value": "/careers/senior-full-stack-engineer",
+                  "type": "text"
+                },
+                {
+                  "key": "cv",
+                  "type": "file",
+                  "src": "fixtures/sample-cv.pdf"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Older than MIN_FILL_SECONDS (2s) so the time-trap treats this as human.",
+                  "pm.collectionVariables.set('startedAt', Date.now() - 8000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('accepted', () => pm.expect(pm.response.json().ok).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Duplicate application is idempotent (10.7)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apply"
+              ]
+            },
+            "description": "Same email + same role. The unique index rejects the row; the candidate still sees success.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "fullName",
+                  "value": "QA Candidate",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "{{applicantEmail}}",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "+201009876543",
+                  "type": "text"
+                },
+                {
+                  "key": "linkedin",
+                  "value": "https://www.linkedin.com/in/qa-candidate",
+                  "type": "text"
+                },
+                {
+                  "key": "coverNote",
+                  "value": "Submitted by the Postman collection.",
+                  "type": "text"
+                },
+                {
+                  "key": "jobId",
+                  "value": "{{jobId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "consent",
+                  "value": "on",
+                  "type": "text"
+                },
+                {
+                  "key": "startedAt",
+                  "value": "{{startedAt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "type": "text"
+                },
+                {
+                  "key": "sourcePath",
+                  "value": "/careers/senior-full-stack-engineer",
+                  "type": "text"
+                },
+                {
+                  "key": "cv",
+                  "type": "file",
+                  "src": "fixtures/sample-cv.pdf"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Older than MIN_FILL_SECONDS (2s) so the time-trap treats this as human.",
+                  "pm.collectionVariables.set('startedAt', Date.now() - 8000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('accepted, flagged duplicate', () => { pm.expect(body.ok).to.be.true; pm.expect(body.duplicate).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "POST /api/apply — CV allow-list, dedupe. Exactly three apply calls, which is the full per-minute budget; the 429 case lives in folder 7."
+    },
+    {
+      "name": "4 · CMS authentication",
+      "item": [
+        {
+          "name": "Login — wrong password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/users/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "users",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"definitely-not-the-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401', () => pm.response.to.have.status(401));",
+                  "pm.test('no token issued', () => pm.expect(pm.response.json()).to.not.have.property('token'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/users/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Sets the payload-token cookie AND returns a bearer token. The collection uses the cookie; the token is stored for reference.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('token issued', () => pm.expect(body.token).to.be.a('string'));",
+                  "pm.test('admin role', () => pm.expect(body.user.role).to.eql('admin'));",
+                  "pm.collectionVariables.set('authToken', body.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Who am I",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('session resolves to the admin', () => pm.expect(pm.response.json().user.email).to.eql(pm.collectionVariables.get('adminEmail')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Write with a foreign Origin is refused (CSRF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "https://attacker.example"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/posts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "posts"
+              ]
+            },
+            "description": "Payload only accepts cookie-authenticated writes from allow-listed origins (payload.config.ts -> adminOrigins).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Should never be created\",\n  \"slug\": \"csrf-probe\",\n  \"_status\": \"draft\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Payload session auth and the CSRF origin guard."
+    },
+    {
+      "name": "5 · Content publish lifecycle",
+      "item": [
+        {
+          "name": "Create a draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/posts?locale=en",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "posts"
+              ],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "en"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman QA Article {{runStamp}}\",\n  \"slug\": \"postman-qa-{{runStamp}}\",\n  \"excerpt\": \"Created by the Postman collection to verify the publish pipeline.\",\n  \"availableLocales\": [\n    \"en\"\n  ],\n  \"_status\": \"draft\",\n  \"content\": {\n    \"root\": {\n      \"type\": \"root\",\n      \"format\": \"\",\n      \"indent\": 0,\n      \"version\": 1,\n      \"direction\": \"ltr\",\n      \"children\": [\n        {\n          \"type\": \"paragraph\",\n          \"format\": \"\",\n          \"indent\": 0,\n          \"version\": 1,\n          \"direction\": \"ltr\",\n          \"children\": [\n            {\n              \"type\": \"text\",\n              \"text\": \"Draft body.\",\n              \"format\": 0,\n              \"detail\": 0,\n              \"mode\": \"normal\",\n              \"style\": \"\",\n              \"version\": 1\n            }\n          ]\n        }\n      ]\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('runStamp', String(Date.now()));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201', () => pm.response.to.have.status(201));",
+                  "const doc = pm.response.json().doc;",
+                  "pm.collectionVariables.set('postId', doc.id);",
+                  "pm.collectionVariables.set('postSlug', doc.slug);",
+                  "pm.test('starts as a draft', () => pm.expect(doc._status).to.eql('draft'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Draft is NOT public",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blog/{{postSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blog",
+                "{{postSlug}}"
+              ]
+            },
+            "description": "Public reads are filtered to published documents at the access-control layer (4.8)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 while unpublished', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Draft is NOT in the public API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/posts?where[slug][equals]={{postSlug}}&depth=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "posts"
+              ],
+              "query": [
+                {
+                  "key": "where[slug][equals]",
+                  "value": "{{postSlug}}"
+                },
+                {
+                  "key": "depth",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Sent without the Origin header, but the cookie still authenticates the read — an anonymous client sees nothing."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "// Authenticated here, so the draft IS visible. The public check above is the real gate.",
+                  "pm.test('query succeeds', () => pm.expect(pm.response.json()).to.have.property('docs'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publish",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/posts/{{postId}}?locale=en",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "posts",
+                "{{postId}}"
+              ],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "en"
+                }
+              ]
+            },
+            "description": "afterChange fires revalidatePath for every locale of this path plus /blog and /sitemap.xml.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"_status\": \"published\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('published', () => pm.expect(pm.response.json().doc._status).to.eql('published'));",
+                  "pm.test('publishedAt backfilled', () => pm.expect(pm.response.json().doc.publishedAt).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Article is live immediately",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blog/{{postSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blog",
+                "{{postSlug}}"
+              ]
+            },
+            "description": "No restart, no waiting for the 15-minute timer — the publish hook purged the path."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('renders one H1', () => pm.expect((pm.response.text().match(/<h1/g) || []).length).to.eql(1));",
+                  "pm.test('BlogPosting schema present', () => pm.expect(pm.response.text()).to.include('\"@type\":\"BlogPosting\"'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listing shows it",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blog",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blog"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('card is on the index', () => pm.expect(pm.response.text()).to.include(pm.collectionVariables.get('postSlug')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sitemap includes it (18.5)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sitemap.xml",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sitemap.xml"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('listed', () => pm.expect(pm.response.text()).to.include(pm.collectionVariables.get('postSlug')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unpublish",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/posts/{{postId}}?locale=en",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "posts",
+                "{{postId}}"
+              ],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "en"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"_status\": \"draft\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Article is gone again",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blog/{{postSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blog",
+                "{{postSlug}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 after unpublish', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clean up",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/posts/{{postId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "posts",
+                "{{postId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Draft is private -> publish -> live -> unpublish -> delete."
+    },
+    {
+      "name": "6 · Localisation & security",
+      "item": [
+        {
+          "name": "/en/* redirects to the unprefixed canonical (18.3)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/en/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "en",
+                "contact"
+              ]
+            },
+            "description": "Turn OFF 'Automatically follow redirects' in Postman settings for this to assert correctly."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('308 or 200 after following', () => pm.expect([200, 301, 308]).to.include(pm.response.code));",
+                  "if (pm.response.code === 308) pm.test('targets /contact', () => pm.expect(pm.response.headers.get('Location')).to.include('/contact'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Arabic renders RTL (14.4 / 14.5)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ar/blog",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ar",
+                "blog"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('lang and dir are server-rendered', () => pm.expect(pm.response.text()).to.include('<html lang=\"ar\" dir=\"rtl\"'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "French blog",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fr/blog",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fr",
+                "blog"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('lang=fr', () => pm.expect(pm.response.text()).to.include('<html lang=\"fr\"'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Security headers (21.5)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "['X-Content-Type-Options','Referrer-Policy','Strict-Transport-Security','Permissions-Policy'].forEach((h) => {",
+                  "  pm.test(`${h} present`, () => pm.expect(pm.response.headers.has(h)).to.be.true);",
+                  "});",
+                  "pm.test('a CSP is set', () => pm.expect(pm.response.headers.has('Content-Security-Policy') || pm.response.headers.has('Content-Security-Policy-Report-Only')).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preview requires the secret (4.8)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preview?secret=wrong-secret&path=/blog",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preview"
+              ],
+              "query": [
+                {
+                  "key": "secret",
+                  "value": "wrong-secret"
+                },
+                {
+                  "key": "path",
+                  "value": "/blog"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Locale routing, RTL, headers, preview guard."
+    },
+    {
+      "name": "7 · Rate limiting",
+      "description": "Runs LAST on purpose. These probes deliberately exhaust the per-IP budget, so anything scheduled after them would get spurious 429s.\n\nThe limiters are 5/60s for contact and newsletter, 3/60s for apply. Leave ~60 seconds between full collection runs, or the functional folders will start with an empty budget and fail.",
+      "item": [
+        {
+          "name": "Contact — 6th submission in a minute",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contact"
+              ]
+            },
+            "description": "ponytail: the limiter is an in-process Map, so on serverless the real ceiling is limit x instances. Enough to stop a naive script; swap in Redis if a distributed limit is ever needed.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Rate Limit\",\n  \"email\": \"rl@example.com\",\n  \"subject\": \"Flood test\",\n  \"message\": \"Sixth submission from this IP inside the same minute.\",\n  \"consent\": true,\n  \"startedAt\": \"{{startedAt}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// The limiter is 5 requests / 60s per IP. Burn the budget first so this",
+                  "// request is deterministically the 6th, whatever ran before it.",
+                  "const url = pm.collectionVariables.get('baseUrl') + '/api/contact';",
+                  "const payload = (i) => ({",
+                  "  fullName: 'Warm Up', email: `warm${i}@example.com`, subject: 'Warm up',",
+                  "  message: 'Consuming the rate-limit budget before the assertion.',",
+                  "  consent: true, startedAt: Date.now() - 8000,",
+                  "});",
+                  "let sent = 0;",
+                  "for (let i = 0; i < 6; i += 1) {",
+                  "  pm.sendRequest({ url, method: 'POST', header: { 'Content-Type': 'application/json' },",
+                  "    body: { mode: 'raw', raw: JSON.stringify(payload(i)) } }, () => { sent += 1; });",
+                  "}",
+                  "pm.collectionVariables.set('startedAt', Date.now() - 8000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('429', () => pm.response.to.have.status(429));",
+                  "pm.test('tells the client when to retry', () => pm.expect(pm.response.headers.has('Retry-After')).to.be.true);",
+                  "pm.test('localisable error code', () => pm.expect(pm.response.json().fields.message).to.eql('tooMany'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Apply — 4th application in a minute",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apply"
+              ]
+            },
+            "description": "The apply limiter is 3/60s. This folder runs after the functional folders have already spent that budget, so the 429 is deterministic.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "fullName",
+                  "value": "QA Candidate",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "ratelimit@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "+201009876543",
+                  "type": "text"
+                },
+                {
+                  "key": "linkedin",
+                  "value": "https://www.linkedin.com/in/qa-candidate",
+                  "type": "text"
+                },
+                {
+                  "key": "coverNote",
+                  "value": "Submitted by the Postman collection.",
+                  "type": "text"
+                },
+                {
+                  "key": "jobId",
+                  "value": "{{jobId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "consent",
+                  "value": "on",
+                  "type": "text"
+                },
+                {
+                  "key": "startedAt",
+                  "value": "{{startedAt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "type": "text"
+                },
+                {
+                  "key": "sourcePath",
+                  "value": "/careers/senior-full-stack-engineer",
+                  "type": "text"
+                },
+                {
+                  "key": "cv",
+                  "type": "file",
+                  "src": "fixtures/sample-cv.pdf"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Older than MIN_FILL_SECONDS (2s) so the time-trap treats this as human.",
+                  "pm.collectionVariables.set('startedAt', Date.now() - 8000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('429 once the budget is spent', () => pm.response.to.have.status(429));",
+                  "pm.test('Retry-After present', () => pm.expect(pm.response.headers.has('Retry-After')).to.be.true);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "8 · Logout",
+      "item": [
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/users/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "users",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Session is gone",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cms-api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cms-api",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 with no user', () => pm.response.to.have.status(200));",
+                  "pm.test('no session', () => pm.expect(pm.response.json().user).to.be.oneOf([null, undefined]));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Runs last so the folders above keep their session."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Origin must match an entry in payload.config.ts -> adminOrigins,",
+          "// otherwise every authenticated write comes back as a bare 403.",
+          "if (!pm.collectionVariables.get('origin')) {",
+          "  pm.collectionVariables.set('origin', pm.collectionVariables.get('baseUrl'));",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Error responses must never carry a stack trace (21.11).",
+          "// Scoped to API/JSON responses: Next's *dev* server injects inline",
+          "// scripts full of node_modules paths into every HTML page, which is a",
+          "// dev artefact, not a leak — asserting on HTML here only produces noise.",
+          "const type = pm.response.headers.get('Content-Type') || '';",
+          "if (type.includes('application/json')) {",
+          "  const body = pm.response.text();",
+          "  pm.test('no stack trace leaked to the client (21.11)', () => {",
+          "    pm.expect(body).to.not.include('at async');",
+          "    pm.expect(body).to.not.include('node_modules/');",
+          "    pm.expect(body).to.not.match(/\\/Users\\/|\\/home\\//);",
+          "  });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "origin",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "env",
+      "value": "development"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@fekra-egy.com"
+    },
+    {
+      "key": "adminPassword",
+      "value": "ChangeMe123!"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    },
+    {
+      "key": "postId",
+      "value": ""
+    },
+    {
+      "key": "postSlug",
+      "value": ""
+    },
+    {
+      "key": "jobId",
+      "value": ""
+    },
+    {
+      "key": "jobSlug",
+      "value": ""
+    },
+    {
+      "key": "runStamp",
+      "value": ""
+    },
+    {
+      "key": "startedAt",
+      "value": ""
+    },
+    {
+      "key": "contactEmail",
+      "value": ""
+    },
+    {
+      "key": "signupEmail",
+      "value": ""
+    },
+    {
+      "key": "applicantEmail",
+      "value": ""
+    }
+  ]
+}

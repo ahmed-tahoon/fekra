@@ -1,0 +1,320 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens extracted from the approved Figma file
+ * ("New Website 21_7_2026.fig" → page "New website" → section "Website").
+ * Brand ramp is the "#20A2BC" swatch frame; type scale and radii are the
+ * measured values from the 1440px comps. Do not invent values here — if a new
+ * one is needed, it comes from the design file first (2.1 / 2.9).
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Brand — Figma "#20A2BC" ramp */
+  --color-brand-50: #eafafb;
+  --color-brand-100: #b6e8f2;
+  --color-brand-200: #98dae7;
+  --color-brand-300: #7accdc;
+  --color-brand-400: #3eb0c7;
+  --color-brand-500: #20a2bc;
+  --color-brand-600: #1a8499;
+  --color-brand-700: #146676;
+  --color-brand-800: #0e4854;
+  --color-brand-900: #082a31;
+  --color-brand-950: #020c0e;
+
+  /*
+   * Blog palette — lifted from the existing fekra-egy.com blog so the two read
+   * as the same publication. Note this blue (#489bc2) is NOT the Figma brand
+   * ramp (#20a2bc) used by the marketing pages; that is a deliberate,
+   * client-approved difference and is confined to /blog.
+   */
+  --color-blog-300: #6fb4d4;
+  --color-blog-400: #5cb1db;
+  --color-blog-500: #489bc2;
+  --color-blog-600: #2f7fb0;
+  --color-blog-700: #2f6d8c;
+  --color-blog-800: #3a8ab0;
+  --color-blog-surface: #f5f9fc;
+  --color-blog-ink: #0b1120;
+  --color-blog-band-from: #e7f2fb;
+  --color-blog-band-via: #eef6fb;
+
+  /* Supporting palette */
+  --color-navy-500: #326ec6;
+  --color-navy-700: #293b6a;
+  --color-navy-800: #273969;
+  --color-ink-900: #192424;
+  --color-ink-700: #424242;
+  --color-ink-500: #687170;
+  --color-canvas: #f1f2f9;
+  --color-canvas-2: #e1e2e8;
+  --color-success-600: #047857;
+  --color-warning-500: #ffb300;
+  --color-danger-600: #b91c1c;
+
+  /* Type — Space Grotesk display + Inter body, Arabic falls back to Noto Sans Arabic */
+  --font-display: var(--font-space-grotesk), var(--font-noto-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), var(--font-noto-arabic), ui-sans-serif, system-ui, sans-serif;
+
+  /* Scale measured from the comps: 12/14/16/18/20/24/30/40/48/60 */
+  --text-2xs: 0.625rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.5rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+
+  --radius-card: 1rem;
+  --radius-panel: 2rem;
+  --radius-pill: 9999px;
+
+  --container-site: 1280px;
+  /* Editorial pages run near full-bleed — only a gutter, no centred column. */
+  --container-wide: 1700px;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.06), 0 16px 40px rgb(0 0 0 / 0.1);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Semantic layer. Components only ever reference these, so light/dark and any
+ * future theme is a token swap and never a component rewrite (15.1).
+ */
+:root {
+  --background: #ffffff;
+  --background-subtle: var(--color-canvas);
+  --foreground: var(--color-ink-900);
+  --muted-foreground: var(--color-ink-500);
+  --card: #ffffff;
+  --card-foreground: var(--color-ink-900);
+  --border: #d9dcdf;
+  --input: #d9dcdf;
+  --primary: var(--color-brand-500);
+  --primary-hover: var(--color-brand-600);
+  --primary-foreground: #ffffff;
+  --accent: var(--color-navy-800);
+  --accent-foreground: #ffffff;
+  --ring: var(--color-brand-600);
+  --overlay: rgb(0 0 0 / 0.45);
+}
+
+.dark {
+  --background: #0b1013;
+  --background-subtle: #101819;
+  --foreground: #f1f2f9;
+  --muted-foreground: #9aa5a4;
+  --card: #131c1f;
+  --card-foreground: #f1f2f9;
+  --border: #24312f;
+  --input: #24312f;
+  --primary: var(--color-brand-400);
+  --primary-hover: var(--color-brand-300);
+  /* Brand-400 on dark needs a dark label to stay above 4.5:1 (15.5). */
+  --primary-foreground: #04181d;
+  --accent: var(--color-brand-100);
+  --accent-foreground: #04181d;
+  --ring: var(--color-brand-300);
+  --overlay: rgb(0 0 0 / 0.7);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-subtle: var(--background-subtle);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Sticky header height — anchors must not land under it. */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    /* 16.7 — nothing may scroll the page sideways. */
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* 23.3 — one visible focus ring, identical in both themes. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-brand-200);
+    color: var(--color-ink-900);
+  }
+
+  /* Arabic runs longer and sits lower — give it room without touching LTR. */
+  [dir='rtl'] body {
+    line-height: 1.85;
+  }
+
+  /* 17.11 — media reserves its box before it loads. */
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@layer utilities {
+  .container-site {
+    width: 100%;
+    max-width: var(--container-site);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-site {
+      padding-inline: 2rem;
+    }
+  }
+
+  /*
+   * Blog and other editorial layouts. Same rules as .container-site but with a
+   * much larger cap and tighter gutters, so the grid uses the screen instead of
+   * leaving a third of a wide monitor empty.
+   */
+  .container-wide {
+    width: 100%;
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-wide {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-wide {
+      padding-inline: 3rem;
+    }
+  }
+
+  .section {
+    padding-block: 4rem;
+  }
+
+  @media (min-width: 768px) {
+    .section {
+      padding-block: 6rem;
+    }
+  }
+
+  /* Slim brand scrollbar for the sticky table of contents. */
+  .scrollbar-slim {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(72 155 194 / 0.5) transparent;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar-thumb {
+    background-color: rgb(72 155 194 / 0.45);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(72 155 194 / 0.7);
+  }
+
+  .menu-in {
+    animation: menu-in 0.18s ease-out forwards;
+  }
+
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.35rem) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Logical properties everywhere so RTL mirrors for free (14.4). */
+  .icon-flip {
+    transition: transform 0.2s var(--ease-out-soft);
+  }
+
+  [dir='rtl'] .icon-flip {
+    transform: scaleX(-1);
+  }
+}
+
+/* 17.8 / 23.5 — honour the OS setting instead of shipping motion nobody asked for. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

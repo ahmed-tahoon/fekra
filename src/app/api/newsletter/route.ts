@@ -1,47 +1,37 @@
-import { NextResponse } from 'next/server';
-import { newsletterSchema } from '@/lib/validation/forms';
-import { getResend, emailFrom } from '@/lib/email/resend';
+import { NextResponse } from 'next/server'
 
-/**
- * Newsletter sign-up. Validates the email, then notifies Fekra via Resend when
- * configured; otherwise logs (so local/preview works without mail set up).
- */
+import { payloadClient } from '@/lib/payload'
+import { clientIp, rateLimit } from '@/lib/rate-limit'
+import { newsletterSchema } from '@/lib/validation'
+
+export const runtime = 'nodejs'
+
+/** Footer signup. Stored as a contact submission so there is one lead inbox. */
 export async function POST(request: Request) {
-  let body: unknown;
+  const limit = rateLimit(`newsletter:${clientIp(request)}`, 5, 60_000)
+  if (!limit.ok) return NextResponse.json({ error: 'rate_limited' }, { status: 429 })
+
+  const parsed = newsletterSchema.safeParse(await request.json().catch(() => null))
+  if (!parsed.success) return NextResponse.json({ error: 'invalid' }, { status: 422 })
+  if (parsed.data.website) return NextResponse.json({ ok: true })
+
+  const payload = await payloadClient()
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: 'invalid_json' }, { status: 400 });
-  }
-
-  const parsed = newsletterSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: 'invalid_input' }, { status: 422 });
-  }
-
-  const { email, website } = parsed.data;
-  if (website) {
-    // Honeypot tripped — pretend success, do nothing.
-    return NextResponse.json({ ok: true });
-  }
-
-  const resend = getResend();
-  const to = process.env.CONTACT_TO ?? 'info@fekra-egy.com';
-
-  try {
-    if (resend) {
-      await resend.emails.send({
-        from: emailFrom,
-        to,
-        subject: 'New newsletter subscriber',
-        text: `New subscriber: ${email}`,
-      });
-    } else {
-      console.info('[newsletter] new subscriber (no RESEND_API_KEY):', email);
-    }
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error('[newsletter] send failed', err);
-    return NextResponse.json({ ok: false, error: 'send_failed' }, { status: 500 });
+    await payload.create({
+      collection: 'contact-submissions',
+      overrideAccess: true,
+      data: {
+        fullName: parsed.data.email,
+        email: parsed.data.email,
+        subject: 'Newsletter signup',
+        message: 'Subscribed from the website footer.',
+        locale: parsed.data.locale,
+        sourcePath: parsed.data.path,
+      },
+    })
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    payload.logger.error({ err: error }, 'newsletter signup failed')
+    return NextResponse.json({ error: 'server_error' }, { status: 500 })
   }
 }
