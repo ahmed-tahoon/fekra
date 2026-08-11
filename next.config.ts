@@ -55,7 +55,9 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ['image/avif', 'image/webp'],
-    localPatterns: [{ pathname: '/cms-api/media/file/**' }],
+    // Setting localPatterns at all makes it an allow-list: anything not listed
+    // is a 400 from /_next/image. Both CMS uploads and static brand assets.
+    localPatterns: [{ pathname: '/cms-api/media/file/**' }, { pathname: '/images/**' }],
     remotePatterns: [
       ...(S3_HOST ? [{ protocol: 'https' as const, hostname: S3_HOST }] : []),
       { protocol: 'https', hostname: new URL(SITE_URL).hostname },
