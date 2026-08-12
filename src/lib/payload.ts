@@ -105,6 +105,10 @@ export async function staticSlugs(
   locale: Locale,
   limit = 500,
 ): Promise<{ slug: string }[]> {
+  // Behind the holding page these routes are rewritten before they render,
+  // so asking the CMS for slugs is only a slower build and noisier logs.
+  if (process.env.COMING_SOON === 'true') return []
+
   try {
     const { docs } = await findDocs<{ slug: string }>({ collection, locale, limit, depth: 0 })
     return docs.map(({ slug }) => ({ slug }))
