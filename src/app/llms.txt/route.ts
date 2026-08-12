@@ -11,10 +11,20 @@ export const revalidate = 3600
  * convention, not a ranking guarantee (19.12).
  */
 export async function GET() {
-  const payload = await payloadClient()
-  const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
-  const policy = settings.crawlerPolicy as { publishLlmsTxt?: boolean } | undefined
+  // Opt-in, and never while the public site is closed.
+  if (process.env.COMING_SOON === 'true') return new NextResponse('Not found', { status: 404 })
 
+  let payload
+  let settings
+  try {
+    payload = await payloadClient()
+    settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
+  } catch {
+    // Optional file — an unreachable CMS means 404, not a failed build.
+    return new NextResponse('Not found', { status: 404 })
+  }
+
+  const policy = settings.crawlerPolicy as { publishLlmsTxt?: boolean } | undefined
   if (!policy?.publishLlmsTxt) return new NextResponse('Not found', { status: 404 })
 
   const base = siteUrl()

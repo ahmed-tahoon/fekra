@@ -56,6 +56,10 @@ export const metadata: Metadata = {
 }
 
 export function generateStaticParams() {
+  // Behind the holding page every one of these routes is rewritten before it
+  // renders, so prerendering them only means the build needs a database it
+  // will never read. Returning [] lets the holding page deploy on its own.
+  if (process.env.COMING_SOON === 'true') return []
   return LOCALES.map((locale) => ({ locale }))
 }
 

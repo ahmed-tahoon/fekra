@@ -35,6 +35,9 @@ const localesOf = (doc: Indexable): Locale[] => {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Closed site: nothing is reachable, so advertise nothing.
+  if (process.env.COMING_SOON === 'true') return []
+
   const payload = await payloadClient()
 
   const query = async (collection: LinkableCollection) => {
@@ -50,12 +53,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return docs as unknown as Indexable[]
   }
 
-  const [pages, posts, services, jobs] = await Promise.all([
-    query('pages'),
-    query('posts'),
-    query('services'),
-    query('jobs'),
-  ])
+  // A sitemap is worth degrading for: an unreachable CMS should not fail the
+  // whole deploy, and the next revalidation picks the real list back up.
+  let pages: Indexable[] = []
+  let posts: Indexable[] = []
+  let services: Indexable[] = []
+  let jobs: Indexable[] = []
+  try {
+    ;[pages, posts, services, jobs] = await Promise.all([
+      query('pages'),
+      query('posts'),
+      query('services'),
+      query('jobs'),
+    ])
+  } catch (error) {
+    console.warn('sitemap: CMS unavailable, emitting static routes only —', error)
+  }
 
   const listings: MetadataRoute.Sitemap = [
     entry('/blog', [...LOCALES], undefined, 0.8),
