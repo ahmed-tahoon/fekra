@@ -137,7 +137,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   return (
     <section
       id={block.anchor ?? undefined}
-      className="relative overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-14 pb-0 dark:bg-none dark:bg-background"
+      className="relative -mt-24 overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-36 pb-0 dark:bg-none dark:bg-background"
     >
       <div className="container-wide">
         <div className="mx-auto flex max-w-[844px] flex-col items-center gap-6 text-center">

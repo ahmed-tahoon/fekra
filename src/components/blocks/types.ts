@@ -26,8 +26,12 @@ export const mediaUrl = (media: MediaDoc): string => {
   if (!url.startsWith('http')) return url
   try {
     const parsed = new URL(url)
-    const site = process.env.NEXT_PUBLIC_SITE_URL
-    if (site && parsed.host === new URL(site).host) return `${parsed.pathname}${parsed.search}`
+    // Anything under the CMS route is served by THIS app, whatever host it is
+    // reached on — localhost, a vercel.app preview, or the live domain. Making
+    // it relative is what stops next/image having to agree on protocol, host
+    // and port; matching on NEXT_PUBLIC_SITE_URL alone silently failed on
+    // every preview deployment.
+    if (parsed.pathname.startsWith('/cms-api/')) return `${parsed.pathname}${parsed.search}`
     return url
   } catch {
     return url
