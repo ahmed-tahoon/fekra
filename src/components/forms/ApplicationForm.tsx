@@ -138,7 +138,7 @@ export function ApplicationForm({
       </label>
 
       {status === 'error' ? (
-        <p role="alert" className="text-sm font-medium text-[--color-danger-600]">
+        <p role="alert" className="text-sm font-medium text-danger-600">
           {dict.form.error}
         </p>
       ) : null}

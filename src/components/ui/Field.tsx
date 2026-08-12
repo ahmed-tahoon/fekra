@@ -7,7 +7,7 @@ import { cn } from '@/lib/cn'
 const controlClass =
   'w-full rounded-card border border-input bg-card px-4 py-3 text-base text-foreground ' +
   'placeholder:text-muted-foreground/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ' +
-  'aria-[invalid=true]:border-[--color-danger-600]'
+  'aria-[invalid=true]:border-danger-600'
 
 /**
  * One labelled control. The label is always a real <label for>, the error is
@@ -45,7 +45,7 @@ export function Field({
       <label htmlFor={id} className="text-sm font-medium text-foreground">
         {label}
         {required ? (
-          <span className="text-[--color-danger-600]" aria-hidden>
+          <span className="text-danger-600" aria-hidden>
             {' *'}
           </span>
         ) : null}
@@ -66,7 +66,7 @@ export function Field({
       ) : null}
 
       {error ? (
-        <p id={errorId} role="alert" className="text-xs font-medium text-[--color-danger-600]">
+        <p id={errorId} role="alert" className="text-xs font-medium text-danger-600">
           {error}
         </p>
       ) : null}

@@ -55,7 +55,7 @@ export function MobileNav({
         onClose={() => setOpen(false)}
         onCancel={() => setOpen(false)}
         aria-label="Main"
-        className="m-0 h-dvh max-h-none w-full max-w-none bg-background p-0 text-foreground backdrop:bg-[--overlay] lg:hidden"
+        className="m-0 h-dvh max-h-none w-full max-w-none bg-background p-0 text-foreground backdrop:bg-[var(--overlay)] lg:hidden"
       >
         <div className="flex h-full flex-col">
           <div className="flex h-20 items-center justify-end px-5">

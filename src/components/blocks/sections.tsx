@@ -15,17 +15,17 @@ import { mediaAlt, mediaUrl } from './types'
 
 /* Measured from the comp: the two greens carry navy text, the darker two white. */
 const STAT_TONE = {
-  green: 'bg-[--color-tile-green] text-navy-800',
-  emerald: 'bg-[--color-tile-emerald] text-navy-800',
-  indigo: 'bg-[--color-tile-indigo] text-white',
-  teal: 'bg-[--color-tile-teal] text-white',
+  green: 'bg-tile-green text-navy-800',
+  emerald: 'bg-tile-emerald text-navy-800',
+  indigo: 'bg-tile-indigo text-white',
+  teal: 'bg-tile-teal text-white',
 } as const
 
 const TILE_CORNER = {
-  tl: 'rounded-tl-[--radius-tile]',
-  tr: 'rounded-tr-[--radius-tile]',
-  bl: 'rounded-bl-[--radius-tile]',
-  br: 'rounded-br-[--radius-tile]',
+  tl: 'rounded-tl-tile',
+  tr: 'rounded-tr-tile',
+  bl: 'rounded-bl-tile',
+  br: 'rounded-br-tile',
 } as const
 
 /*
@@ -111,7 +111,10 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       return (
         <div className={cn('flex size-full flex-col justify-end p-5', corner, STAT_TONE[item.tone ?? 'green'])}>
           <span className="font-display text-lg leading-tight tracking-[-0.04em] md:text-2xl">{item.label}</span>
-          <span className="mt-3 font-display text-2xl font-bold tracking-[-0.04em] md:text-[40px] md:leading-8">
+          <span
+            dir="ltr"
+            className="mt-3 font-display text-2xl font-bold tracking-[-0.04em] md:text-[40px] md:leading-8"
+          >
             {item.value}
           </span>
         </div>
@@ -119,7 +122,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
     }
 
     return (
-      <div className={cn('relative size-full overflow-hidden bg-[--color-tile-mist]', corner)}>
+      <div className={cn('relative size-full overflow-hidden bg-tile-mist', corner)}>
         {image?.url ? (
           <Image
             src={mediaUrl(image)}
@@ -142,7 +145,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       <div className="container-wide">
         <div className="mx-auto flex max-w-[844px] flex-col items-center gap-6 text-center">
           {block.trustLine ? (
-            <p className="inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3.5 py-1.5 text-sm font-medium tracking-[0.35px] text-[--color-ink-500] dark:border-border dark:bg-card">
+            <p className="inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3.5 py-1.5 text-sm font-medium tracking-[0.35px] text-ink-500 dark:border-border dark:bg-card">
               <span aria-hidden className="size-2 shrink-0 rounded-pill bg-primary" />
               {block.trustLine}
             </p>
@@ -158,7 +161,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           </Title>
 
           {block.body ? (
-            <p className="text-lg/7 text-[--color-ink-500] dark:text-muted-foreground">{block.body}</p>
+            <p className="text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p>
           ) : null}
 
           {block.bullets?.length ? (
@@ -168,7 +171,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
                 return (
                   <li
                     key={bullet.text}
-                    className="flex items-center gap-1 text-sm text-[--color-ink-500] dark:text-muted-foreground"
+                    className="flex items-center gap-1 text-sm text-ink-500 dark:text-muted-foreground"
                   >
                     {icon?.url ? (
                       <Image
@@ -238,7 +241,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
             {block.stats.map((stat) => (
               <div key={stat.label}>
                 <dt className="text-sm text-muted-foreground">{stat.label}</dt>
-                <dd className="font-display text-3xl font-bold text-primary">{stat.value}</dd>
+                <dd dir="ltr" className="font-display text-3xl font-bold text-primary">{stat.value}</dd>
               </div>
             ))}
           </dl>
@@ -360,7 +363,7 @@ export function StatsSection({ block }: { block: BlockProps }) {
         <dl className="mt-10 grid grid-cols-2 gap-8 text-center md:grid-cols-4">
           {(block.items ?? []).map((item, i) => (
             <div key={i} className="rounded-card border border-border bg-card p-6">
-              <dd className="font-display text-4xl font-bold text-primary">{item.value}</dd>
+              <dd dir="ltr" className="font-display text-4xl font-bold text-primary">{item.value}</dd>
               <dt className="mt-2 text-sm text-muted-foreground">{item.label}</dt>
             </div>
           ))}
@@ -490,7 +493,7 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
           className={cn(
             'flex flex-col items-center gap-6 rounded-panel px-6 py-14 text-center md:px-16',
             tone === 'brand' && 'bg-primary text-primary-foreground',
-            tone === 'ink' && 'bg-[--color-ink-900] text-white',
+            tone === 'ink' && 'bg-ink-900 text-white',
             tone === 'subtle' && 'border border-border bg-background-subtle',
           )}
         >
@@ -670,7 +673,10 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
                         <span className="text-muted-foreground">{person.experience}</span>
                       ) : null}
                       {typeof person.match === 'number' ? (
-                        <span className="rounded-pill bg-emerald-500/12 px-2 py-0.5 font-semibold text-emerald-700 dark:text-emerald-300">
+                        <span
+                          dir="ltr"
+                          className="rounded-pill bg-emerald-500/12 px-2 py-0.5 font-semibold text-emerald-700 dark:text-emerald-300"
+                        >
                           Match: {person.match}%
                         </span>
                       ) : null}
