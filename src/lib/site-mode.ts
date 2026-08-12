@@ -46,3 +46,15 @@ export function describeSiteMode(): string {
   }
   return 'full site'
 }
+
+/**
+ * Is DATABASE_URL pointing at a database on this machine?
+ *
+ * Drizzle's dev-mode `push` diffs the config against the live schema on every
+ * start. Against a local database that is instant and convenient; against a
+ * remote one it introspects 407 tables over the network — slow enough to hang
+ * the dev server — and, far worse, it would happily push schema changes into
+ * production. Schema changes belong in migrations.
+ */
+export const isLocalDatabase = (): boolean =>
+  /@(localhost|127\.0\.0\.1|\[::1\]|db|host\.docker\.internal)[:/]/.test(process.env.DATABASE_URL ?? '')

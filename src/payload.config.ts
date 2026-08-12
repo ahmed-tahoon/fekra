@@ -28,6 +28,7 @@ import { ApplicantFiles, ContactSubmissions, JobApplications } from './payload/c
 import { Users } from './payload/collections/Users'
 import { Footer, Header, SiteSettings } from './payload/globals'
 import { documentPath, siteUrl, type LinkableCollection } from './lib/urls'
+import { isLocalDatabase } from './lib/site-mode'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -136,7 +137,8 @@ export default buildConfig({
 
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URL || '' },
-    push: process.env.NODE_ENV !== 'production',
+    // Only ever auto-push against a local throwaway database (see isLocalDatabase).
+    push: process.env.NODE_ENV !== 'production' && isLocalDatabase(),
   }),
 
   email: process.env.RESEND_API_KEY
