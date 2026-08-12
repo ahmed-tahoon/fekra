@@ -13,12 +13,43 @@ import { RotatingWords } from './RotatingWords'
 import type { BlockProps, MediaDoc } from './types'
 import { mediaAlt, mediaUrl } from './types'
 
+/* Measured from the comp: the two greens carry navy text, the darker two white. */
 const STAT_TONE = {
-  brand: 'bg-brand-500 text-white',
-  emerald: 'bg-emerald-500 text-white',
-  indigo: 'bg-indigo-600 text-white',
-  ink: 'bg-[--color-ink-900] text-white',
+  green: 'bg-[--color-tile-green] text-navy-800',
+  emerald: 'bg-[--color-tile-emerald] text-navy-800',
+  indigo: 'bg-[--color-tile-indigo] text-white',
+  teal: 'bg-[--color-tile-teal] text-white',
 } as const
+
+const TILE_CORNER = {
+  tl: 'rounded-tl-[--radius-tile]',
+  tr: 'rounded-tr-[--radius-tile]',
+  bl: 'rounded-bl-[--radius-tile]',
+  br: 'rounded-br-[--radius-tile]',
+} as const
+
+/*
+ * The collage from the Figma frame, as percentages of its 1408x456 box.
+ * Absolute px would not survive a resize, so each tile keeps its exact
+ * proportions and the whole board scales with an aspect ratio. Tiles beyond
+ * this preset fall back to a plain grid, so adding one in the CMS never
+ * breaks the layout.
+ */
+const MOSAIC_LAYOUT = [
+  { left: 0, top: 0, width: 12.358, height: 59.211 },
+  { left: 13.352, top: 13.158, width: 11.222, height: 46.053 },
+  { left: 25.568, top: 23.904, width: 11.648, height: 30.921 },
+  { left: 25.568, top: 58.333, width: 11.648, height: 41.667 },
+  { left: 38.21, top: 25, width: 12.997, height: 75 },
+  { left: 52.202, top: 35.307, width: 11.506, height: 40.351 },
+  { left: 52.202, top: 79.167, width: 11.506, height: 20.833 },
+  { left: 64.702, top: 23.684, width: 11.861, height: 31.14 },
+  { left: 64.702, top: 58.333, width: 22.94, height: 41.667 },
+  { left: 77.557, top: 14.254, width: 10.085, height: 40.57 },
+  { left: 88.636, top: 2.412, width: 11.364, height: 59.211 },
+  { left: 88.636, top: 65.132, width: 11.364, height: 35.088 },
+  { left: 0, top: 62.719, width: 24.574, height: 37.281 },
+] as const
 
 /** Shared section heading. One H2 per section keeps the outline honest (18.4). */
 function SectionHeading({
@@ -68,45 +99,88 @@ function Ctas({ ctas, locale, size = 'lg' }: { ctas?: BlockProps['ctas']; locale
 }
 
 export function HeroSection({ block, locale, isFirst }: { block: BlockProps; locale: Locale; isFirst: boolean }) {
-  const media = block.media as MediaDoc | undefined
   const words = (block.rotatingWords ?? []).map((w) => w.text).filter(Boolean)
   const mosaic = block.mosaic ?? []
   const Title = isFirst ? 'h1' : 'h2'
 
+  const tile = (item: (typeof mosaic)[number], index: number) => {
+    const image = item.image as MediaDoc | undefined
+    const corner = TILE_CORNER[item.corner ?? 'tl']
+
+    if (item.kind === 'stat') {
+      return (
+        <div className={cn('flex size-full flex-col justify-end p-5', corner, STAT_TONE[item.tone ?? 'green'])}>
+          <span className="font-display text-lg leading-tight tracking-[-0.04em] md:text-2xl">{item.label}</span>
+          <span className="mt-3 font-display text-2xl font-bold tracking-[-0.04em] md:text-[40px] md:leading-8">
+            {item.value}
+          </span>
+        </div>
+      )
+    }
+
+    return (
+      <div className={cn('relative size-full overflow-hidden bg-[--color-tile-mist]', corner)}>
+        {image?.url ? (
+          <Image
+            src={mediaUrl(image)}
+            alt={mediaAlt(image)}
+            fill
+            sizes="(min-width: 768px) 25vw, 50vw"
+            priority={isFirst && index < 4}
+            className="object-cover"
+          />
+        ) : null}
+      </div>
+    )
+  }
+
   return (
-    <section id={block.anchor ?? undefined} className="section pt-10 md:pt-16">
+    <section
+      id={block.anchor ?? undefined}
+      className="relative overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-14 pb-0 dark:bg-none dark:bg-background"
+    >
       <div className="container-wide">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-6 text-center">
           {block.trustLine ? (
-            <p className="inline-flex items-center gap-2 rounded-pill border border-border bg-card px-4 py-1.5 text-sm text-muted-foreground">
-              <span aria-hidden className="size-1.5 rounded-pill bg-primary" />
+            <p className="inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3.5 py-1.5 text-sm font-medium tracking-[0.35px] text-[--color-ink-500] dark:border-border dark:bg-card">
+              <span aria-hidden className="size-2 shrink-0 rounded-pill bg-primary" />
               {block.trustLine}
             </p>
           ) : null}
 
-          {/* The H1 always contains complete text — the rotation only swaps
-              the trailing phrase, which is server-rendered too (19.2). */}
-          <Title className="text-4xl leading-[1.12] text-balance md:text-5xl lg:text-6xl">
-            {block.heading}{' '}
-            {words.length ? (
-              <RotatingWords words={words} />
-            ) : block.headingAccent ? (
-              <span className="text-primary">{block.headingAccent}</span>
-            ) : null}
+          <Title className="font-display text-[clamp(2.25rem,5.2vw,3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground">
+            {block.heading}
+            <br />
+            {/* Second line is a gradient fill in the comp, teal -> blue. */}
+            <span className="bg-[linear-gradient(137.53deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+              {words.length ? <RotatingWords words={words} /> : block.headingAccent}
+            </span>
           </Title>
 
-          {block.body ? <p className="max-w-2xl text-lg text-muted-foreground">{block.body}</p> : null}
+          {block.body ? (
+            <p className="text-lg/7 text-[--color-ink-500] dark:text-muted-foreground">{block.body}</p>
+          ) : null}
 
           {block.bullets?.length ? (
-            <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+            <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
               {block.bullets.map((bullet) => {
                 const icon = bullet.icon as MediaDoc | undefined
                 return (
-                  <li key={bullet.text} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <li
+                    key={bullet.text}
+                    className="flex items-center gap-1 text-sm text-[--color-ink-500] dark:text-muted-foreground"
+                  >
                     {icon?.url ? (
-                      <Image src={mediaUrl(icon)} alt="" width={16} height={16} className="size-4" aria-hidden />
+                      <Image
+                        src={mediaUrl(icon)}
+                        alt=""
+                        width={17}
+                        height={16}
+                        aria-hidden
+                        className="h-4 w-[17px] shrink-0"
+                      />
                     ) : (
-                      <span aria-hidden className="size-1.5 rounded-pill bg-primary" />
+                      <span aria-hidden className="size-1.5 shrink-0 rounded-pill bg-primary" />
                     )}
                     {bullet.text}
                   </li>
@@ -115,68 +189,51 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
             </ul>
           ) : null}
 
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="mt-2 flex flex-wrap justify-center gap-4">
             <Ctas ctas={block.ctas} locale={locale} />
           </div>
         </div>
+      </div>
 
-        {mosaic.length ? (
-          /* Bento grid. Tiles flow in the order the editor set them; `span`
-             controls how much room each one takes on larger screens. */
-          <ul className="mt-14 grid auto-rows-[130px] grid-cols-2 gap-3 sm:grid-cols-4 md:auto-rows-[150px] lg:grid-cols-6">
-            {mosaic.map((tile, index) => {
-              const image = tile.image as MediaDoc | undefined
-              const span = cn(
-                tile.span === 'tall' && 'row-span-2',
-                tile.span === 'wide' && 'col-span-2',
-              )
-
-              if (tile.kind === 'stat') {
-                return (
-                  <li
-                    key={index}
-                    className={cn(
-                      'flex flex-col justify-end rounded-panel p-5',
-                      STAT_TONE[tile.tone ?? 'brand'],
-                      span,
-                    )}
-                  >
-                    <span className="text-sm/5 opacity-90">{tile.label}</span>
-                    <span className="font-display text-3xl font-bold md:text-4xl">{tile.value}</span>
-                  </li>
-                )
-              }
-
+      {mosaic.length ? (
+        <>
+          {/* Desktop: the collage, positioned exactly as designed. Full-bleed —
+              it runs past the container to the viewport edges. */}
+          <div className="relative mt-12 hidden aspect-[1408/456] w-full md:block">
+            {mosaic.map((item, index) => {
+              const pos = MOSAIC_LAYOUT[index]
+              if (!pos) return null
               return (
-                <li key={index} className={cn('relative overflow-hidden rounded-panel bg-background-subtle', span)}>
-                  {image?.url ? (
-                    <Image
-                      src={mediaUrl(image)}
-                      alt={mediaAlt(image)}
-                      fill
-                      sizes="(min-width: 1024px) 20vw, 50vw"
-                      priority={isFirst && index < 4}
-                      className="object-cover"
-                    />
-                  ) : null}
-                </li>
+                <div
+                  key={index}
+                  className="absolute"
+                  style={{
+                    left: `${pos.left}%`,
+                    top: `${pos.top}%`,
+                    width: `${pos.width}%`,
+                    height: `${pos.height}%`,
+                  }}
+                >
+                  {tile(item, index)}
+                </div>
               )
             })}
-          </ul>
-        ) : media ? (
-          <div className="relative mt-14 aspect-16/9 w-full overflow-hidden rounded-panel bg-background-subtle">
-            <Image
-              src={mediaUrl(media)}
-              alt={mediaAlt(media)}
-              fill
-              sizes="100vw"
-              priority={isFirst}
-              className="object-cover"
-            />
           </div>
-        ) : null}
 
-        {block.stats?.length ? (
+          {/* Mobile: the collage would be unreadable at 390px, so the same
+              tiles become a simple two-column board. */}
+          <ul className="mt-10 grid auto-rows-[120px] grid-cols-2 gap-3 px-4 md:hidden">
+            {mosaic.map((item, index) => (
+              <li key={index} className={cn(item.span === 'tall' && 'row-span-2', item.span === 'wide' && 'col-span-2')}>
+                {tile(item, index)}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+
+      {block.stats?.length ? (
+        <div className="container-wide">
           <dl className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
             {block.stats.map((stat) => (
               <div key={stat.label}>
@@ -185,8 +242,8 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
               </div>
             ))}
           </dl>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </section>
   )
 }

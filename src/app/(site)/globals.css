@@ -41,6 +41,20 @@
   --color-blog-band-from: #e7f2fb;
   --color-blog-band-via: #eef6fb;
 
+  /*
+   * Hero collage — measured from the Figma "Hero" frame (node 1:10198).
+   * These greens and the indigo are not in the brand ramp; they only ever
+   * appear on hero stat cards, so they live in their own namespace.
+   */
+  --color-tile-green: #04f3ac;
+  --color-tile-emerald: #09e4af;
+  --color-tile-indigo: #4439d0;
+  --color-tile-teal: #1ab2b9;
+  --color-tile-sky: #92ddec;
+  --color-tile-mist: #e8f6f8;
+  /* The one corner every tile rounds, at the 1440 comp width. */
+  --radius-tile: clamp(28px, 5.7vw, 80px);
+
   /* Supporting palette */
   --color-navy-500: #326ec6;
   --color-navy-700: #293b6a;

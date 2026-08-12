@@ -70,7 +70,8 @@ export type BlockProps = {
     | {
         kind?: 'image' | 'stat'
         span?: 'normal' | 'tall' | 'wide'
-        tone?: 'brand' | 'emerald' | 'indigo' | 'ink'
+        tone?: 'green' | 'emerald' | 'indigo' | 'teal'
+        corner?: 'tl' | 'tr' | 'bl' | 'br'
         image?: unknown
         value?: string | null
         label?: string | null

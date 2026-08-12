@@ -285,7 +285,8 @@ export interface HeroBlock {
     | {
         kind?: ('image' | 'stat') | null;
         span?: ('normal' | 'tall' | 'wide') | null;
-        tone?: ('brand' | 'emerald' | 'indigo' | 'ink') | null;
+        tone?: ('green' | 'emerald' | 'indigo' | 'teal') | null;
+        corner?: ('tl' | 'tr' | 'bl' | 'br') | null;
         image?: (number | null) | Media;
         value?: string | null;
         label?: string | null;
@@ -1492,6 +1493,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
         kind?: T;
         span?: T;
         tone?: T;
+        corner?: T;
         image?: T;
         value?: T;
         label?: T;

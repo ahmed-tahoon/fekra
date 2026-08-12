@@ -73,7 +73,8 @@ export const HeroBlock: Block = {
       // an image with a stat card sitting on it.
       name: 'mosaic',
       type: 'array',
-      maxRows: 12,
+      // The approved collage is 13 tiles; leave room to extend it.
+      maxRows: 16,
       labels: { singular: 'Tile', plural: 'Mosaic tiles' },
       fields: [
         {
@@ -103,15 +104,29 @@ export const HeroBlock: Block = {
             {
               name: 'tone',
               type: 'select',
-              defaultValue: 'brand',
+              defaultValue: 'green',
               options: [
-                { label: 'Brand', value: 'brand' },
+                { label: 'Green', value: 'green' },
                 { label: 'Emerald', value: 'emerald' },
                 { label: 'Indigo', value: 'indigo' },
-                { label: 'Ink', value: 'ink' },
+                { label: 'Teal', value: 'teal' },
               ],
               admin: { width: '33%', condition: (_, sibling) => sibling?.kind === 'stat' },
             },
+          ],
+        },
+        {
+          // Every tile rounds exactly one corner by 80px; the comp alternates
+          // which one, and that alternation is what gives the collage its
+          // rhythm. It is a content decision, so the editor owns it.
+          name: 'corner',
+          type: 'select',
+          defaultValue: 'tl',
+          options: [
+            { label: 'Top left', value: 'tl' },
+            { label: 'Top right', value: 'tr' },
+            { label: 'Bottom left', value: 'bl' },
+            { label: 'Bottom right', value: 'br' },
           ],
         },
         {

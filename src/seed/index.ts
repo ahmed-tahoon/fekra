@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { getPayload } from 'payload'
 import config from '../payload.config'
 
@@ -76,6 +79,37 @@ async function upsert<T extends { id: number; title?: string }>(
     return (await payload.update({ ...(args as object), id: first.id, data } as never)) as unknown as T
   }
   return (await payload.create({ ...(args as object), data: { ...data, slug } } as never)) as unknown as T
+}
+
+/**
+ * Uploads a file from public/images into the Media collection, keyed by
+ * filename so re-running the seed reuses the existing document.
+ */
+async function upsertMedia(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  file: string,
+  alt: string,
+): Promise<{ id: number } | null> {
+  // Media converts rasters to webp on upload, so the stored filename is not
+  // the one passed in. Look for both or every run creates duplicates.
+  const stored = file.replace(/\.(png|jpe?g)$/i, '.webp')
+  const existing = await payload.find({
+    collection: 'media',
+    where: { or: [{ filename: { equals: file } }, { filename: { equals: stored } }] },
+    limit: 1,
+    depth: 0,
+  })
+  if (existing.docs[0]) return existing.docs[0] as unknown as { id: number }
+
+  const path = join(process.cwd(), 'public', 'images', 'hero', file)
+  if (!existsSync(path)) return null
+
+  return (await payload.create({
+    collection: 'media',
+    data: { alt },
+    filePath: path,
+    context: { disableRevalidate: true },
+  })) as unknown as { id: number }
 }
 
 const run = async () => {
@@ -329,6 +363,16 @@ const run = async () => {
     _status: 'published',
   })
 
+  // Hero assets, exported from the Figma frame.
+  const icons = await Promise.all(
+    ['icon-1.svg', 'icon-2.svg', 'icon-3.svg'].map((f) => upsertMedia(payload, f, '')),
+  )
+  const tiles = await Promise.all(
+    Array.from({ length: 9 }, (_, i) => `tile-0${i + 1}.png`).map((f) =>
+      upsertMedia(payload, f, 'FEKRA engineers at work'),
+    ),
+  )
+
   const home = await upsert<{ id: number }>(payload, 'pages', 'home', {
     title: 'Home',
     availableLocales: ['en'],
@@ -339,7 +383,7 @@ const run = async () => {
         trustLine: 'Trusted by 50+ innovative companies',
         heading: 'Scale Your Team Faster With',
         headingAccent: 'AI Engineers',
-        body: 'Fekra helps companies scale with carefully vetted software engineers, structured technical evaluation, and a transparent delivery process built for speed, quality and trust.',
+        body: 'Fekra helps companies scale with carefully vetted software engineers, structured technical evaluation, and a transparent delivery process built for speed, quality, and trust.',
         rotatingWords: [
           { text: 'AI Engineers' },
           { text: 'Full-Stack Engineers' },
@@ -350,22 +394,27 @@ const run = async () => {
           { text: 'Data Engineers' },
         ],
         bullets: [
-          { text: 'Vetted in days, not weeks' },
-          { text: 'Structured technical evaluation' },
-          { text: 'Flexible engagement models' },
+          { text: 'Vetted in days, not weeks', icon: icons[0]?.id },
+          { text: 'Structured technical evaluation', icon: icons[1]?.id },
+          { text: 'Transparent delivery process', icon: icons[2]?.id },
         ],
         ctas: [{ variant: 'primary', link: route('Schedule a Call', '/meeting', 'booking_cta_click') }],
-        // Bento grid: stat cards sit between the photography, as in the comp.
+        // Order matters: each entry maps to a fixed slot in MOSAIC_LAYOUT,
+        // which mirrors the Figma collage tile for tile.
         mosaic: [
-          { kind: 'image', span: 'normal' },
-          { kind: 'stat', span: 'normal', tone: 'brand', value: '100+', label: 'Top Talents' },
-          { kind: 'image', span: 'wide' },
-          { kind: 'stat', span: 'normal', tone: 'indigo', value: '8+', label: 'Experience' },
-          { kind: 'image', span: 'normal' },
-          { kind: 'stat', span: 'normal', tone: 'emerald', value: '20+', label: 'Tech Stack' },
-          { kind: 'image', span: 'wide' },
-          { kind: 'stat', span: 'normal', tone: 'ink', value: '80+', label: 'Projects' },
-          { kind: 'image', span: 'normal' },
+          { kind: 'image', corner: 'tl', image: tiles[0]?.id },
+          { kind: 'stat', corner: 'tr', tone: 'green', value: '100+', label: 'Top Talents' },
+          { kind: 'image', corner: 'tr', image: tiles[1]?.id },
+          { kind: 'stat', corner: 'tr', tone: 'teal', value: '80+', label: 'Projects' },
+          { kind: 'image', corner: 'tr', image: tiles[2]?.id },
+          { kind: 'stat', corner: 'tl', tone: 'indigo', value: '8+', label: 'Experience' },
+          { kind: 'image', corner: 'tr', image: tiles[3]?.id },
+          { kind: 'image', corner: 'tl', image: tiles[4]?.id },
+          { kind: 'image', corner: 'tr', image: tiles[5]?.id },
+          { kind: 'stat', corner: 'tr', tone: 'emerald', value: '20+', label: 'Tech Stack' },
+          { kind: 'image', corner: 'tl', image: tiles[6]?.id },
+          { kind: 'image', corner: 'tr', image: tiles[7]?.id },
+          { kind: 'image', corner: 'tr', image: tiles[8]?.id },
         ],
       },
       {
