@@ -140,10 +140,10 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   return (
     <section
       id={block.anchor ?? undefined}
-      className="relative -mt-24 overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-36 pb-0 dark:bg-none dark:bg-background"
+      className="relative -mt-24 flex flex-col overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-28 pb-0 md:min-h-dvh dark:bg-none dark:bg-background"
     >
-      <div className="container-wide">
-        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-6 text-center">
+      <div className="container-wide shrink-0">
+        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-5 text-center">
           {block.trustLine ? (
             <p className="inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3.5 py-1.5 text-sm font-medium tracking-[0.35px] text-ink-500 dark:border-border dark:bg-card">
               <span aria-hidden className="size-2 shrink-0 rounded-pill bg-primary" />
@@ -202,7 +202,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
         <>
           {/* Desktop: the collage, positioned exactly as designed. Full-bleed —
               it runs past the container to the viewport edges. */}
-          <div className="relative mt-12 hidden aspect-[1408/456] w-full md:block">
+          <div className="relative mt-10 hidden min-h-[240px] w-full flex-1 md:block">
             {mosaic.map((item, index) => {
               const pos = MOSAIC_LAYOUT[index]
               if (!pos) return null
