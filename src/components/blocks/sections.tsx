@@ -9,8 +9,16 @@ import { cn } from '@/lib/cn'
 import { faqSchema } from '@/lib/jsonld'
 import { resolveLink } from '@/lib/resolveLink'
 
+import { RotatingWords } from './RotatingWords'
 import type { BlockProps, MediaDoc } from './types'
 import { mediaAlt, mediaUrl } from './types'
+
+const STAT_TONE = {
+  brand: 'bg-brand-500 text-white',
+  emerald: 'bg-emerald-500 text-white',
+  indigo: 'bg-indigo-600 text-white',
+  ink: 'bg-[--color-ink-900] text-white',
+} as const
 
 /** Shared section heading. One H2 per section keeps the outline honest (18.4). */
 function SectionHeading({
@@ -61,50 +69,122 @@ function Ctas({ ctas, locale, size = 'lg' }: { ctas?: BlockProps['ctas']; locale
 
 export function HeroSection({ block, locale, isFirst }: { block: BlockProps; locale: Locale; isFirst: boolean }) {
   const media = block.media as MediaDoc | undefined
+  const words = (block.rotatingWords ?? []).map((w) => w.text).filter(Boolean)
+  const mosaic = block.mosaic ?? []
+  const Title = isFirst ? 'h1' : 'h2'
+
   return (
-    <section id={block.anchor ?? undefined} className="section pt-12 md:pt-20">
-      <div className="container-site grid items-center gap-12 lg:grid-cols-2">
-        <div className="flex flex-col items-start gap-6">
+    <section id={block.anchor ?? undefined} className="section pt-10 md:pt-16">
+      <div className="container-wide">
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
           {block.trustLine ? (
-            <p className="rounded-pill border border-border px-4 py-1.5 text-sm text-muted-foreground">
+            <p className="inline-flex items-center gap-2 rounded-pill border border-border bg-card px-4 py-1.5 text-sm text-muted-foreground">
+              <span aria-hidden className="size-1.5 rounded-pill bg-primary" />
               {block.trustLine}
             </p>
           ) : null}
-          <SectionHeading
-            eyebrow={block.eyebrow}
-            heading={block.heading}
-            headingAccent={block.headingAccent}
-            body={block.body}
-            center={false}
-            /* The hero on the first block owns the page H1 (18.4). */
-            as={isFirst ? 'h1' : 'h2'}
-          />
-          <Ctas ctas={block.ctas} locale={locale} />
 
-          {block.stats?.length ? (
-            <dl className="mt-6 grid w-full grid-cols-2 gap-6 sm:grid-cols-4">
-              {block.stats.map((stat) => (
-                <div key={stat.label}>
-                  <dt className="text-sm text-muted-foreground">{stat.label}</dt>
-                  <dd className="font-display text-3xl font-bold text-primary">{stat.value}</dd>
-                </div>
-              ))}
-            </dl>
+          {/* The H1 always contains complete text — the rotation only swaps
+              the trailing phrase, which is server-rendered too (19.2). */}
+          <Title className="text-4xl leading-[1.12] text-balance md:text-5xl lg:text-6xl">
+            {block.heading}{' '}
+            {words.length ? (
+              <RotatingWords words={words} />
+            ) : block.headingAccent ? (
+              <span className="text-primary">{block.headingAccent}</span>
+            ) : null}
+          </Title>
+
+          {block.body ? <p className="max-w-2xl text-lg text-muted-foreground">{block.body}</p> : null}
+
+          {block.bullets?.length ? (
+            <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+              {block.bullets.map((bullet) => {
+                const icon = bullet.icon as MediaDoc | undefined
+                return (
+                  <li key={bullet.text} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    {icon?.url ? (
+                      <Image src={mediaUrl(icon)} alt="" width={16} height={16} className="size-4" aria-hidden />
+                    ) : (
+                      <span aria-hidden className="size-1.5 rounded-pill bg-primary" />
+                    )}
+                    {bullet.text}
+                  </li>
+                )
+              })}
+            </ul>
           ) : null}
+
+          <div className="flex flex-wrap justify-center gap-3">
+            <Ctas ctas={block.ctas} locale={locale} />
+          </div>
         </div>
 
-        {media ? (
-          <div className="relative aspect-4/3 w-full overflow-hidden rounded-panel bg-background-subtle">
+        {mosaic.length ? (
+          /* Bento grid. Tiles flow in the order the editor set them; `span`
+             controls how much room each one takes on larger screens. */
+          <ul className="mt-14 grid auto-rows-[130px] grid-cols-2 gap-3 sm:grid-cols-4 md:auto-rows-[150px] lg:grid-cols-6">
+            {mosaic.map((tile, index) => {
+              const image = tile.image as MediaDoc | undefined
+              const span = cn(
+                tile.span === 'tall' && 'row-span-2',
+                tile.span === 'wide' && 'col-span-2',
+              )
+
+              if (tile.kind === 'stat') {
+                return (
+                  <li
+                    key={index}
+                    className={cn(
+                      'flex flex-col justify-end rounded-panel p-5',
+                      STAT_TONE[tile.tone ?? 'brand'],
+                      span,
+                    )}
+                  >
+                    <span className="text-sm/5 opacity-90">{tile.label}</span>
+                    <span className="font-display text-3xl font-bold md:text-4xl">{tile.value}</span>
+                  </li>
+                )
+              }
+
+              return (
+                <li key={index} className={cn('relative overflow-hidden rounded-panel bg-background-subtle', span)}>
+                  {image?.url ? (
+                    <Image
+                      src={mediaUrl(image)}
+                      alt={mediaAlt(image)}
+                      fill
+                      sizes="(min-width: 1024px) 20vw, 50vw"
+                      priority={isFirst && index < 4}
+                      className="object-cover"
+                    />
+                  ) : null}
+                </li>
+              )
+            })}
+          </ul>
+        ) : media ? (
+          <div className="relative mt-14 aspect-16/9 w-full overflow-hidden rounded-panel bg-background-subtle">
             <Image
               src={mediaUrl(media)}
               alt={mediaAlt(media)}
               fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              /* 6.6 — the hero is the LCP element, so it is never lazy. */
+              sizes="100vw"
               priority={isFirst}
               className="object-cover"
             />
           </div>
+        ) : null}
+
+        {block.stats?.length ? (
+          <dl className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
+            {block.stats.map((stat) => (
+              <div key={stat.label}>
+                <dt className="text-sm text-muted-foreground">{stat.label}</dt>
+                <dd className="font-display text-3xl font-bold text-primary">{stat.value}</dd>
+              </div>
+            ))}
+          </dl>
         ) : null}
       </div>
     </section>
@@ -113,30 +193,46 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 
 export function LogoCloudSection({ block }: { block: BlockProps }) {
   const logos = block.logos ?? []
-  if (!logos.length) return null
+  const statement = block.statement
+  const hasStatement = Boolean(statement?.before || statement?.highlight || statement?.after)
+  // The statement is content in its own right — it should not disappear just
+  // because the client logos have not been uploaded yet (8.9).
+  if (!logos.length && !hasStatement) return null
+
   return (
-    <section id={block.anchor ?? undefined} className="border-y border-border bg-background-subtle py-12">
-      <div className="container-site">
-        {block.heading ? (
-          <p className="text-center text-sm text-muted-foreground">{block.heading}</p>
-        ) : null}
-        <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-12 gap-y-8">
+    <section id={block.anchor ?? undefined} className="section">
+      <div className="container-wide grid items-center gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16">
+        {hasStatement ? (
+          <p className="font-display text-2xl leading-snug font-bold text-balance md:text-3xl">
+            {statement?.before}{' '}
+            {statement?.highlight ? <span className="text-primary">{statement.highlight}</span> : null}{' '}
+            {statement?.after}
+          </p>
+        ) : block.heading ? (
+          <p className="text-sm text-muted-foreground">{block.heading}</p>
+        ) : (
+          <span />
+        )}
+
+        {logos.length ? (
+        <ul className="grid grid-cols-2 items-center gap-x-8 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
           {logos.map((logo) => {
             const image = logo.image as MediaDoc | undefined
-            if (!image) return null
+            if (!image?.url) return null
             return (
-              <li key={logo.name}>
+              <li key={logo.name} className="flex items-center justify-center">
                 <Image
                   src={mediaUrl(image)}
                   alt={logo.name}
                   width={140}
-                  height={40}
-                  className="h-8 w-auto opacity-70 grayscale transition dark:invert dark:grayscale-0"
+                  height={44}
+                  className="h-10 w-auto opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0 dark:invert dark:grayscale-0"
                 />
               </li>
             )
           })}
         </ul>
+        ) : null}
       </div>
     </section>
   )
@@ -423,4 +519,118 @@ function plainText(node: unknown): string {
   if (obj.root) return plainText(obj.root)
   if (typeof obj.text === 'string') return obj.text
   return (obj.children ?? []).map(plainText).join(' ').replace(/\s+/g, ' ').trim()
+}
+
+export function TalentShowcaseSection({ block, locale }: { block: BlockProps; locale: Locale }) {
+  const people = block.people ?? []
+
+  return (
+    <section id={block.anchor ?? undefined} className="section">
+      <div className="container-wide grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
+        <div>
+          {block.eyebrow ? (
+            <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{block.eyebrow}</p>
+          ) : null}
+          <h2 className="mt-3 text-4xl md:text-5xl">
+            <span className="text-primary">{block.heading}</span>
+            {block.headingAccent ? (
+              <>
+                <br />
+                {block.headingAccent}
+              </>
+            ) : null}
+          </h2>
+          {block.body ? <p className="mt-4 max-w-lg text-muted-foreground">{block.body}</p> : null}
+
+          {block.bullets?.length ? (
+            <ul className="mt-6 flex flex-col gap-2">
+              {block.bullets.map((bullet) => (
+                <li key={bullet.text} className="flex items-start gap-2.5 text-sm">
+                  <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-pill bg-primary" />
+                  {bullet.text}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          {block.roles?.length ? (
+            <ul className="mt-8 flex flex-wrap gap-2">
+              {block.roles.map((role) => (
+                <li
+                  key={role.label}
+                  className="rounded-pill bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-primary"
+                >
+                  {role.label}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          <div className="mt-8">
+            <Ctas ctas={block.ctas} locale={locale} size="md" />
+          </div>
+        </div>
+
+        {people.length ? (
+          <div className="rounded-panel border border-border bg-background-subtle p-5 md:p-7">
+            {block.panelTitle ? (
+              <p className="mb-5 text-center text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                {block.panelTitle}
+              </p>
+            ) : null}
+
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {people.map((person) => {
+                const avatar = person.avatar as MediaDoc | undefined
+                return (
+                  <li key={person.name} className="rounded-card border border-border bg-card p-4 shadow-card">
+                    <div className="flex items-center gap-3">
+                      {avatar?.url ? (
+                        <Image
+                          src={mediaUrl(avatar)}
+                          alt=""
+                          width={40}
+                          height={40}
+                          aria-hidden
+                          className="size-10 rounded-pill object-cover"
+                        />
+                      ) : (
+                        <span
+                          aria-hidden
+                          className="grid size-10 place-items-center rounded-pill bg-primary/12 font-display text-sm font-bold text-primary"
+                        >
+                          {person.name.charAt(0)}
+                        </span>
+                      )}
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold">{person.name}</span>
+                        <span className="block truncate text-xs text-muted-foreground">{person.role}</span>
+                      </span>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                      {person.experience ? (
+                        <span className="text-muted-foreground">{person.experience}</span>
+                      ) : null}
+                      {typeof person.match === 'number' ? (
+                        <span className="rounded-pill bg-emerald-500/12 px-2 py-0.5 font-semibold text-emerald-700 dark:text-emerald-300">
+                          Match: {person.match}%
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {person.evaluated ? (
+                      <p className="mt-2 rounded-pill bg-primary/10 px-2.5 py-1 text-center text-2xs font-semibold text-primary">
+                        Technically Evaluated
+                      </p>
+                    ) : null}
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  )
 }

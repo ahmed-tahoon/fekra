@@ -161,6 +161,7 @@ export interface Page {
     | (
         | HeroBlock
         | LogoCloudBlock
+        | TalentShowcaseBlock
         | CardGridBlock
         | StatsBlock
         | ProcessBlock
@@ -217,6 +218,22 @@ export interface HeroBlock {
   headingAccent?: string | null;
   body?: string | null;
   trustLine?: string | null;
+  /**
+   * Cycled in the headline. Leave empty to use the accent line instead.
+   */
+  rotatingWords?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  bullets?:
+    | {
+        text: string;
+        icon?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
   ctas?:
     | {
         variant?: ('primary' | 'secondary' | 'ghost') | null;
@@ -254,11 +271,24 @@ export interface HeroBlock {
         id?: string | null;
       }[]
     | null;
-  media?: (number | null) | Media;
+  /**
+   * Simple stat row. Use the mosaic below for the bento layout instead.
+   */
   stats?:
     | {
         value: string;
         label: string;
+        id?: string | null;
+      }[]
+    | null;
+  mosaic?:
+    | {
+        kind?: ('image' | 'stat') | null;
+        span?: ('normal' | 'tall' | 'wide') | null;
+        tone?: ('brand' | 'emerald' | 'indigo' | 'ink') | null;
+        image?: (number | null) | Media;
+        value?: string | null;
+        label?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -269,85 +299,6 @@ export interface HeroBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  title: string;
-  /**
-   * URL path segment. Changing this on a live page needs a redirect entry.
-   */
-  slug: string;
-  excerpt?: string | null;
-  heroImage?: (number | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  /**
-   * CTA, FAQ or related blocks under the article body.
-   */
-  layout?:
-    | (
-        | HeroBlock
-        | LogoCloudBlock
-        | CardGridBlock
-        | StatsBlock
-        | ProcessBlock
-        | TestimonialsBlock
-        | FaqBlock
-        | PostsTeaserBlock
-        | TechStackBlock
-        | CtaBlock
-        | RichTextBlock
-        | MediaBlock
-        | ContactBlock
-        | BookingBlock
-      )[]
-    | null;
-  category?: (number | null) | Category;
-  /**
-   * Shown as the byline and used in Article schema (19.4).
-   */
-  author?: (number | null) | User;
-  tags?: string[] | null;
-  relatedPosts?: (number | Post)[] | null;
-  availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
-  featured?: boolean | null;
-  publishedAt?: string | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    /**
-     * Only set this when the page must point at a different canonical (18.3).
-     */
-    canonicalOverride?: string | null;
-    /**
-     * Excludes the page from search results and the sitemap (18.13).
-     */
-    noindex?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -421,10 +372,98 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  /**
+   * URL path segment. Changing this on a live page needs a redirect entry.
+   */
+  slug: string;
+  excerpt?: string | null;
+  heroImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * CTA, FAQ or related blocks under the article body.
+   */
+  layout?:
+    | (
+        | HeroBlock
+        | LogoCloudBlock
+        | TalentShowcaseBlock
+        | CardGridBlock
+        | StatsBlock
+        | ProcessBlock
+        | TestimonialsBlock
+        | FaqBlock
+        | PostsTeaserBlock
+        | TechStackBlock
+        | CtaBlock
+        | RichTextBlock
+        | MediaBlock
+        | ContactBlock
+        | BookingBlock
+      )[]
+    | null;
+  category?: (number | null) | Category;
+  /**
+   * Shown as the byline and used in Article schema (19.4).
+   */
+  author?: (number | null) | User;
+  tags?: string[] | null;
+  relatedPosts?: (number | Post)[] | null;
+  availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
+  featured?: boolean | null;
+  publishedAt?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Only set this when the page must point at a different canonical (18.3).
+     */
+    canonicalOverride?: string | null;
+    /**
+     * Excludes the page from search results and the sitemap (18.13).
+     */
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LogoCloudBlock".
  */
 export interface LogoCloudBlock {
   heading?: string | null;
+  statement?: {
+    before?: string | null;
+    /**
+     * Rendered in the brand colour.
+     */
+    highlight?: string | null;
+    after?: string | null;
+  };
   logos?:
     | {
         image: number | Media;
@@ -441,6 +480,155 @@ export interface LogoCloudBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'logoCloud';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TalentShowcaseBlock".
+ */
+export interface TalentShowcaseBlock {
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Optional second line rendered in the brand colour.
+   */
+  headingAccent?: string | null;
+  body?: string | null;
+  bullets?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  roles?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  panelTitle?: string | null;
+  people?:
+    | {
+        name: string;
+        role: string;
+        /**
+         * e.g. 5+ Years
+         */
+        experience?: string | null;
+        /**
+         * Match %
+         */
+        match?: number | null;
+        evaluated?: boolean | null;
+        avatar?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  ctas?:
+    | {
+        variant?: ('primary' | 'secondary' | 'ghost') | null;
+        link?: {
+          type?: ('internal' | 'route' | 'external') | null;
+          /**
+           * Visible link text. A link with no label is not rendered.
+           */
+          label?: string | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'jobs';
+                value: number | Job;
+              } | null);
+          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          url?: string | null;
+          newTab?: boolean | null;
+          /**
+           * Optional. Sent as the GA4 event name when clicked (22.5).
+           */
+          analyticsId?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'talentShowcase';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
+  id: number;
+  title: string;
+  /**
+   * URL path segment. Changing this on a live page needs a redirect entry.
+   */
+  slug: string;
+  summary: string;
+  icon?: (number | null) | Media;
+  layout?:
+    | (
+        | HeroBlock
+        | LogoCloudBlock
+        | TalentShowcaseBlock
+        | CardGridBlock
+        | StatsBlock
+        | ProcessBlock
+        | TestimonialsBlock
+        | FaqBlock
+        | PostsTeaserBlock
+        | TechStackBlock
+        | CtaBlock
+        | RichTextBlock
+        | MediaBlock
+        | ContactBlock
+        | BookingBlock
+      )[]
+    | null;
+  /**
+   * Set for SEO landing pages under a parent service. Drives breadcrumbs (18.9) and internal linking (18.10).
+   */
+  parent?: (number | null) | Service;
+  relatedServices?: (number | Service)[] | null;
+  /**
+   * Lower numbers appear first in the Services overview.
+   */
+  order?: number | null;
+  availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Only set this when the page must point at a different canonical (18.3).
+     */
+    canonicalOverride?: string | null;
+    /**
+     * Excludes the page from search results and the sitemap (18.13).
+     */
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -541,9 +729,9 @@ export interface CardGridBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "services".
+ * via the `definition` "jobs".
  */
-export interface Service {
+export interface Job {
   id: number;
   title: string;
   /**
@@ -551,35 +739,67 @@ export interface Service {
    */
   slug: string;
   summary: string;
-  icon?: (number | null) | Media;
-  layout?:
-    | (
-        | HeroBlock
-        | LogoCloudBlock
-        | CardGridBlock
-        | StatsBlock
-        | ProcessBlock
-        | TestimonialsBlock
-        | FaqBlock
-        | PostsTeaserBlock
-        | TechStackBlock
-        | CtaBlock
-        | RichTextBlock
-        | MediaBlock
-        | ContactBlock
-        | BookingBlock
-      )[]
-    | null;
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  requirements?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  benefits?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  department?: string | null;
+  location: string;
+  workModel: 'onsite' | 'hybrid' | 'remote';
+  employmentType: 'FULL_TIME' | 'PART_TIME' | 'CONTRACTOR' | 'TEMPORARY' | 'INTERN';
+  countryCode?: string | null;
+  city?: string | null;
   /**
-   * Set for SEO landing pages under a parent service. Drives breadcrumbs (18.9) and internal linking (18.10).
+   * Schema expiry. Blank = 90 days after publish.
    */
-  parent?: (number | null) | Service;
-  relatedServices?: (number | Service)[] | null;
-  /**
-   * Lower numbers appear first in the Services overview.
-   */
-  order?: number | null;
+  validThrough?: string | null;
   availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
+  /**
+   * Closing a role removes its JobPosting schema and disables the form (10.9).
+   */
+  roleStatus: 'open' | 'closed';
+  publishedAt?: string | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -798,99 +1018,6 @@ export interface Category {
   description?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "jobs".
- */
-export interface Job {
-  id: number;
-  title: string;
-  /**
-   * URL path segment. Changing this on a live page needs a redirect entry.
-   */
-  slug: string;
-  summary: string;
-  description: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  requirements?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  benefits?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  department?: string | null;
-  location: string;
-  workModel: 'onsite' | 'hybrid' | 'remote';
-  employmentType: 'FULL_TIME' | 'PART_TIME' | 'CONTRACTOR' | 'TEMPORARY' | 'INTERN';
-  countryCode?: string | null;
-  city?: string | null;
-  /**
-   * Schema expiry. Blank = 90 days after publish.
-   */
-  validThrough?: string | null;
-  availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
-  /**
-   * Closing a role removes its JobPosting schema and disables the form (10.9).
-   */
-  roleStatus: 'open' | 'closed';
-  publishedAt?: string | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    /**
-     * Only set this when the page must point at a different canonical (18.3).
-     */
-    canonicalOverride?: string | null;
-    /**
-     * Excludes the page from search results and the sitemap (18.13).
-     */
-    noindex?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1282,6 +1409,7 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
+        talentShowcase?: T | TalentShowcaseBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;
@@ -1321,6 +1449,19 @@ export interface HeroBlockSelect<T extends boolean = true> {
   headingAccent?: T;
   body?: T;
   trustLine?: T;
+  rotatingWords?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  bullets?:
+    | T
+    | {
+        text?: T;
+        icon?: T;
+        id?: T;
+      };
   ctas?:
     | T
     | {
@@ -1338,10 +1479,20 @@ export interface HeroBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
-  media?: T;
   stats?:
     | T
     | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  mosaic?:
+    | T
+    | {
+        kind?: T;
+        span?: T;
+        tone?: T;
+        image?: T;
         value?: T;
         label?: T;
         id?: T;
@@ -1356,6 +1507,13 @@ export interface HeroBlockSelect<T extends boolean = true> {
  */
 export interface LogoCloudBlockSelect<T extends boolean = true> {
   heading?: T;
+  statement?:
+    | T
+    | {
+        before?: T;
+        highlight?: T;
+        after?: T;
+      };
   logos?:
     | T
     | {
@@ -1365,6 +1523,60 @@ export interface LogoCloudBlockSelect<T extends boolean = true> {
         id?: T;
       };
   marquee?: T;
+  anchor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TalentShowcaseBlock_select".
+ */
+export interface TalentShowcaseBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  headingAccent?: T;
+  body?: T;
+  bullets?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  roles?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  panelTitle?: T;
+  people?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        experience?: T;
+        match?: T;
+        evaluated?: T;
+        avatar?: T;
+        id?: T;
+      };
+  ctas?:
+    | T
+    | {
+        variant?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              label?: T;
+              reference?: T;
+              route?: T;
+              url?: T;
+              newTab?: T;
+              analyticsId?: T;
+            };
+        id?: T;
+      };
   anchor?: T;
   id?: T;
   blockName?: T;
@@ -1653,6 +1865,7 @@ export interface PostsSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
+        talentShowcase?: T | TalentShowcaseBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;
@@ -1711,6 +1924,7 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
+        talentShowcase?: T | TalentShowcaseBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;

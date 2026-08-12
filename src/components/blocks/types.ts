@@ -62,4 +62,35 @@ export type BlockProps = {
   steps?: { title: string; body: string }[] | null
   logos?: { image?: unknown; name: string; url?: string | null }[] | null
   groups?: { name: string; items?: { name: string; logo?: unknown }[] }[] | null
+
+  /** Hero: cycled headline phrases, feature bullets, bento mosaic. */
+  rotatingWords?: { text: string }[] | null
+  bullets?: { text: string; icon?: unknown }[] | null
+  mosaic?:
+    | {
+        kind?: 'image' | 'stat'
+        span?: 'normal' | 'tall' | 'wide'
+        tone?: 'brand' | 'emerald' | 'indigo' | 'ink'
+        image?: unknown
+        value?: string | null
+        label?: string | null
+      }[]
+    | null
+
+  /** Logo cloud: the statement beside the grid. */
+  statement?: { before?: string | null; highlight?: string | null; after?: string | null } | null
+
+  /** Talent showcase. */
+  roles?: { label: string }[] | null
+  panelTitle?: string | null
+  people?:
+    | {
+        name: string
+        role: string
+        experience?: string | null
+        match?: number | null
+        evaluated?: boolean | null
+        avatar?: unknown
+      }[]
+    | null
 }

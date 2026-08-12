@@ -14,6 +14,7 @@ import {
   ProcessSection,
   RichTextSection,
   StatsSection,
+  TalentShowcaseSection,
   TechStackSection,
   TestimonialsSection,
 } from './sections'
@@ -48,6 +49,8 @@ export function RenderBlocks({
             return <HeroSection key={key} block={block} locale={locale} isFirst={isFirst} />
           case 'logoCloud':
             return <LogoCloudSection key={key} block={block} />
+          case 'talentShowcase':
+            return <TalentShowcaseSection key={key} block={block} locale={locale} />
           case 'cardGrid':
             return <CardGridSection key={key} block={block} locale={locale} />
           case 'stats':
