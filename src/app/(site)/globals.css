@@ -326,6 +326,84 @@
     }
   }
 
+  /* ── Motion ────────────────────────────────────────────────────────────
+   *
+   * All of it is CSS. Scroll-linked animations run on the compositor rather
+   * than the main thread, so scrolling stays smooth and none of this costs a
+   * re-render or a scroll listener (17.8).
+   *
+   * Everything animates transform and opacity only — never a property that
+   * moves the layout — so none of it can cause layout shift (2.6).
+   */
+
+  /* Entrance. `both` fill means the end state sticks even if the animation is
+     reduced to nothing, so content can never be left invisible. */
+  .fk-enter {
+    animation: fk-enter 0.7s var(--ease-out-soft) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  @keyframes fk-enter {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 14px, 0);
+      filter: blur(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+  }
+
+  /* Hero tiles land slightly later and scale up rather than slide. */
+  .fk-tile-enter {
+    animation: fk-tile-enter 0.85s var(--ease-out-soft) both;
+    animation-delay: calc(320ms + var(--i, 0) * 55ms);
+  }
+
+  @keyframes fk-tile-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.92) translate3d(0, 22px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /*
+   * Scroll-linked motion, gated on support so browsers without it simply show
+   * static content rather than a blank page. Chrome and Edge get it today;
+   * everywhere else degrades to no animation, which is a valid design.
+   */
+  @supports (animation-timeline: view()) {
+    /* Sections rise into place as they enter the viewport. */
+    .fk-reveal {
+      animation: fk-enter linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+      animation-delay: 0s;
+    }
+
+    /*
+     * Hero tiles drift at slightly different rates as the page scrolls, which
+     * is what reads as depth. `--drift` lets each column differ.
+     */
+    .fk-drift {
+      animation: fk-drift linear both;
+      animation-timeline: scroll();
+      animation-range: 0 60vh;
+    }
+
+    @keyframes fk-drift {
+      to {
+        transform: translate3d(0, calc(var(--drift, 1) * -42px), 0);
+      }
+    }
+  }
+
   /* Logical properties everywhere so RTL mirrors for free (14.4). */
   .icon-flip {
     transition: transform 0.2s var(--ease-out-soft);
@@ -346,7 +424,22 @@
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /*
+   * Scroll-linked animations ignore duration, so they have to be switched off
+   * by name or the page would still move under someone who asked it not to.
+   */
+  .fk-reveal,
+  .fk-drift,
+  .fk-enter,
+  .fk-tile-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
   }
 }

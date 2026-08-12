@@ -145,13 +145,19 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       <div className="container-wide shrink-0">
         <div className="mx-auto flex max-w-[844px] flex-col items-center gap-5 text-center">
           {block.trustLine ? (
-            <p className="inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3.5 py-1.5 text-sm font-medium tracking-[0.35px] text-ink-500 dark:border-border dark:bg-card">
+            <p
+              style={{ '--i': 0 } as React.CSSProperties}
+              className="fk-enter inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3.5 py-1.5 text-sm font-medium tracking-[0.35px] text-ink-500 dark:border-border dark:bg-card"
+            >
               <span aria-hidden className="size-2 shrink-0 rounded-pill bg-primary" />
               {block.trustLine}
             </p>
           ) : null}
 
-          <Title className="font-display text-[clamp(2.25rem,5.2vw,3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground">
+          <Title
+            style={{ '--i': 1 } as React.CSSProperties}
+            className="fk-enter font-display text-[clamp(2.25rem,5.2vw,3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground"
+          >
             {block.heading}
             <br />
             {/* Second line is a gradient fill in the comp, teal -> blue. */}
@@ -161,11 +167,19 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           </Title>
 
           {block.body ? (
-            <p className="text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p>
+            <p
+              style={{ '--i': 2 } as React.CSSProperties}
+              className="fk-enter text-lg/7 text-ink-500 dark:text-muted-foreground"
+            >
+              {block.body}
+            </p>
           ) : null}
 
           {block.bullets?.length ? (
-            <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+            <ul
+              style={{ '--i': 3 } as React.CSSProperties}
+              className="fk-enter flex flex-wrap items-center justify-center gap-x-8 gap-y-3"
+            >
               {block.bullets.map((bullet) => {
                 const icon = bullet.icon as MediaDoc | undefined
                 return (
@@ -192,7 +206,10 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
             </ul>
           ) : null}
 
-          <div className="mt-2 flex flex-wrap justify-center gap-4">
+          <div
+            style={{ '--i': 4 } as React.CSSProperties}
+            className="fk-enter mt-2 flex flex-wrap justify-center gap-4"
+          >
             <Ctas ctas={block.ctas} locale={locale} />
           </div>
         </div>
@@ -209,15 +226,26 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
               return (
                 <div
                   key={index}
-                  className="absolute"
-                  style={{
-                    left: `${pos.left}%`,
-                    top: `${pos.top}%`,
-                    width: `${pos.width}%`,
-                    height: `${pos.height}%`,
-                  }}
+                  className="fk-tile-enter absolute"
+                  style={
+                    {
+                      left: `${pos.left}%`,
+                      top: `${pos.top}%`,
+                      width: `${pos.width}%`,
+                      height: `${pos.height}%`,
+                      '--i': index,
+                    } as React.CSSProperties
+                  }
                 >
-                  {tile(item, index)}
+                  {/* Inner element carries the scroll drift so it cannot fight
+                      the entrance transform on the same node. Columns further
+                      right drift a touch more, which is what reads as depth. */}
+                  <div
+                    className="fk-drift size-full"
+                    style={{ '--drift': 0.5 + (index % 4) * 0.35 } as React.CSSProperties}
+                  >
+                    {tile(item, index)}
+                  </div>
                 </div>
               )
             })}

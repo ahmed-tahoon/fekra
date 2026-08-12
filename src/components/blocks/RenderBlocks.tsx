@@ -44,51 +44,59 @@ export function RenderBlocks({
         const key = block.id ?? `${block.blockType}-${index}`
         const isFirst = index === 0
 
+        /*
+         * Everything below the hero rises as it enters the viewport. Wrapping
+         * here rather than in each section keeps the behaviour in one place —
+         * and the hero is excluded because it already has its own entrance.
+         */
+        const reveal = (node: React.ReactNode) =>
+          isFirst ? node : <div className="fk-reveal">{node}</div>
+
         switch (block.blockType) {
           case 'hero':
             return <HeroSection key={key} block={block} locale={locale} isFirst={isFirst} />
           case 'logoCloud':
-            return <LogoCloudSection key={key} block={block} />
+            return reveal(<LogoCloudSection key={key} block={block} />)
           case 'talentShowcase':
-            return <TalentShowcaseSection key={key} block={block} locale={locale} />
+            return reveal(<TalentShowcaseSection key={key} block={block} locale={locale} />)
           case 'cardGrid':
-            return <CardGridSection key={key} block={block} locale={locale} />
+            return reveal(<CardGridSection key={key} block={block} locale={locale} />)
           case 'stats':
-            return <StatsSection key={key} block={block} />
+            return reveal(<StatsSection key={key} block={block} />)
           case 'process':
-            return <ProcessSection key={key} block={block} />
+            return reveal(<ProcessSection key={key} block={block} />)
           case 'testimonials':
-            return <TestimonialsSection key={key} block={block} />
+            return reveal(<TestimonialsSection key={key} block={block} />)
           case 'faq':
-            return <FaqSection key={key} block={block} />
+            return reveal(<FaqSection key={key} block={block} />)
           case 'postsTeaser':
-            return <PostsTeaser key={key} block={block} locale={locale} />
+            return reveal(<PostsTeaser key={key} block={block} locale={locale} />)
           case 'techStack':
-            return <TechStackSection key={key} block={block} />
+            return reveal(<TechStackSection key={key} block={block} />)
           case 'cta':
-            return <CtaSection key={key} block={block} locale={locale} />
+            return reveal(<CtaSection key={key} block={block} locale={locale} />)
           case 'richText':
-            return <RichTextSection key={key} block={block} />
+            return reveal(<RichTextSection key={key} block={block} />)
           case 'mediaBlock':
-            return <MediaSection key={key} block={block} />
+            return reveal(<MediaSection key={key} block={block} />)
           case 'contact':
-            return (
+            return reveal(
               <ContactSection
                 key={key}
                 block={block}
                 locale={locale}
                 dict={dict}
                 offices={context?.offices as never}
-              />
+              />,
             )
           case 'booking':
-            return (
+            return reveal(
               <BookingSection
                 key={key}
                 block={block}
                 dict={dict}
                 fallbackUrl={context?.calendlyUrl ?? undefined}
-              />
+              />,
             )
           default:
             if (process.env.NODE_ENV !== 'production') {
