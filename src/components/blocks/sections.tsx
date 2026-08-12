@@ -294,7 +294,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
     <section id={block.anchor ?? undefined} className="section">
       <div className="container-wide grid items-center gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16">
         {hasStatement ? (
-          <p className="font-display text-2xl leading-snug font-bold text-balance md:text-3xl">
+          <p className="font-display text-2xl leading-[1.45] font-bold text-balance text-navy-800 md:text-[28px] dark:text-foreground">
             {statement?.before}{' '}
             {statement?.highlight ? <span className="text-primary">{statement.highlight}</span> : null}{' '}
             {statement?.after}
@@ -306,23 +306,30 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
         )}
 
         {logos.length ? (
-        <ul className="grid grid-cols-2 items-center gap-x-8 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-          {logos.map((logo) => {
-            const image = logo.image as MediaDoc | undefined
-            if (!image?.url) return null
-            return (
-              <li key={logo.name} className="flex items-center justify-center">
-                <Image
-                  src={mediaUrl(image)}
-                  alt={logo.name}
-                  width={140}
-                  height={44}
-                  className="h-10 w-auto opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0 dark:invert dark:grayscale-0"
-                />
-              </li>
-            )
-          })}
-        </ul>
+          /* Four across, as designed. The last row is deliberately left-aligned
+             rather than spread — a partial row that justifies itself reads as a
+             layout bug. */
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3 lg:grid-cols-4">
+            {logos.map((logo) => {
+              const image = logo.image as MediaDoc | undefined
+              if (!image?.url) return null
+              return (
+                <li key={logo.name} className="relative aspect-[3/2]">
+                  {/* Uniform cells with the mark contained inside, so wide marks
+                      and tall ones stay optically even — they range from 3:2 to
+                      2:3 and one shared max-height would shrink the tall ones to
+                      nothing. */}
+                  <Image
+                    src={mediaUrl(image)}
+                    alt={logo.name}
+                    fill
+                    sizes="(min-width: 1024px) 200px, (min-width: 640px) 30vw, 45vw"
+                    className="object-contain p-4 opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:brightness-0 dark:invert dark:hover:brightness-100 dark:hover:invert-0"
+                  />
+                </li>
+              )
+            })}
+          </ul>
         ) : null}
       </div>
     </section>

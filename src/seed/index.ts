@@ -189,13 +189,25 @@ const run = async () => {
     ...(analyticsId ? { analyticsId } : {}),
   })
 
+  // The client logos, in the order they appear in the comp. `partner-pinwheel`
+  // is the one mark in the design I could not attribute — rename it in the CMS,
+  // the name is what becomes its alt text. DataFusion Software is in the design
+  // but is vector-only in Figma, so it has no asset here yet.
   const clientLogos = await Promise.all(
-    ['northwind', 'meridian', 'verta', 'lumen', 'axiom', 'cobalt', 'solace', 'kestrel'].map(
-      async (slug) => ({
-        name: slug.charAt(0).toUpperCase() + slug.slice(1),
-        media: await upsertMedia(payload, `${slug}.svg`, `${slug} logo`, 'logos'),
-      }),
-    ),
+    [
+      ['pitman-training', 'Pitman Training'],
+      ['kuwait-finance-house', 'Kuwait Finance House'],
+      ['partner-pinwheel', 'Partner'],
+      ['al-rajhi-bank', 'Al Rajhi Bank'],
+      ['allianz', 'Allianz'],
+      ['smart-management-systems', 'Smart Management Systems'],
+      ['stc', 'stc'],
+      ['codewave-systems', 'Codewave Systems'],
+      ['adnoc', 'ADNOC'],
+    ].map(async ([slug, name]) => ({
+      name,
+      media: await upsertMedia(payload, `${slug}.png`, `${name} logo`, 'logos'),
+    })),
   )
 
   const photoNames = ['team', 'office', 'desk', 'code', 'meeting', 'laptop', 'server', 'design', 'data', 'ai', 'review', 'ship']
