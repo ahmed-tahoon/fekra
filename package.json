@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && pnpm dev",
-    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "build": "node scripts/migrate.mjs && cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "typecheck": "tsc --noEmit",
@@ -23,7 +23,9 @@
     "seed": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" node --env-file-if-exists=.env.local --env-file-if-exists=.env src/seed/index.ts",
     "check:i18n": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/check-i18n.ts",
     "check:links": "node scripts/check-links.mjs",
-    "test:api": "newman run postman/FEKRA.postman_collection.json -e postman/FEKRA.local.postman_environment.json --working-dir postman"
+    "test:api": "newman run postman/FEKRA.postman_collection.json -e postman/FEKRA.local.postman_environment.json --working-dir postman",
+    "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.87.1",

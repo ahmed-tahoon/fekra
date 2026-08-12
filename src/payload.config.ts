@@ -55,6 +55,10 @@ const hasS3 = Boolean(process.env.S3_BUCKET)
 const adminOrigins = [
   siteUrl(),
   ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+  // The stable *.vercel.app alias, which is NOT the same as VERCEL_URL.
+  ...(process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`]
+    : []),
   ...(process.env.VERCEL_BRANCH_URL ? [`https://${process.env.VERCEL_BRANCH_URL}`] : []),
   ...(process.env.NODE_ENV === 'production'
     ? []
