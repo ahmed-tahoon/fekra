@@ -15,14 +15,29 @@
  * This is not a silent default — `describeSiteMode()` is printed during the
  * build so nobody has to guess which branch they are on.
  */
+/**
+ * Payload speaks Postgres, not the Supabase REST API. Pasting the project URL
+ * (https://<ref>.supabase.co) into DATABASE_URL is an easy mistake and the
+ * runtime error for it is a bare "cannot connect to Postgres. Details:".
+ */
+export const isPostgresUrl = (url: string | undefined): boolean =>
+  /^postgres(ql)?:\/\//.test(url?.trim() ?? '')
+
 export const isCmsConfigured = (): boolean =>
-  Boolean(process.env.PAYLOAD_SECRET?.trim()) && Boolean(process.env.DATABASE_URL?.trim())
+  Boolean(process.env.PAYLOAD_SECRET?.trim()) && isPostgresUrl(process.env.DATABASE_URL)
 
 export const isComingSoon = (): boolean => process.env.COMING_SOON === 'true' || !isCmsConfigured()
 
 export function describeSiteMode(): string {
   if (process.env.COMING_SOON === 'true') return 'holding page (COMING_SOON=true)'
   if (!isCmsConfigured()) {
+    if (process.env.DATABASE_URL?.trim() && !isPostgresUrl(process.env.DATABASE_URL)) {
+      return (
+        'holding page — DATABASE_URL is not a Postgres connection string. ' +
+        'It must start with postgres:// — the Supabase project URL is not it; ' +
+        'use Settings > Database > Connection string (Transaction pooler).'
+      )
+    }
     const missing = [
       !process.env.PAYLOAD_SECRET?.trim() && 'PAYLOAD_SECRET',
       !process.env.DATABASE_URL?.trim() && 'DATABASE_URL',

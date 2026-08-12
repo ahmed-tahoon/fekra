@@ -16,10 +16,13 @@ const redirectMap: RedirectEntry[] = JSON.parse(
  * PAYLOAD_SECRET quietly ships a holding page and everyone wonders why the
  * site is "down".
  */
-const cmsConfigured = Boolean(process.env.PAYLOAD_SECRET?.trim()) && Boolean(process.env.DATABASE_URL?.trim())
+const isPostgresUrl = /^postgres(ql)?:\/\//.test(process.env.DATABASE_URL?.trim() ?? '')
+const cmsConfigured = Boolean(process.env.PAYLOAD_SECRET?.trim()) && isPostgresUrl
 const missingEnv = [
   !process.env.PAYLOAD_SECRET?.trim() && 'PAYLOAD_SECRET',
   !process.env.DATABASE_URL?.trim() && 'DATABASE_URL',
+  process.env.DATABASE_URL?.trim() && !isPostgresUrl &&
+    'DATABASE_URL (must start with postgres:// — the Supabase *project URL* is not a connection string)',
 ].filter(Boolean)
 
 if (process.env.COMING_SOON === 'true') {
