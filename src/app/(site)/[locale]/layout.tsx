@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Noto_Sans_Arabic, Space_Grotesk } from 'next/font/google'
 import { notFound } from 'next/navigation'
 
+import { mediaUrl } from '@/components/blocks/types'
 import { Analytics } from '@/components/analytics/Analytics'
 import { ConsentBanner } from '@/components/analytics/ConsentBanner'
 import { JsonLd } from '@/components/JsonLd'
@@ -106,7 +107,8 @@ export default async function SiteLayout({
   ])
 
   const siteName = settings.siteName ?? 'FEKRA'
-  const logoUrl = settings.logoLight?.url ?? null
+  const logoUrl = settings.logoLight?.url ? mediaUrl(settings.logoLight) : null
+  const logoDarkUrl = settings.logoDark?.url ? mediaUrl(settings.logoDark) : null
 
   return (
     // 14.5 — lang and dir are emitted per locale, not patched in on the client.
@@ -135,7 +137,7 @@ export default async function SiteLayout({
       </head>
       <body className="min-h-dvh antialiased">
         <ThemeProvider>
-          <Header data={header} locale={locale} dict={dict} logo={{ light: logoUrl, dark: settings.logoDark?.url }} siteName={siteName} />
+          <Header data={header} locale={locale} dict={dict} logo={{ light: logoUrl, dark: logoDarkUrl }} siteName={siteName} />
 
           <main id="main">{children}</main>
 

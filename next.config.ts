@@ -84,9 +84,18 @@ const nextConfig: NextConfig = {
     // Setting localPatterns at all makes it an allow-list: anything not listed
     // is a 400 from /_next/image. Both CMS uploads and static brand assets.
     localPatterns: [{ pathname: '/cms-api/media/file/**' }, { pathname: '/images/**' }],
+    /*
+     * Payload returns ABSOLUTE media URLs (it knows its serverURL), so uploads
+     * are matched here rather than by localPatterns. The protocol has to come
+     * from SITE_URL — hardcoding https 400s every image in local development.
+     */
     remotePatterns: [
       ...(S3_HOST ? [{ protocol: 'https' as const, hostname: S3_HOST }] : []),
-      { protocol: 'https', hostname: new URL(SITE_URL).hostname },
+      {
+        protocol: new URL(SITE_URL).protocol.replace(':', '') as 'http' | 'https',
+        hostname: new URL(SITE_URL).hostname,
+        port: new URL(SITE_URL).port || undefined,
+      },
     ],
   },
 

@@ -89,6 +89,7 @@ async function upsertMedia(
   payload: Awaited<ReturnType<typeof getPayload>>,
   file: string,
   alt: string,
+  folder = 'hero',
 ): Promise<{ id: number } | null> {
   // Media converts rasters to webp on upload, so the stored filename is not
   // the one passed in. Look for both or every run creates duplicates.
@@ -101,7 +102,7 @@ async function upsertMedia(
   })
   if (existing.docs[0]) return existing.docs[0] as unknown as { id: number }
 
-  const path = join(process.cwd(), 'public', 'images', 'hero', file)
+  const path = join(process.cwd(), 'public', 'images', folder, file)
   if (!existsSync(path)) return null
 
   return (await payload.create({
@@ -141,6 +142,8 @@ const run = async () => {
     data: {
       siteName: 'FEKRA',
       legalName: 'Fekra',
+      logoLight: (await upsertMedia(payload, 'fekra-logo.webp', 'FEKRA', ''))?.id,
+      logoDark: (await upsertMedia(payload, 'fekra-logo-white.webp', 'FEKRA', ''))?.id,
       tagline: 'Loyalty . Innovation . Expansion',
       generalEmail: 'info@fekra-egy.com',
       notificationEmails: ['info@fekra-egy.com'],
@@ -186,6 +189,26 @@ const run = async () => {
     ...(analyticsId ? { analyticsId } : {}),
   })
 
+  const clientLogos = await Promise.all(
+    ['northwind', 'meridian', 'verta', 'lumen', 'axiom', 'cobalt', 'solace', 'kestrel'].map(
+      async (slug) => ({
+        name: slug.charAt(0).toUpperCase() + slug.slice(1),
+        media: await upsertMedia(payload, `${slug}.svg`, `${slug} logo`, 'logos'),
+      }),
+    ),
+  )
+
+  const photoNames = ['team', 'office', 'desk', 'code', 'meeting', 'laptop', 'server', 'design', 'data', 'ai', 'review', 'ship']
+  const photos = Object.fromEntries(
+    await Promise.all(
+      photoNames.map(async (n) => [n, await upsertMedia(payload, `${n}.jpg`, 'FEKRA team at work', 'samples')]),
+    ),
+  ) as Record<string, { id: number } | null>
+
+  const serviceIcons = await Promise.all(
+    ['ai', 'code', 'review', 'server'].map((n) => upsertMedia(payload, `${n}.jpg`, '', 'samples')),
+  )
+
   const services = await Promise.all<{ id: number; title: string; summary: string }>(
     [
       { slug: 'ai-engineers', title: 'AI Engineers', summary: 'Vetted AI and machine-learning engineers.' },
@@ -196,6 +219,7 @@ const run = async () => {
       upsert<{ id: number; title: string; summary: string }>(payload, 'services', service.slug, {
         ...service,
         order: index,
+        icon: serviceIcons[index]?.id,
         availableLocales: ['en'],
         _status: 'published',
       }),
@@ -331,6 +355,7 @@ const run = async () => {
       upsert(payload, 'posts', post.slug, {
         title: post.title,
         excerpt: post.excerpt,
+        heroImage: photos[photoNames[index % photoNames.length]!]?.id,
         content: article(post.body),
         category: categories[post.category]!.id,
         tags: post.tags,
@@ -424,7 +449,9 @@ const run = async () => {
           highlight: 'top 3%',
           after: 'talent to scale their dev teams.',
         },
-        logos: [],
+        logos: clientLogos
+          .filter((l) => l.media)
+          .map((l) => ({ name: l.name, image: l.media!.id })),
       },
       {
         blockType: 'talentShowcase',

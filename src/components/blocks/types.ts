@@ -11,7 +11,28 @@ export type MediaDoc = {
   height?: number | null
 }
 
-export const mediaUrl = (media: MediaDoc): string => media.url ?? ''
+/**
+ * Payload returns absolute media URLs because it knows its own serverURL. For
+ * next/image that means every upload is matched against `remotePatterns` and
+ * has to agree on protocol, host AND port — which silently 400s the moment any
+ * of the three differs (localhost vs the domain, http vs https, a preview URL).
+ *
+ * Same-origin uploads are emitted as relative paths instead, so they match
+ * `localPatterns` once and work in every environment. Genuinely remote assets
+ * (S3/R2) are passed through untouched.
+ */
+export const mediaUrl = (media: MediaDoc): string => {
+  const url = media.url ?? ''
+  if (!url.startsWith('http')) return url
+  try {
+    const parsed = new URL(url)
+    const site = process.env.NEXT_PUBLIC_SITE_URL
+    if (site && parsed.host === new URL(site).host) return `${parsed.pathname}${parsed.search}`
+    return url
+  } catch {
+    return url
+  }
+}
 
 /** 18.11 — decorative images get an empty alt; everything else must have one. */
 export const mediaAlt = (media: MediaDoc): string => (media.decorative ? '' : (media.alt ?? ''))
