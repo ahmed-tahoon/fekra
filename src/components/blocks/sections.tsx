@@ -140,10 +140,10 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   return (
     <section
       id={block.anchor ?? undefined}
-      className="relative -mt-24 flex flex-col overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-28 pb-0 md:h-dvh dark:bg-none dark:bg-background"
+      className="relative mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-[calc(var(--header-block)+clamp(1.5rem,5vh,3rem))] pb-6 md:h-dvh dark:bg-none dark:bg-background"
     >
-      <div className="container-wide shrink-0 pb-2">
-        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-4 text-center lg:gap-5">
+      <div className="container-wide shrink-0">
+        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-[clamp(0.5rem,1.8vh,1.25rem)] text-center">
           {block.trustLine ? (
             <p
               style={{ '--i': 0 } as React.CSSProperties}
@@ -156,7 +156,10 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 
           <Title
             style={{ '--i': 1 } as React.CSSProperties}
-            className="fk-enter font-display text-[clamp(2.25rem,5.2vw,3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground"
+            // Sized off height as well as width. The hero is locked to one
+            // screen, so on a short window the headline has to give ground or
+            // it eats the collage's share of it.
+            className="fk-enter font-display text-[clamp(2rem,min(5.2vw,7.4vh),3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground"
           >
             {block.heading}
             <br />
@@ -219,7 +222,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
         <>
           {/* Desktop: the collage, positioned exactly as designed. Full-bleed —
               it runs past the container to the viewport edges. */}
-          <div className="relative mt-6 hidden min-h-0 w-full flex-1 md:block lg:mt-8">
+          <div className="relative mt-[clamp(0.75rem,2.6vh,2rem)] hidden min-h-0 w-full flex-1 md:block">
             {mosaic.map((item, index) => {
               const pos = MOSAIC_LAYOUT[index]
               if (!pos) return null

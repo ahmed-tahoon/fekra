@@ -103,6 +103,26 @@
 }
 
 /*
+ * How much vertical space the header occupies in flow: its top padding plus the
+ * 5rem bar itself. The hero pulls itself up by exactly this to sit its gradient
+ * under a transparent header, then pads its content back down by it.
+ *
+ * It has to be a token because the two must agree to the pixel. They did not:
+ * the hero hard-coded -6rem while the header is 6.5rem from `sm` up, so the
+ * hero started 8px down the page, and being 100dvh tall it ended 8px past the
+ * fold — which is what sliced the bottom off the collage.
+ */
+:root {
+  --header-block: 6rem; /* pt-4 (1rem) + h-20 (5rem) */
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --header-block: 6.5rem; /* sm:pt-6 (1.5rem) + h-20 (5rem) */
+  }
+}
+
+/*
  * Semantic layer. Components only ever reference these, so light/dark and any
  * future theme is a token swap and never a component rewrite (15.1).
  */
