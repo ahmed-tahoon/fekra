@@ -46,11 +46,32 @@ if (!configured) {
 }
 
 console.log('  migrate: applying pending migrations…')
-const result = spawnSync('payload', ['migrate'], {
-  stdio: 'inherit',
+
+/*
+ * `payload migrate` prompts for confirmation if the database carries a `dev`
+ * marker from a schema push. A prompt in CI is a build that hangs until the
+ * platform kills it, so stdin is closed: the prompt resolves to "no" and the
+ * build fails fast with something a human can act on.
+ *
+ * MIGRATE_ACCEPT_DATA_LOSS=true opts into answering yes. Deliberately not the
+ * default — that prompt exists because the migration may drop columns.
+ */
+const args = ['migrate']
+if (process.env.MIGRATE_ACCEPT_DATA_LOSS === 'true') args.push('--force-accept-warning')
+
+const result = spawnSync('payload', args, {
+  stdio: ['ignore', 'inherit', 'inherit'],
   env: { ...process.env, NODE_OPTIONS: '--no-deprecation' },
   shell: true,
 })
+
+if (result.status !== 0) {
+  console.error(
+    '\n  Migration failed. If the log mentions a database that was pushed in dev\n' +
+      '  mode, delete the marker row and retry:\n\n' +
+      "    delete from payload_migrations where name = 'dev';\n",
+  )
+}
 
 // A failed migration must stop the deploy: shipping code against a schema it
 // does not match is worse than not shipping at all.
