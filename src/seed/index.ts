@@ -13,6 +13,19 @@ import config from '../payload.config'
 const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@fekra-egy.com'
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'ChangeMe123!'
 
+/**
+ * Sample articles and the example job exist to make a fresh local environment
+ * look like a real site. Set SEED_DEMO_CONTENT=false when seeding a real
+ * database so the blog starts empty instead of shipping placeholder posts.
+ */
+const WITH_DEMO_CONTENT = process.env.SEED_DEMO_CONTENT !== 'false'
+
+/** A connection that is not on this machine is treated as real data. */
+const isRemoteDatabase = (): boolean => {
+  const url = process.env.DATABASE_URL ?? ''
+  return Boolean(url) && !/@(localhost|127\.0\.0\.1|::1|db|host\.docker\.internal)[:/]/.test(url)
+}
+
 const textNode = (text: string) => ({
   type: 'text',
   text,
@@ -66,6 +79,17 @@ async function upsert<T extends { id: number; title?: string }>(
 }
 
 const run = async () => {
+  // Refuse to put the throwaway development password on a real database. It is
+  // printed in the README, so an admin account using it is effectively public.
+  if (isRemoteDatabase() && !process.env.SEED_ADMIN_PASSWORD) {
+    console.error(
+      '\n  Refusing to seed a remote database with the default admin password.\n' +
+        '  Re-run with your own credentials:\n\n' +
+        '    SEED_ADMIN_EMAIL=you@fekra-egy.com SEED_ADMIN_PASSWORD=\'<strong password>\' pnpm seed\n',
+    )
+    process.exit(1)
+  }
+
   const payload = await getPayload({ config })
 
   const users = await payload.find({ collection: 'users', limit: 1 })
@@ -267,7 +291,8 @@ const run = async () => {
   ]
 
   const now = Date.now()
-  await Promise.all(
+  if (WITH_DEMO_CONTENT)
+    await Promise.all(
     posts.map((post, index) =>
       upsert(payload, 'posts', post.slug, {
         title: post.title,
@@ -284,7 +309,8 @@ const run = async () => {
     ),
   )
 
-  await upsert(payload, 'jobs', 'senior-full-stack-engineer', {
+  if (WITH_DEMO_CONTENT)
+    await upsert(payload, 'jobs', 'senior-full-stack-engineer', {
     title: 'Senior Full-Stack Engineer',
     summary: 'Build and ship production systems with a team that owns delivery end to end.',
     description: rich(
@@ -466,7 +492,9 @@ const run = async () => {
     },
   })
 
-  payload.logger.info('Seed complete.')
+  payload.logger.info(
+    `Seed complete — ${WITH_DEMO_CONTENT ? 'including' : 'without'} demo articles and the example job.`,
+  )
   process.exit(0)
 }
 
