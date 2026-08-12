@@ -42,15 +42,20 @@ export function HeaderShell({ children }: { children: ReactNode }) {
     <div
       ref={shell}
       data-scrolled="false"
-      className="group/header sticky top-0 z-50 px-3 pt-4 transition-[padding] duration-300 ease-[var(--ease-out-soft)] data-[scrolled=true]:px-0 data-[scrolled=true]:pt-0 sm:px-5 sm:pt-6 sm:data-[scrolled=true]:px-0 sm:data-[scrolled=true]:pt-0"
+      className="group/header sticky top-0 z-50 px-3 pt-4 transition-[padding] duration-[600ms] ease-[var(--ease-morph)] motion-reduce:transition-none data-[scrolled=true]:px-0 data-[scrolled=true]:pt-0 sm:px-5 sm:pt-6 sm:data-[scrolled=true]:px-0 sm:data-[scrolled=true]:pt-0"
     >
       <div
         className={[
           'mx-auto flex h-20 max-w-[1200px] items-center justify-between gap-6 rounded-[40px]',
           'border border-transparent bg-white/70 px-4 shadow-[0_1px_4px_0_rgba(25,33,61,0.06)] backdrop-blur-md sm:px-6 dark:bg-card/70',
-          'transition-[max-width,border-radius,background-color,box-shadow,height,padding] duration-300 ease-[var(--ease-out-soft)]',
+          'transition-[max-width,border-radius,background-color,box-shadow,height,padding] duration-[600ms] ease-[var(--ease-morph)] motion-reduce:transition-none',
           // Scrolled: edge to edge, squared off, sitting on a hairline.
-          'group-data-[scrolled=true]/header:h-16 group-data-[scrolled=true]/header:max-w-none',
+          //
+          // `max-w-full` (100%), never `max-w-none`. `none` is a keyword, not a
+          // length, so the browser cannot interpolate 1200px → none and snaps
+          // the width in one frame however long the duration says. Against 100%
+          // it tweens as a length-percentage and the pill actually grows.
+          'group-data-[scrolled=true]/header:h-16 group-data-[scrolled=true]/header:max-w-full',
           'group-data-[scrolled=true]/header:rounded-none group-data-[scrolled=true]/header:border-b-border',
           'group-data-[scrolled=true]/header:bg-background/85 group-data-[scrolled=true]/header:shadow-none',
           'group-data-[scrolled=true]/header:lg:px-12',

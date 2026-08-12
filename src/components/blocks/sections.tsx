@@ -140,10 +140,10 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   return (
     <section
       id={block.anchor ?? undefined}
-      className="relative -mt-24 flex flex-col overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-28 pb-0 md:min-h-dvh dark:bg-none dark:bg-background"
+      className="relative -mt-24 flex flex-col overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-28 pb-0 md:h-dvh dark:bg-none dark:bg-background"
     >
-      <div className="container-wide shrink-0">
-        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-5 text-center">
+      <div className="container-wide shrink-0 pb-2">
+        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-4 text-center lg:gap-5">
           {block.trustLine ? (
             <p
               style={{ '--i': 0 } as React.CSSProperties}
@@ -219,7 +219,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
         <>
           {/* Desktop: the collage, positioned exactly as designed. Full-bleed —
               it runs past the container to the viewport edges. */}
-          <div className="relative mt-10 hidden min-h-[240px] w-full flex-1 md:block">
+          <div className="relative mt-6 hidden min-h-0 w-full flex-1 md:block lg:mt-8">
             {mosaic.map((item, index) => {
               const pos = MOSAIC_LAYOUT[index]
               if (!pos) return null

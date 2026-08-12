@@ -97,6 +97,9 @@
   --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.06), 0 16px 40px rgb(0 0 0 / 0.1);
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Symmetric curve for the header morph — eases in AND out, so
+     collapsing back to the pill is as calm as expanding. */
+  --ease-morph: cubic-bezier(0.45, 0, 0.15, 1);
 }
 
 /*
