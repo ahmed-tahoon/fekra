@@ -12,6 +12,7 @@ import { getDictionary } from '@/i18n/getDictionary'
 import { LOCALES, dir, isLocale } from '@/i18n/routing'
 import { organizationSchema, websiteSchema } from '@/lib/jsonld'
 import { getGlobal } from '@/lib/payload'
+import { isComingSoon } from '@/lib/site-mode'
 import { siteUrl } from '@/lib/urls'
 
 import '../globals.css'
@@ -59,7 +60,7 @@ export function generateStaticParams() {
   // Behind the holding page every one of these routes is rewritten before it
   // renders, so prerendering them only means the build needs a database it
   // will never read. Returning [] lets the holding page deploy on its own.
-  if (process.env.COMING_SOON === 'true') return []
+  if (isComingSoon()) return []
   return LOCALES.map((locale) => ({ locale }))
 }
 

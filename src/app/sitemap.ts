@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 
 import { DEFAULT_LOCALE, LOCALES, type Locale } from '@/i18n/routing'
 import { payloadClient } from '@/lib/payload'
+import { isComingSoon } from '@/lib/site-mode'
 import { absoluteUrl, documentPath, type LinkableCollection } from '@/lib/urls'
 
 export const revalidate = 3600
@@ -36,7 +37,7 @@ const localesOf = (doc: Indexable): Locale[] => {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Closed site: nothing is reachable, so advertise nothing.
-  if (process.env.COMING_SOON === 'true') return []
+  if (isComingSoon()) return []
 
   const payload = await payloadClient()
 

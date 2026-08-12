@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { payloadClient } from '@/lib/payload'
+import { isComingSoon } from '@/lib/site-mode'
 import { documentPath, siteUrl } from '@/lib/urls'
 
 export const revalidate = 3600
@@ -12,7 +13,7 @@ export const revalidate = 3600
  */
 export async function GET() {
   // Opt-in, and never while the public site is closed.
-  if (process.env.COMING_SOON === 'true') return new NextResponse('Not found', { status: 404 })
+  if (isComingSoon()) return new NextResponse('Not found', { status: 404 })
 
   let payload
   let settings
