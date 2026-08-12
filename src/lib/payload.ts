@@ -3,6 +3,7 @@ import { getPayload, type Where } from 'payload'
 import configPromise from '@payload-config'
 
 import type { Locale } from '@/i18n/routing'
+import { isComingSoon } from './site-mode'
 
 /** One Payload instance per server process. */
 export const payloadClient = async () => getPayload({ config: configPromise })
@@ -107,7 +108,7 @@ export async function staticSlugs(
 ): Promise<{ slug: string }[]> {
   // Behind the holding page these routes are rewritten before they render,
   // so asking the CMS for slugs is only a slower build and noisier logs.
-  if (process.env.COMING_SOON === 'true') return []
+  if (isComingSoon()) return []
 
   try {
     const { docs } = await findDocs<{ slug: string }>({ collection, locale, limit, depth: 0 })

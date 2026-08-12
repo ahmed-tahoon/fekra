@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { DEFAULT_LOCALE, LOCALES, isLocale, negotiateLocale } from '@/i18n/routing'
+import { isComingSoon } from '@/lib/site-mode'
 
 const LOCALE_COOKIE = 'NEXT_LOCALE'
 
@@ -10,7 +11,7 @@ const LOCALE_COOKIE = 'NEXT_LOCALE'
  * routes are already excluded by the matcher below, so editors keep working
  * while the public site is closed.
  */
-const COMING_SOON = process.env.COMING_SOON === 'true'
+const COMING_SOON = isComingSoon()
 const SOON_PATH = '/coming-soon'
 
 /**

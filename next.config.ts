@@ -11,6 +11,29 @@ const redirectMap: RedirectEntry[] = JSON.parse(
   readFileSync(path.join(dirname, 'redirects.json'), 'utf8'),
 )
 
+/*
+ * Say out loud which mode this build is in. Without it, a deploy missing
+ * PAYLOAD_SECRET quietly ships a holding page and everyone wonders why the
+ * site is "down".
+ */
+const cmsConfigured = Boolean(process.env.PAYLOAD_SECRET?.trim()) && Boolean(process.env.DATABASE_URL?.trim())
+const missingEnv = [
+  !process.env.PAYLOAD_SECRET?.trim() && 'PAYLOAD_SECRET',
+  !process.env.DATABASE_URL?.trim() && 'DATABASE_URL',
+].filter(Boolean)
+
+if (process.env.COMING_SOON === 'true') {
+  console.log('\n  FEKRA build mode: HOLDING PAGE  (COMING_SOON=true)\n')
+} else if (!cmsConfigured) {
+  console.log(
+    `\n  FEKRA build mode: HOLDING PAGE  — the CMS is not configured.\n` +
+      `  Missing: ${missingEnv.join(', ')}\n` +
+      `  Set them in your hosting provider to build the full site and enable /admin.\n`,
+  )
+} else {
+  console.log('\n  FEKRA build mode: FULL SITE\n')
+}
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 const S3_HOST = process.env.S3_PUBLIC_HOST // e.g. media.fekra-egy.com or <bucket>.r2.dev
 

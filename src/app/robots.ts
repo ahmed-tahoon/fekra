@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 import { payloadClient } from '@/lib/payload'
+import { isComingSoon } from '@/lib/site-mode'
 import { siteUrl } from '@/lib/urls'
 
 export const revalidate = 3600
@@ -25,7 +26,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   // robots.txt and sitemap.xml carry a file extension, so the proxy matcher
   // skips them and they would keep advertising pages that currently serve the
   // holding page. Close the whole site while it is behind that page (18.13).
-  if (process.env.COMING_SOON === 'true') {
+  if (isComingSoon()) {
     return { rules: [{ userAgent: '*', disallow: '/' }] }
   }
 
