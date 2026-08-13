@@ -32,8 +32,11 @@ export function ContactSection({
 }) {
   return (
     <section id={block.anchor ?? 'contact'} className="section">
-      <div className="container-site grid gap-12 lg:grid-cols-2">
-        <div>
+      {/* Figma 1:11725: the heading spans the frame, then a row of form (489)
+          beside the locations panel (655). The form led the row in the comp and
+          was second here, which is why it read reversed. */}
+      <div className="container-site flex flex-col gap-10">
+        <div className="flex flex-col gap-2">
           {block.eyebrow ? (
             <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
               {block.eyebrow}
@@ -45,10 +48,18 @@ export function ContactSection({
               {block.heading ?? dict.contact.title}
             </span>
           </Heading>
-          <p className="mt-4 max-w-lg text-lg text-muted-foreground">{block.body ?? dict.contact.subtitle}</p>
+          <p className="max-w-lg text-lg text-muted-foreground">{block.body ?? dict.contact.subtitle}</p>
+        </div>
+
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,489fr)_minmax(0,655fr)]">
+          {block.showForm !== false ? (
+            <div className="rounded-panel border border-border bg-card p-6 md:p-8">
+              <ContactForm dict={dict} locale={locale} />
+            </div>
+          ) : null}
 
           {block.showOffices !== false && offices?.length ? (
-            <div className="mt-10">
+            <div>
               <h3 className="text-sm font-semibold tracking-wide uppercase">{dict.contact.offices}</h3>
               <ul className="mt-4 grid gap-5 sm:grid-cols-2">
                 {offices.map((office) => (
@@ -81,12 +92,6 @@ export function ContactSection({
             </div>
           ) : null}
         </div>
-
-        {block.showForm !== false ? (
-          <div className="rounded-panel border border-border bg-card p-6 md:p-10">
-            <ContactForm dict={dict} locale={locale} />
-          </div>
-        ) : null}
       </div>
     </section>
   )

@@ -737,6 +737,34 @@ const run = async () => {
         industries: industryItems,
       },
       {
+        blockType: 'process',
+        eyebrow: 'Our process',
+        heading: 'Your success starts here',
+        body: 'We screen every engineer for technical skills, communication and reliability.',
+        steps: [
+          {
+            title: 'Sourcing & Profile Screening',
+            body: 'We shortlist engineers whose experience matches the role.',
+          },
+          {
+            title: 'Language & Communication Screening',
+            body: 'Selected candidates go through a structured language and communication interview to ensure they can collaborate clearly and confidently with your team.',
+          },
+          {
+            title: 'HR & Commitment Evaluation',
+            body: 'We assess professionalism, reliability, availability, cultural fit, and commitment to support long-term collaboration.',
+          },
+          {
+            title: 'Technical Evaluation',
+            body: 'Candidates complete a structured technical assessment based on the role, covering practical knowledge, problem-solving ability, and real-job relevance.',
+          },
+          {
+            title: 'Technical Interview',
+            body: 'Our team conducts a detailed technical interview to validate depth of knowledge, hands-on capability, and readiness to perform in a real project environment.',
+          },
+        ],
+      },
+      {
         blockType: 'stats',
         heading: 'Trusted by',
         items: [

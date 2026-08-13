@@ -478,6 +478,25 @@
     }
   }
 
+  /* Timing bar under the active process step. */
+  .fk-step-progress {
+    animation: fk-step-progress linear forwards;
+    transform-origin: left center;
+  }
+
+  [dir='rtl'] .fk-step-progress {
+    transform-origin: right center;
+  }
+
+  @keyframes fk-step-progress {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
   /* Logical properties everywhere so RTL mirrors for free (14.4). */
   .icon-flip {
     transition: transform 0.2s var(--ease-out-soft);
@@ -511,7 +530,8 @@
   .fk-drift,
   .fk-enter,
   .fk-tile-enter,
-  .fk-marquee {
+  .fk-marquee,
+  .fk-step-progress {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

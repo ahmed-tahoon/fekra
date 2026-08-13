@@ -9,6 +9,7 @@ import { cn } from '@/lib/cn'
 import { faqSchema } from '@/lib/jsonld'
 import { resolveLink } from '@/lib/resolveLink'
 
+import { ProcessStepper } from './ProcessStepper'
 import { RotatingWords } from './RotatingWords'
 import { TechTabs } from './TechTabs'
 import type { BlockProps, MediaDoc } from './types'
@@ -614,27 +615,31 @@ export function StatsSection({ block }: { block: BlockProps }) {
 }
 
 export function ProcessSection({ block }: { block: BlockProps }) {
+  const steps = (block.steps ?? []).map((s) => ({ title: s.title, body: s.body }))
+
   return (
     <section id={block.anchor ?? undefined} className="section">
-      <div className="container-site">
-        <SectionHeading
-          eyebrow={block.eyebrow}
-          heading={block.heading}
-          headingAccent={block.headingAccent}
-          body={block.body}
-        />
-        {/* A real <ol> — the sequence is the meaning, not the styling (19.1). */}
-        <ol className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {(block.steps ?? []).map((step, index) => (
-            <li key={step.title} className="rounded-card border border-border bg-card p-6">
-              <span className="font-display text-sm font-bold text-primary">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <h3 className="mt-2 text-lg">{step.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{step.body}</p>
-            </li>
-          ))}
-        </ol>
+      <div className="container-site flex flex-col items-center gap-10">
+        <div className="flex flex-col items-center gap-2 text-center">
+          {block.eyebrow ? (
+            <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
+              {block.eyebrow}
+            </p>
+          ) : null}
+          <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+            <span className="bg-[linear-gradient(142deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+              {block.heading}
+              {block.headingAccent ? ` ${block.headingAccent}` : null}
+            </span>
+          </h2>
+          {block.body ? (
+            <p className="max-w-3xl text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p>
+          ) : null}
+        </div>
+
+        <div className="w-full max-w-[900px]">
+          <ProcessStepper steps={steps} />
+        </div>
       </div>
     </section>
   )
