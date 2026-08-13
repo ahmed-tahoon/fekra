@@ -59,6 +59,12 @@
   --color-navy-500: #326ec6;
   --color-navy-700: #293b6a;
   --color-navy-800: #273969;
+
+  /* Talent panel surfaces and role pills — Figma 1:10318. */
+  --color-panel-grey: #f1f2f9;
+  --color-panel-mint: #ccffee;
+  --color-role-pill: #b6e8f2;
+  --color-role-pill-ink: #0b3942;
   --color-ink-900: #192424;
   --color-ink-700: #424242;
   --color-ink-500: #687170;
@@ -427,6 +433,35 @@
     }
   }
 
+  /*
+   * Talent panel marquee. The comp clips its card rows at the panel edge, so
+   * the track is rendered twice and translated by exactly half its width — at
+   * the loop point the second copy sits where the first began, which is what
+   * makes it seamless. Duration scales with the row's own width so a longer
+   * row moves at the same speed rather than the same rate.
+   */
+  .fk-marquee {
+    display: flex;
+    width: max-content;
+    animation: fk-marquee var(--marquee-duration, 46s) linear infinite;
+  }
+
+  .fk-marquee-reverse {
+    animation-direction: reverse;
+  }
+
+  /* Reading a card is impossible while it slides away under the cursor. */
+  .fk-marquee-stage:hover .fk-marquee,
+  .fk-marquee-stage:focus-within .fk-marquee {
+    animation-play-state: paused;
+  }
+
+  @keyframes fk-marquee {
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
   /* Logical properties everywhere so RTL mirrors for free (14.4). */
   .icon-flip {
     transition: transform 0.2s var(--ease-out-soft);
@@ -459,7 +494,8 @@
   .fk-reveal,
   .fk-drift,
   .fk-enter,
-  .fk-tile-enter {
+  .fk-tile-enter,
+  .fk-marquee {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

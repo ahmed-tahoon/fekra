@@ -302,12 +302,15 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
   if (!logos.length && !hasStatement) return null
 
   return (
-    <section id={block.anchor ?? undefined} className="section">
-      {/* container-site, not container-wide: the comp is a 1440 frame, and at
-          1700 the four columns stretch until the rows drift apart. */}
-      <div className="container-site grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_520px] lg:gap-20">
+    /* Figma 1:10296 — 120px gutters, 80px block padding, statement and logo
+       board pushed to opposite edges. container-site is the 1440 frame's
+       content width; container-wide would stretch the board out of proportion. */
+    <section id={block.anchor ?? undefined} className="py-16 md:py-20">
+      <div className="container-site flex flex-col items-center gap-10 lg:flex-row lg:justify-between lg:gap-16">
         {hasStatement ? (
-          <p className="max-w-[350px] font-display text-2xl leading-[1.45] font-bold text-navy-800 md:text-[26px] dark:text-foreground">
+          /* 458px / 32px / 48px line-height, Space Grotesk Medium in the comp —
+             not bold, which is what made it read heavier than the design. */
+          <p className="max-w-[458px] font-display text-2xl leading-[1.5] font-medium text-navy-800 lg:text-[32px] dark:text-foreground">
             {statement?.before}{' '}
             {statement?.highlight ? <span className="text-primary">{statement.highlight}</span> : null}{' '}
             {statement?.after}
@@ -319,25 +322,23 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
         )}
 
         {logos.length ? (
-          /* Four across, as designed. The last row is deliberately left-aligned
-             rather than spread — a partial row that justifies itself reads as a
-             layout bug. */
-          <ul className="grid w-full max-w-[520px] grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-3 lg:max-w-none lg:grid-cols-4">
+          /* A 600px flex-wrap board of 96px-tall cells, 24px apart across and
+             16px down — the comp's own structure. Four fit per row and the
+             remainder stays left-aligned, which is what produces the 4/4/2. */
+          <ul className="flex max-w-[600px] flex-wrap items-center justify-center gap-x-6 gap-y-4 lg:justify-start">
             {logos.map((logo) => {
               const image = logo.image as MediaDoc | undefined
               if (!image?.url) return null
               return (
-                /* A fixed row height rather than an aspect ratio: aspect ties row
-                   height to column width, so the rows drifted apart as the grid
-                   widened. The marks run from 3:2 to 2:3, so they are contained
-                   in the cell rather than share a max-height, which would shrink
-                   the tall ones to nothing. */
-                <li key={logo.name} className="relative h-[74px]">
+                /* Fixed cell, mark contained inside. The marks run from 3:2 to
+                   2:3, so a shared max-height would shrink the tall ones to
+                   nothing; a fixed cell keeps them optically even. */
+                <li key={logo.name} className="relative h-24 w-[104px] shrink-0 sm:w-[120px]">
                   <Image
                     src={mediaUrl(image)}
                     alt={logo.name}
                     fill
-                    sizes="(min-width: 1024px) 130px, (min-width: 640px) 20vw, 40vw"
+                    sizes="120px"
                     className="object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:brightness-0 dark:invert dark:hover:brightness-100 dark:hover:invert-0"
                   />
                 </li>
@@ -635,116 +636,166 @@ function plainText(node: unknown): string {
 
 export function TalentShowcaseSection({ block, locale }: { block: BlockProps; locale: Locale }) {
   const people = block.people ?? []
+  const copyRight = block.side === 'copyRight'
+
+  /*
+   * The comp runs two rows of the same engineers in a different order. Rotating
+   * the list gives that for free, so a second panel never needs its people
+   * entered twice in the CMS.
+   */
+  const rows = people.length ? [people, [...people.slice(1), ...people.slice(0, 1)]] : []
+
+  const card = (person: NonNullable<BlockProps['people']>[number], key: string, hidden: boolean) => {
+    const avatar = person.avatar as MediaDoc | undefined
+    return (
+      <li
+        key={key}
+        aria-hidden={hidden || undefined}
+        /* Margin, not gap, on the track. A gap leaves half of one at the seam,
+           so translating the duplicated track by exactly -50% would stutter
+           every loop; with margin the two halves are identical. */
+        className="me-6 w-[220px] shrink-0 rounded-card bg-card p-4 shadow-[0_0_7.5px_rgba(0,0,0,0.25)]"
+      >
+        <div className="flex items-center gap-2.5">
+          {avatar?.url ? (
+            <Image
+              src={mediaUrl(avatar)}
+              alt=""
+              width={48}
+              height={48}
+              aria-hidden
+              className="size-12 shrink-0 rounded-pill object-cover"
+            />
+          ) : (
+            <span
+              aria-hidden
+              className="grid size-12 shrink-0 place-items-center rounded-pill bg-primary/12 font-display text-base font-bold text-primary"
+            >
+              {person.name.charAt(0)}
+            </span>
+          )}
+          <span className="min-w-0">
+            <span className="block truncate font-display text-base font-bold text-navy-800 dark:text-foreground">
+              {person.name}
+            </span>
+            <span className="block truncate text-xs text-ink-500 dark:text-muted-foreground">{person.role}</span>
+          </span>
+        </div>
+
+        <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-border pt-2.5 pb-1">
+          {person.experience ? (
+            <span
+              dir="ltr"
+              className="rounded-pill border border-border bg-background-subtle px-2.5 py-1.5 text-xs text-ink-500 dark:text-muted-foreground"
+            >
+              {person.experience}
+            </span>
+          ) : null}
+          {typeof person.match === 'number' ? (
+            <span
+              dir="ltr"
+              className="rounded-pill border border-[#a7f3d0] bg-[#ecfdf5] px-2.5 py-1.5 text-xs text-success-600"
+            >
+              Match: {person.match}%
+            </span>
+          ) : null}
+          {person.evaluated ? (
+            <span className="rounded-pill border border-[#e0e7ff] bg-[#eef2ff] px-2.5 py-1.5 text-xs text-[#4338ca]">
+              Technically Evaluated
+            </span>
+          ) : null}
+        </div>
+      </li>
+    )
+  }
+
+  const copy = (
+    <div className="flex w-full flex-col gap-8 lg:w-[480px] lg:shrink-0">
+      {block.eyebrow ? (
+        <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{block.eyebrow}</p>
+      ) : null}
+
+      <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+        {/* Teal to indigo clipped to the text — the hero's treatment. */}
+        <span className="bg-[linear-gradient(114.22deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+          {block.heading}
+          {block.headingAccent ? (
+            <>
+              <br />
+              {block.headingAccent}
+            </>
+          ) : null}
+        </span>
+      </h2>
+
+      {block.body ? <p className="text-lg/[1.6] text-ink-500 dark:text-muted-foreground">{block.body}</p> : null}
+
+      {block.bullets?.length ? (
+        <ul className="ms-5 flex list-disc flex-col gap-1 text-lg/[1.6] text-ink-500 dark:text-muted-foreground">
+          {block.bullets.map((bullet) => (
+            <li key={bullet.text}>{bullet.text}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      {block.roles?.length ? (
+        <ul className="flex flex-wrap gap-x-3 gap-y-2">
+          {block.roles.map((role) => (
+            <li
+              key={role.label}
+              className="rounded-pill border border-brand-500 bg-role-pill px-3 py-2.5 text-base leading-none text-role-pill-ink"
+            >
+              {role.label}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      <Ctas ctas={block.ctas} locale={locale} size="md" />
+    </div>
+  )
+
+  const panel = rows.length ? (
+    <div
+      className={cn(
+        'fk-marquee-stage w-full overflow-hidden rounded-[40px] p-6 sm:p-10 lg:w-[652px] lg:shrink-0',
+        block.panelTone === 'mint' ? 'bg-panel-mint' : 'bg-panel-grey',
+        'dark:bg-background-subtle',
+      )}
+    >
+      {block.panelTitle ? (
+        <p className="mb-6 text-center text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
+          {block.panelTitle}
+        </p>
+      ) : null}
+
+      <div className="flex flex-col gap-6">
+        {rows.map((row, rowIndex) => (
+          <ul
+            key={rowIndex}
+            style={{ '--marquee-duration': `${46 + rowIndex * 10}s` } as React.CSSProperties}
+            className={cn('fk-marquee', rowIndex % 2 === 1 && 'fk-marquee-reverse')}
+          >
+            {/* Duplicated so -50% lands the copy where the original began. The
+                second half is hidden from assistive tech — same people twice. */}
+            {row.map((person, i) => card(person, `a-${rowIndex}-${i}`, false))}
+            {row.map((person, i) => card(person, `b-${rowIndex}-${i}`, true))}
+          </ul>
+        ))}
+      </div>
+    </div>
+  ) : null
 
   return (
     <section id={block.anchor ?? undefined} className="section">
-      <div className="container-wide grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
-        <div>
-          {block.eyebrow ? (
-            <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{block.eyebrow}</p>
-          ) : null}
-          <h2 className="mt-3 text-4xl md:text-5xl">
-            <span className="text-primary">{block.heading}</span>
-            {block.headingAccent ? (
-              <>
-                <br />
-                {block.headingAccent}
-              </>
-            ) : null}
-          </h2>
-          {block.body ? <p className="mt-4 max-w-lg text-muted-foreground">{block.body}</p> : null}
-
-          {block.bullets?.length ? (
-            <ul className="mt-6 flex flex-col gap-2">
-              {block.bullets.map((bullet) => (
-                <li key={bullet.text} className="flex items-start gap-2.5 text-sm">
-                  <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-pill bg-primary" />
-                  {bullet.text}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-
-          {block.roles?.length ? (
-            <ul className="mt-8 flex flex-wrap gap-2">
-              {block.roles.map((role) => (
-                <li
-                  key={role.label}
-                  className="rounded-pill bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-primary"
-                >
-                  {role.label}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-
-          <div className="mt-8">
-            <Ctas ctas={block.ctas} locale={locale} size="md" />
-          </div>
-        </div>
-
-        {people.length ? (
-          <div className="rounded-panel border border-border bg-background-subtle p-5 md:p-7">
-            {block.panelTitle ? (
-              <p className="mb-5 text-center text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
-                {block.panelTitle}
-              </p>
-            ) : null}
-
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {people.map((person) => {
-                const avatar = person.avatar as MediaDoc | undefined
-                return (
-                  <li key={person.name} className="rounded-card border border-border bg-card p-4 shadow-card">
-                    <div className="flex items-center gap-3">
-                      {avatar?.url ? (
-                        <Image
-                          src={mediaUrl(avatar)}
-                          alt=""
-                          width={40}
-                          height={40}
-                          aria-hidden
-                          className="size-10 rounded-pill object-cover"
-                        />
-                      ) : (
-                        <span
-                          aria-hidden
-                          className="grid size-10 place-items-center rounded-pill bg-primary/12 font-display text-sm font-bold text-primary"
-                        >
-                          {person.name.charAt(0)}
-                        </span>
-                      )}
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-semibold">{person.name}</span>
-                        <span className="block truncate text-xs text-muted-foreground">{person.role}</span>
-                      </span>
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                      {person.experience ? (
-                        <span className="text-muted-foreground">{person.experience}</span>
-                      ) : null}
-                      {typeof person.match === 'number' ? (
-                        <span
-                          dir="ltr"
-                          className="rounded-pill bg-emerald-500/12 px-2 py-0.5 font-semibold text-emerald-700 dark:text-emerald-300"
-                        >
-                          Match: {person.match}%
-                        </span>
-                      ) : null}
-                    </div>
-
-                    {person.evaluated ? (
-                      <p className="mt-2 rounded-pill bg-primary/10 px-2.5 py-1 text-center text-2xs font-semibold text-primary">
-                        Technically Evaluated
-                      </p>
-                    ) : null}
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        ) : null}
+      <div
+        className={cn(
+          'container-site flex flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-16',
+          copyRight && 'lg:flex-row-reverse',
+        )}
+      >
+        {copy}
+        {panel}
       </div>
     </section>
   )

@@ -114,21 +114,22 @@ async function upsertMedia(
 }
 
 const run = async () => {
-  // Refuse to put the throwaway development password on a real database. It is
-  // printed in the README, so an admin account using it is effectively public.
-  if (isRemoteDatabase() && !process.env.SEED_ADMIN_PASSWORD) {
-    console.error(
-      '\n  Refusing to seed a remote database with the default admin password.\n' +
-        '  Re-run with your own credentials:\n\n' +
-        '    SEED_ADMIN_EMAIL=you@fekra-egy.com SEED_ADMIN_PASSWORD=\'<strong password>\' pnpm seed\n',
-    )
-    process.exit(1)
-  }
-
   const payload = await getPayload({ config })
 
   const users = await payload.find({ collection: 'users', limit: 1 })
   if (!users.docs.length) {
+    // Refuse to put the throwaway development password on a real database — it
+    // is printed in the README, so such an account is effectively public. The
+    // check belongs here rather than at the top: once an admin exists, seeding
+    // content creates no account and is safe to re-run without credentials.
+    if (isRemoteDatabase() && !process.env.SEED_ADMIN_PASSWORD) {
+      console.error(
+        '\n  Refusing to create the first admin on a remote database with the default password.\n' +
+          '  Re-run with your own credentials:\n\n' +
+          '    SEED_ADMIN_EMAIL=you@fekra-egy.com SEED_ADMIN_PASSWORD=\'<strong password>\' pnpm seed\n',
+      )
+      process.exit(1)
+    }
     await payload.create({
       collection: 'users',
       data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD, name: 'FEKRA Admin', role: 'admin' },
@@ -189,10 +190,9 @@ const run = async () => {
     ...(analyticsId ? { analyticsId } : {}),
   })
 
-  // The client logos, in the order they appear in the comp. `partner-pinwheel`
-  // is the one mark in the design I could not attribute — rename it in the CMS,
-  // the name is what becomes its alt text. DataFusion Software is in the design
-  // but is vector-only in Figma, so it has no asset here yet.
+  // The client logos, in the order they appear in the comp (Figma 1:10296).
+  // `partner-pinwheel` is the one mark the design does not name — rename it in
+  // the CMS, since the name is what becomes its alt text.
   const clientLogos = await Promise.all(
     [
       ['pitman-training', 'Pitman Training'],
@@ -202,16 +202,30 @@ const run = async () => {
       ['allianz', 'Allianz'],
       ['smart-management-systems', 'Smart Management Systems'],
       ['stc', 'stc'],
-      // No asset yet — vector-only in Figma, so it is not in the .fig export's
-      // images. upsertMedia returns null for a missing file and the filter
-      // below drops it, so dropping datafusion-software.png into
-      // public/images/logos and re-seeding is all it takes to light it up.
       ['datafusion-software', 'DataFusion Software'],
       ['codewave-systems', 'Codewave Systems'],
       ['adnoc', 'ADNOC'],
     ].map(async ([slug, name]) => ({
       name,
       media: await upsertMedia(payload, `${slug}.png`, `${name} logo`, 'logos'),
+    })),
+  )
+
+  // Shared by both talent panels — the comp shows the same four engineers in
+  // each, in a different order, which the component derives by rotating.
+  const talentPeople = await Promise.all(
+    [
+      ['Emma Williams', 'UX Designer', '3+ Years', 74, 'emma-williams'],
+      ['Priya Sharma', 'Data Scientist', '5+ Years', 85, 'priya-sharma'],
+      ['James Chen', 'DevOps Engineer', '10+ Years', 91, 'james-chen'],
+      ['Alex Rivera', 'Full Stack Developer', '6+ Years', 88, 'alex-rivera'],
+    ].map(async ([name, role, experience, match, file]) => ({
+      name: name as string,
+      role: role as string,
+      experience: experience as string,
+      match: match as number,
+      evaluated: true,
+      avatar: (await upsertMedia(payload, `${file}.png`, '', 'people'))?.id,
     })),
   )
 
@@ -474,7 +488,7 @@ const run = async () => {
         blockType: 'talentShowcase',
         heading: 'Build Your',
         headingAccent: 'Team Faster',
-        body: 'Get vetted engineers matched to your exact needs without wasting weeks on hiring, screening and filtering.',
+        body: 'Get vetted engineers matched to your exact needs without wasting weeks on hiring, screening, and filtering.',
         bullets: [
           { text: 'Fast shortlisting' },
           { text: 'Technical evaluation reports' },
@@ -490,13 +504,26 @@ const run = async () => {
           { label: 'System administrators & DevOps' },
         ],
         panelTitle: 'Build your remote team',
-        people: [
-          { name: 'Emma Williams', role: 'UX Designer', experience: '3+ Years', match: 74, evaluated: true },
-          { name: 'Priya Sharma', role: 'Data Scientist', experience: '5+ Years', match: 85, evaluated: true },
-          { name: 'James Chen', role: 'DevOps Engineer', experience: '10+ Years', match: 91, evaluated: true },
-          { name: 'Alex Rivera', role: 'Full Stack Developer', experience: '8+ Years', match: 88, evaluated: true },
+        panelTone: 'grey',
+        side: 'copyLeft',
+        people: talentPeople,
+      },
+      {
+        // Same block, mirrored and tinted — Figma 1:10318 lower half.
+        blockType: 'talentShowcase',
+        heading: 'Work With',
+        headingAccent: 'Confidence',
+        body: 'Start with clear contracts, NDA protection, secure access, dedicated engineers, and structured delivery follow-up from day one.',
+        bullets: [
+          { text: 'Contracts & NDA from day one' },
+          { text: 'Secure data & access' },
+          { text: 'Dedicated engineers with time zone fit' },
+          { text: 'Transparent delivery follow-up' },
         ],
-        ctas: [{ variant: 'primary', link: route('Build your remote team', '/contact') }],
+        panelTitle: 'Build your remote team',
+        panelTone: 'mint',
+        side: 'copyRight',
+        people: talentPeople,
       },
       {
         blockType: 'cardGrid',

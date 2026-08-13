@@ -76,6 +76,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  /*
+   * Prerender reads from Supabase through the transaction pooler, and nine
+   * build workers hitting it at once can push a page past the 60s default.
+   * That is a timeout, never a real error, but it fails the build all the same.
+   */
+  staticPageGenerationTimeout: 180,
   // Trailing-slash policy is a canonical signal — keep it fixed forever (18.1/18.3).
   trailingSlash: false,
 

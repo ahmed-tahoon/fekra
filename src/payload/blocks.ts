@@ -451,6 +451,31 @@ export const TalentShowcaseBlock: Block = {
     },
     { name: 'panelTitle', type: 'text', localized: true },
     {
+      type: 'row',
+      fields: [
+        {
+          name: 'panelTone',
+          type: 'select',
+          defaultValue: 'grey',
+          options: [
+            { label: 'Grey', value: 'grey' },
+            { label: 'Mint', value: 'mint' },
+          ],
+          admin: { width: '50%', description: 'Background of the engineer panel.' },
+        },
+        {
+          name: 'side',
+          type: 'select',
+          defaultValue: 'copyLeft',
+          options: [
+            { label: 'Copy left, panel right', value: 'copyLeft' },
+            { label: 'Panel left, copy right', value: 'copyRight' },
+          ],
+          admin: { width: '50%', description: 'Alternate this between stacked showcases.' },
+        },
+      ],
+    },
+    {
       name: 'people',
       type: 'array',
       labels: { singular: 'Engineer', plural: 'Engineers' },

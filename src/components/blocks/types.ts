@@ -109,6 +109,8 @@ export type BlockProps = {
   /** Talent showcase. */
   roles?: { label: string }[] | null
   panelTitle?: string | null
+  panelTone?: 'grey' | 'mint' | null
+  side?: 'copyLeft' | 'copyRight' | null
   people?:
     | {
         name: string

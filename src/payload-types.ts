@@ -508,6 +508,14 @@ export interface TalentShowcaseBlock {
       }[]
     | null;
   panelTitle?: string | null;
+  /**
+   * Background of the engineer panel.
+   */
+  panelTone?: ('grey' | 'mint') | null;
+  /**
+   * Alternate this between stacked showcases.
+   */
+  side?: ('copyLeft' | 'copyRight') | null;
   people?:
     | {
         name: string;
@@ -1553,6 +1561,8 @@ export interface TalentShowcaseBlockSelect<T extends boolean = true> {
         id?: T;
       };
   panelTitle?: T;
+  panelTone?: T;
+  side?: T;
   people?:
     | T
     | {
