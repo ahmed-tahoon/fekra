@@ -42,6 +42,28 @@ const generateURL: GenerateURL = ({ doc, collectionConfig }) =>
 
 const hasS3 = Boolean(process.env.S3_BUCKET)
 
+/*
+ * Supabase signs S3 requests against the project's real region. `auto` is a
+ * Cloudflare R2 convention and it is the default in .env.example, so the wrong
+ * combination is easy to land on — and it fails as a bare 403 on every upload
+ * with nothing pointing at the region. Refuse to start instead.
+ */
+if (hasS3 && /supabase\.(co|in)\/storage\/v1\/s3/.test(process.env.S3_ENDPOINT ?? '')) {
+  const region = process.env.S3_REGION?.trim()
+  if (!region || region === 'auto') {
+    throw new Error(
+      'S3_REGION must be the Supabase project region (e.g. eu-north-1), not "auto".\n' +
+        'It is the region in the DATABASE_URL host: aws-0-<region>.pooler.supabase.com',
+    )
+  }
+  if (!process.env.S3_ACCESS_KEY_ID || !process.env.S3_SECRET_ACCESS_KEY) {
+    throw new Error(
+      'S3_BUCKET is set but the S3 credentials are missing.\n' +
+        'Create them in Supabase under Storage > S3 Access Keys (not the anon or service keys).',
+    )
+  }
+}
+
 /**
  * Origins the admin is legitimately served from.
  *

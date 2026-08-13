@@ -20,7 +20,7 @@ One Next.js application contains both the public site and the CMS.
                      └───────┬──────────────────┬───────────────┘
                              │                  │
                      ┌───────▼──────┐   ┌───────▼────────────┐
-                     │  PostgreSQL  │   │  S3 / R2           │
+                     │  PostgreSQL  │   │  Supabase Storage  │
                      │  content +   │   │  media (public)    │
                      │  submissions │   │  CVs (signed only) │
                      └──────────────┘   └────────────────────┘
@@ -53,8 +53,8 @@ settings; nothing secret is committed. Summary:
 | `DATABASE_URL` | yes | Use the **pooled** connection string on Vercel. |
 | `PAYLOAD_SECRET` | yes | 32+ random chars. Rotating logs everyone out. |
 | `PREVIEW_SECRET` | yes | Guards `/api/preview`. |
-| `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | prod | Empty bucket name = local disk (development only). |
-| `S3_ENDPOINT` | R2/MinIO | Omit for AWS. |
+| `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | prod | Bucket is `fekra_assets`. Empty bucket name = local disk, which Vercel wipes on every deploy. Region must be the real one (`eu-north-1`), never `auto`. Keys come from Supabase > Storage > S3 Access Keys. Verify with `pnpm check:storage`. |
+| `S3_ENDPOINT` | prod | `https://<project-ref>.supabase.co/storage/v1/s3`. Omit only for real AWS. |
 | `S3_PUBLIC_HOST` | prod | Added to `next/image` `remotePatterns`. |
 | `RESEND_API_KEY`, `EMAIL_FROM` | prod | Without it, submissions still save but no email is sent. |
 | `CSP_ENFORCE` | prod | `false` = report-only. Flip to `true` after verifying on staging. |
@@ -92,7 +92,7 @@ pnpm payload migrate            # run as a release step
 | LinkedIn Insight | Site Settings → Integrations | Marketing consent only. |
 | Search Console | Site Settings → SEO → verification token | Submit `https://<domain>/sitemap.xml` after go-live. |
 | Resend | `RESEND_API_KEY` env | Verify the sending domain (SPF/DKIM) before launch or notifications land in spam. |
-| S3 / R2 | env | The bucket must **not** be public for the `applications/` prefix. |
+| Supabase Storage | env | One bucket, `fekra_assets`: media under `media/`, CVs under `applications/`. Keep it private — files stream through `/cms-api` and CV links are signed for 5 minutes. |
 
 ## 6. CMS workflow (4.10)
 
@@ -154,7 +154,7 @@ Transfer to FEKRA before sign-off:
 - [ ] Vercel project — FEKRA account has **Owner**
 - [ ] Domain registrar and DNS
 - [ ] Database provider
-- [ ] S3 / R2 bucket and keys
+- [ ] `fekra_assets` bucket created, S3 access keys issued, `pnpm check:storage` passing
 - [ ] Resend (or the final email provider)
 - [ ] Google Analytics 4 property and GTM container
 - [ ] Google Search Console property
