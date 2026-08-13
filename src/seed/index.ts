@@ -211,6 +211,29 @@ const run = async () => {
     })),
   )
 
+  // Figma 3:1656. Only the AI/ML tab's tools are specified in that node; the
+  // other eight tabs exist so the bar matches the design and are filled in
+  // through the CMS.
+  const aiTools = [
+    ['TensorFlow', 'tensorflow.svg'],
+    ['PyTorch', 'pytorch.png'],
+    ['Keras', 'keras.svg'],
+    ['Scikit-learn', 'scikit-learn.svg'],
+    ['Hugging Face Transformers', 'hugging-face.png'],
+    ['FastAI', 'fastai.png'],
+    ['OpenCV', 'opencv.svg'],
+    ['LightGBM', 'lightgbm.svg'],
+    ['XGBoost', 'xgboost.png'],
+    ['Apache Spark MLlib', 'apache-spark.svg'],
+    ['NLP frameworks (NLTK, SpaCy)', 'spacy.svg'],
+  ]
+  const aiItems = await Promise.all(
+    aiTools.map(async ([name, file]) => ({
+      name: name as string,
+      logo: (await upsertMedia(payload, file as string, '', 'tech'))?.id,
+    })),
+  )
+
   // "All Businesses Types" — Figma 1:10748. Icons exported from the same node.
   const bizIcons = Object.fromEntries(
     await Promise.all(
@@ -574,6 +597,22 @@ const run = async () => {
           },
         ],
         ctas: [{ variant: 'secondary', link: route('Get in Touch', '/contact') }],
+      },
+      {
+        blockType: 'techStack',
+        heading: 'Technologies We Work With',
+        body: 'Modern tools for web, mobile, cloud, AI, data, and automation.',
+        groups: [
+          { name: 'AI / ML', items: aiItems },
+          { name: 'Frontend', items: [] },
+          { name: 'Backend', items: [] },
+          { name: 'Mobile', items: [] },
+          { name: 'Cloud & DevOps', items: [] },
+          { name: 'Databases', items: [] },
+          { name: 'QA & Testing', items: [] },
+          { name: 'CMS & E-commerce', items: [] },
+          { name: 'Low-Code & Automation', items: [] },
+        ],
       },
       {
         blockType: 'cardGrid',

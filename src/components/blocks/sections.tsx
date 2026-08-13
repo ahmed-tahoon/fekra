@@ -10,6 +10,7 @@ import { faqSchema } from '@/lib/jsonld'
 import { resolveLink } from '@/lib/resolveLink'
 
 import { RotatingWords } from './RotatingWords'
+import { TechTabs } from './TechTabs'
 import type { BlockProps, MediaDoc } from './types'
 import { mediaAlt, mediaUrl } from './types'
 
@@ -640,31 +641,31 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
 }
 
 export function TechStackSection({ block }: { block: BlockProps }) {
+  /* Media is resolved here so the client component receives plain strings and
+     never has to know about Payload's document shape. */
+  const groups = (block.groups ?? []).map((group) => ({
+    name: group.name,
+    items: (group.items ?? []).map((item) => {
+      const logo = item.logo as MediaDoc | undefined
+      return { name: item.name, src: logo?.url ? mediaUrl(logo) : null }
+    }),
+  }))
+
   return (
     <section id={block.anchor ?? undefined} className="section">
-      <div className="container-site">
-        <SectionHeading
-          eyebrow={block.eyebrow}
-          heading={block.heading}
-          headingAccent={block.headingAccent}
-          body={block.body}
-        />
-        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {(block.groups ?? []).map((group) => (
-            <div key={group.name} className="rounded-card border border-border bg-card p-6">
-              <h3 className="text-lg">{group.name}</h3>
-              <ul className="mt-4 flex flex-wrap gap-2">
-                {(group.items ?? []).map((item) => (
-                  <li
-                    key={item.name}
-                    className="rounded-pill border border-border px-3 py-1 text-xs text-muted-foreground"
-                  >
-                    {item.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+      <div className="container-site flex flex-col items-center">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+            <span className="bg-[linear-gradient(154.19deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+              {block.heading}
+              {block.headingAccent ? ` ${block.headingAccent}` : null}
+            </span>
+          </h2>
+          {block.body ? <p className="text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p> : null}
+        </div>
+
+        <div className="w-full">
+          <TechTabs groups={groups} />
         </div>
       </div>
     </section>
