@@ -3,6 +3,7 @@ import * as migration_20260812_120157_home_sections from './20260812_120157_home
 import * as migration_20260812_211156_hero_tile_corner from './20260812_211156_hero_tile_corner';
 import * as migration_20260813_125157_add_storage_prefix from './20260813_125157_add_storage_prefix';
 import * as migration_20260813_131949_talent_panel_tone_side from './20260813_131949_talent_panel_tone_side';
+import * as migration_20260813_135600_card_grid_variant from './20260813_135600_card_grid_variant';
 
 export const migrations = [
   {
@@ -28,6 +29,11 @@ export const migrations = [
   {
     up: migration_20260813_131949_talent_panel_tone_side.up,
     down: migration_20260813_131949_talent_panel_tone_side.down,
-    name: '20260813_131949_talent_panel_tone_side'
+    name: '20260813_131949_talent_panel_tone_side',
+  },
+  {
+    up: migration_20260813_135600_card_grid_variant.up,
+    down: migration_20260813_135600_card_grid_variant.down,
+    name: '20260813_135600_card_grid_variant'
   },
 ];

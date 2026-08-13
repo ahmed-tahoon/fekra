@@ -353,6 +353,86 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
 
 export function CardGridSection({ block, locale }: { block: BlockProps; locale: Locale }) {
   const columns = block.columns ?? '3'
+  const cards = block.cards ?? []
+
+  /*
+   * Figma 1:10748 — two cards over three. A six-column grid gets that from the
+   * card count alone: the first two span three columns, the rest span two. No
+   * per-row markup, and a sixth card simply joins the second row.
+   */
+  if (block.variant === 'business') {
+    return (
+      <section id={block.anchor ?? undefined} className="section">
+        <div className="container-site flex flex-col items-center gap-10">
+          <div className="flex flex-col items-center gap-4 text-center">
+            {block.eyebrow ? (
+              <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
+                {block.eyebrow}
+              </p>
+            ) : null}
+            <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+              <span className="bg-[linear-gradient(147.07deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+                {block.heading}
+                {block.headingAccent ? ` ${block.headingAccent}` : null}
+              </span>
+            </h2>
+            {block.body ? (
+              <p className="max-w-3xl text-lg/[1.3] text-ink-500 dark:text-muted-foreground">{block.body}</p>
+            ) : null}
+          </div>
+
+          <ul className="grid w-full gap-6 md:grid-cols-6">
+            {cards.map((card, index) => {
+              const icon = card.icon as MediaDoc | undefined
+              return (
+                <li
+                  key={card.title}
+                  className={cn(
+                    'relative isolate overflow-hidden rounded-card border border-panel-grey bg-card px-7 py-6 dark:border-border',
+                    index < 2 ? 'md:col-span-3' : 'md:col-span-2',
+                  )}
+                >
+                  {/* Blue-to-grey wash at 40%, and the dotted corner, both
+                      decorative — behind the content and out of the a11y tree. */}
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 -z-10 bg-[linear-gradient(149.31deg,rgba(72,155,194,0.4)_0%,rgba(142,142,142,0.1)_100%)] opacity-40 dark:opacity-20"
+                  />
+                  <Image
+                    aria-hidden
+                    src="/images/decor/card-corner-dots.svg"
+                    alt=""
+                    width={132}
+                    height={86}
+                    className="pointer-events-none absolute -top-2 -right-px -z-10 w-[132px]"
+                  />
+
+                  <div className="flex flex-col gap-3">
+                    {icon?.url ? (
+                      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-card">
+                        <Image src={mediaUrl(icon)} alt="" width={24} height={24} className="size-6" aria-hidden />
+                      </span>
+                    ) : null}
+                    <h3 className="pt-2 font-display text-xl leading-7 font-bold text-navy-800 dark:text-foreground">
+                      {card.title}
+                    </h3>
+                    {card.body ? (
+                      <p className="text-lg/[1.35] whitespace-pre-line text-ink-500 dark:text-muted-foreground">
+                        {card.body}
+                      </p>
+                    ) : null}
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+
+          <Ctas ctas={block.ctas} locale={locale} />
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id={block.anchor ?? undefined} className="section">
       <div className="container-site">
@@ -370,7 +450,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
             columns === '4' && 'lg:grid-cols-4',
           )}
         >
-          {(block.cards ?? []).map((card) => {
+          {cards.map((card) => {
             const link = resolveLink(card.link, locale)
             const icon = card.icon as MediaDoc | undefined
             const inner = (

@@ -193,6 +193,16 @@ export const CardGridBlock: Block = {
   interfaceName: 'CardGridBlock',
   labels: { singular: 'Card grid', plural: 'Card grids' },
   fields: [
+    {
+      name: 'variant',
+      type: 'select',
+      defaultValue: 'plain',
+      options: [
+        { label: 'Plain cards', value: 'plain' },
+        { label: 'Business cards (gradient wash, 2 over 3)', value: 'business' },
+      ],
+      admin: { description: 'Business styles the cards like the "All Businesses Types" section.' },
+    },
     ...heading,
     {
       name: 'columns',

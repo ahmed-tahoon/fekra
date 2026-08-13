@@ -645,6 +645,10 @@ export interface Service {
  * via the `definition` "CardGridBlock".
  */
 export interface CardGridBlock {
+  /**
+   * Business styles the cards like the "All Businesses Types" section.
+   */
+  variant?: ('plain' | 'business') | null;
   eyebrow?: string | null;
   heading: string;
   /**
@@ -1600,6 +1604,7 @@ export interface TalentShowcaseBlockSelect<T extends boolean = true> {
  * via the `definition` "CardGridBlock_select".
  */
 export interface CardGridBlockSelect<T extends boolean = true> {
+  variant?: T;
   eyebrow?: T;
   heading?: T;
   headingAccent?: T;

@@ -211,6 +211,16 @@ const run = async () => {
     })),
   )
 
+  // "All Businesses Types" — Figma 1:10748. Icons exported from the same node.
+  const bizIcons = Object.fromEntries(
+    await Promise.all(
+      ['startups', 'small', 'enterprise', 'agency', 'innovation'].map(async (n) => [
+        n,
+        await upsertMedia(payload, `biz-${n}.svg`, '', 'icons'),
+      ]),
+    ),
+  )
+
   // Shared by both talent panels — the comp shows the same four engineers in
   // each, in a different order, which the component derives by rotating.
   const talentPeople = await Promise.all(
@@ -524,6 +534,46 @@ const run = async () => {
         panelTone: 'mint',
         side: 'copyRight',
         people: talentPeople,
+      },
+      {
+        blockType: 'cardGrid',
+        variant: 'business',
+        eyebrow: 'We work with',
+        heading: 'All Businesses Types',
+        body: 'Tailored Outsourcing & Technology Solutions for Every Business — from Startups to Global Enterprises.',
+        cards: [
+          {
+            icon: bizIcons.startups?.id,
+            title: 'Startups Business',
+            body:
+              'At Fekra, we empower startups to transform their ideas into scalable digital products. Our expertise in MVP development, rapid prototyping, and agile delivery helps founders move fast from concept to market-ready solutions. Acting as your extended tech team, we provide the technical foundation while you focus on growth, investment, and customer traction.\nWe make innovation simple — you dream it, we build it.',
+          },
+          {
+            icon: bizIcons.small?.id,
+            title: 'Small Business',
+            body:
+              'Small and mid-sized businesses trust Fekra to drive efficiency, scalability, and digital transformation. We deliver end-to-end technology services — from UI/UX design and web or mobile development to QA, cloud deployment, and ongoing support.\nOur flexible outsourcing models ensure you get enterprise-grade results without enterprise-level costs.',
+          },
+          {
+            icon: bizIcons.enterprise?.id,
+            title: 'Enterprise Business',
+            body:
+              'For large enterprises, Fekra provides robust, secure, and scalable enterprise-grade software solutions that deliver measurable impact. Our teams specialize in complex system integrations, custom platforms, ERP/CRM implementations, and long-term dedicated resources.\nWe enable global organizations to innovate faster and scale confidently through our reliable offshore delivery centers in Egypt and Saudi Arabia.',
+          },
+          {
+            icon: bizIcons.agency?.id,
+            title: 'Agency Business',
+            body:
+              'We collaborate with agencies worldwide — providing the technical execution that transforms creative visions into real products. Through 360° technology consulting, flexible engagement models, and a skilled in-house team, we help agencies extend their capabilities, meet deadlines, and scale seamlessly.\nPartnering with Fekra means gaining a trusted technical backbone for your client projects.',
+          },
+          {
+            icon: bizIcons.innovation?.id,
+            title: 'Bringing Innovation Together',
+            body:
+              'Innovation is at the heart of Fekra.\nOur R&D and engineering teams stay ahead of emerging technologies — from AI and automation to cloud and data-driven platforms — ensuring our clients always benefit from the latest innovations, security standards, and global best practices. Let\u2019s build the future, together.',
+          },
+        ],
+        ctas: [{ variant: 'secondary', link: route('Get in Touch', '/contact') }],
       },
       {
         blockType: 'cardGrid',

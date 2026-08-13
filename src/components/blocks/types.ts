@@ -72,6 +72,7 @@ export type BlockProps = {
   width?: 'prose' | 'full' | 'container'
   content?: SerializedEditorState | null
   columns?: '2' | '3' | '4'
+  variant?: 'plain' | 'business' | null
   tone?: 'brand' | 'ink' | 'subtle'
   marquee?: boolean | null
   emitSchema?: boolean | null
