@@ -107,11 +107,17 @@
   --radius-panel: 2rem;
   --radius-pill: 9999px;
 
-  /* 1440 matches the comp frame, so on a 1440 screen the gutter is the
-     designed one. Above that the old 1280 cap left the page marooned in the
-     middle of a wide monitor — this recovers 160px of width there without
-     touching how it reads at the design size. */
-  --container-site: 1440px;
+  /*
+   * Content widths measured off the comp frames, which use three gutters:
+   *   px-120 -> 1200 content  (most sections)
+   *   px-56  -> 1328 content  (technologies, industries — the wide boards)
+   *   px-200 -> 1040 content  (testimonials, FAQ — the reading columns)
+   * Each token carries the 2rem inline padding the utilities add, so the
+   * content lands on the designed number rather than 64px short of it.
+   */
+  --container-site: 1264px;
+  --container-board: 1392px;
+  --container-reading: 1104px;
   /* Editorial pages run near full-bleed — only a gutter, no centred column. */
   --container-wide: 1700px;
 
@@ -264,15 +270,32 @@
 }
 
 @layer utilities {
-  .container-site {
+  .container-site,
+  .container-board,
+  .container-reading {
     width: 100%;
-    max-width: var(--container-site);
     margin-inline: auto;
     padding-inline: 1.25rem;
   }
 
+  .container-site {
+    max-width: var(--container-site);
+  }
+
+  /* Wide boards — technologies and industries sit on a 56px gutter. */
+  .container-board {
+    max-width: var(--container-board);
+  }
+
+  /* Reading columns — testimonials and FAQ sit on a 200px gutter. */
+  .container-reading {
+    max-width: var(--container-reading);
+  }
+
   @media (min-width: 768px) {
-    .container-site {
+    .container-site,
+    .container-board,
+    .container-reading {
       padding-inline: 2rem;
     }
   }
@@ -301,14 +324,13 @@
     }
   }
 
+  /*
+   * 140px at the 1440 comp width and above, easing down to 64px on phones.
+   * 9.72vw is what puts the upper clamp exactly on 140 at 1440, so the design
+   * width gets the designed rhythm rather than an approximation of it.
+   */
   .section {
-    padding-block: 4rem;
-  }
-
-  @media (min-width: 768px) {
-    .section {
-      padding-block: 6rem;
-    }
+    padding-block: clamp(4rem, 9.72vw, 8.75rem);
   }
 
   /* Slim brand scrollbar for the sticky table of contents. */

@@ -667,21 +667,38 @@ const run = async () => {
         ],
       },
       {
-        blockType: 'logoCloud',
-        variant: 'badges',
-        eyebrow: 'Our partnerships',
-        heading: '& Certifications',
-        logos: certBadges.filter((c) => c.image).map((c) => ({ name: c.name, image: c.image! })),
+        blockType: 'industries',
+        heading: 'Our Industry Expertises',
+        body: 'Fekra helps companies scale with carefully vetted software engineers, structured technical evaluation, and a transparent delivery process built for speed, quality, and trust.',
+        industries: industryItems,
       },
       {
-        // Figma 3:2214.
-        blockType: 'cta',
-        tone: 'feature',
-        eyebrow: 'Your assistant',
-        heading: 'Meet Fika',
-        body: 'Fika is Fekra\u2019s AI-powered hiring assistant, built to help our team organize candidate data, accelerate screening, and support faster, more structured hiring decisions.',
-        media: (await upsertMedia(payload, 'fika.png', 'Fika, the FEKRA hiring assistant', 'decor'))?.id,
-        ctas: [{ variant: 'primary', link: route('Meet Fika', '/contact') }],
+        blockType: 'process',
+        eyebrow: 'Our process',
+        heading: 'Your success starts here',
+        body: 'We screen every engineer for technical skills, communication and reliability.',
+        steps: [
+          {
+            title: 'Sourcing & Profile Screening',
+            body: 'We shortlist engineers whose experience matches the role.',
+          },
+          {
+            title: 'Language & Communication Screening',
+            body: 'Selected candidates go through a structured language and communication interview to ensure they can collaborate clearly and confidently with your team.',
+          },
+          {
+            title: 'HR & Commitment Evaluation',
+            body: 'We assess professionalism, reliability, availability, cultural fit, and commitment to support long-term collaboration.',
+          },
+          {
+            title: 'Technical Evaluation',
+            body: 'Candidates complete a structured technical assessment based on the role, covering practical knowledge, problem-solving ability, and real-job relevance.',
+          },
+          {
+            title: 'Technical Interview',
+            body: 'Our team conducts a detailed technical interview to validate depth of knowledge, hands-on capability, and readiness to perform in a real project environment.',
+          },
+        ],
       },
       {
         blockType: 'testimonials',
@@ -731,48 +748,21 @@ const run = async () => {
         ],
       },
       {
-        blockType: 'industries',
-        heading: 'Our Industry Expertises',
-        body: 'Fekra helps companies scale with carefully vetted software engineers, structured technical evaluation, and a transparent delivery process built for speed, quality, and trust.',
-        industries: industryItems,
+        blockType: 'logoCloud',
+        variant: 'badges',
+        eyebrow: 'Our partnerships',
+        heading: '& Certifications',
+        logos: certBadges.filter((c) => c.image).map((c) => ({ name: c.name, image: c.image! })),
       },
       {
-        blockType: 'process',
-        eyebrow: 'Our process',
-        heading: 'Your success starts here',
-        body: 'We screen every engineer for technical skills, communication and reliability.',
-        steps: [
-          {
-            title: 'Sourcing & Profile Screening',
-            body: 'We shortlist engineers whose experience matches the role.',
-          },
-          {
-            title: 'Language & Communication Screening',
-            body: 'Selected candidates go through a structured language and communication interview to ensure they can collaborate clearly and confidently with your team.',
-          },
-          {
-            title: 'HR & Commitment Evaluation',
-            body: 'We assess professionalism, reliability, availability, cultural fit, and commitment to support long-term collaboration.',
-          },
-          {
-            title: 'Technical Evaluation',
-            body: 'Candidates complete a structured technical assessment based on the role, covering practical knowledge, problem-solving ability, and real-job relevance.',
-          },
-          {
-            title: 'Technical Interview',
-            body: 'Our team conducts a detailed technical interview to validate depth of knowledge, hands-on capability, and readiness to perform in a real project environment.',
-          },
-        ],
-      },
-      {
-        blockType: 'stats',
-        heading: 'Trusted by',
-        items: [
-          { value: '20+', label: 'Tech Stack' },
-          { value: '8+', label: 'Experience' },
-          { value: '300+', label: 'Top Talents' },
-          { value: '80+', label: 'Projects' },
-        ],
+        // Figma 3:2214.
+        blockType: 'cta',
+        tone: 'feature',
+        eyebrow: 'Your assistant',
+        heading: 'Meet Fika',
+        body: 'Fika is Fekra\u2019s AI-powered hiring assistant, built to help our team organize candidate data, accelerate screening, and support faster, more structured hiring decisions.',
+        media: (await upsertMedia(payload, 'fika.png', 'Fika, the FEKRA hiring assistant', 'decor'))?.id,
+        ctas: [{ variant: 'primary', link: route('Meet Fika', '/contact') }],
       },
       {
         blockType: 'faq',
@@ -797,14 +787,6 @@ const run = async () => {
         ],
       },
       {
-        // Figma 1:13917.
-        blockType: 'cta',
-        tone: 'band',
-        heading: 'Ready to scale your engineering team?',
-        body: 'We embed high-performance developers directly into your team, skipping the friction of traditional recruiting. Increase your engineering velocity with fast onboarding and talent that fundamentally elevates your product architecture.',
-        ctas: [{ variant: 'secondary', link: route('Get in Touch', '/contact') }],
-      },
-      {
         blockType: 'postsTeaser',
         eyebrow: 'Latest blogs',
         heading: 'Our Recent Blogs',
@@ -818,7 +800,14 @@ const run = async () => {
         showOffices: true,
         showForm: true,
       },
-    ],
+      {
+        // Figma 1:13917.
+        blockType: 'cta',
+        tone: 'band',
+        heading: 'Ready to scale your engineering team?',
+        body: 'We embed high-performance developers directly into your team, skipping the friction of traditional recruiting. Increase your engineering velocity with fast onboarding and talent that fundamentally elevates your product architecture.',
+        ctas: [{ variant: 'secondary', link: route('Get in Touch', '/contact') }],
+      }],
   })
 
   const contact = await upsert<{ id: number }>(payload, 'pages', 'contact', {

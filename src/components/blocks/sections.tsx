@@ -557,7 +557,7 @@ export function IndustriesSection({ block }: { block: BlockProps }) {
       id={block.anchor ?? undefined}
       className="section bg-[linear-gradient(180deg,#ffffff_0%,#e9f9fa_100%)] dark:bg-none dark:bg-background"
     >
-      <div className="mx-auto flex w-full max-w-[1312px] flex-col items-center gap-12 px-6">
+      <div className="container-board flex flex-col items-center gap-12">
         <div className="flex flex-col items-center gap-6 text-center">
           <h2 className="font-display text-[clamp(1.75rem,3.4vw,2.5rem)] leading-tight font-bold">
             <span className="bg-[linear-gradient(145.94deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
@@ -651,7 +651,7 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
 
   return (
     <section id={block.anchor ?? undefined} className="section bg-brand-50 dark:bg-background-subtle">
-      <div className="container-site flex flex-col gap-10">
+      <div className="container-reading flex flex-col gap-10">
         <div className="flex flex-col items-center gap-2 text-center">
           {block.eyebrow ? (
             <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
@@ -752,7 +752,7 @@ export function FaqSection({ block, locale }: { block: BlockProps; locale: Local
   const items = block.items ?? []
   return (
     <section id={block.anchor ?? undefined} className="section">
-      <div className="container-site flex max-w-[1280px] flex-col items-center gap-10">
+      <div className="container-reading flex flex-col items-center gap-10">
         <div className="flex flex-col items-center gap-2 text-center">
           {block.eyebrow ? (
             <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
@@ -919,7 +919,7 @@ export function TechStackSection({ block }: { block: BlockProps }) {
 
   return (
     <section id={block.anchor ?? undefined} className="section">
-      <div className="container-site flex flex-col items-center">
+      <div className="container-board flex flex-col items-center">
         <div className="flex flex-col items-center gap-6 text-center">
           <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
             <span className="bg-[linear-gradient(154.19deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
