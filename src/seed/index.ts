@@ -202,6 +202,11 @@ const run = async () => {
       ['allianz', 'Allianz'],
       ['smart-management-systems', 'Smart Management Systems'],
       ['stc', 'stc'],
+      // No asset yet — vector-only in Figma, so it is not in the .fig export's
+      // images. upsertMedia returns null for a missing file and the filter
+      // below drops it, so dropping datafusion-software.png into
+      // public/images/logos and re-seeding is all it takes to light it up.
+      ['datafusion-software', 'DataFusion Software'],
       ['codewave-systems', 'Codewave Systems'],
       ['adnoc', 'ADNOC'],
     ].map(async ([slug, name]) => ({
