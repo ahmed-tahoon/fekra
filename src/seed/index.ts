@@ -737,36 +737,6 @@ const run = async () => {
         industries: industryItems,
       },
       {
-        blockType: 'cardGrid',
-        eyebrow: 'We work with',
-        heading: 'Build Your',
-        headingAccent: 'Team Faster',
-        body: 'Get vetted engineers matched to your exact needs without wasting weeks on hiring and screening.',
-        columns: '3',
-        cards: services.map((service) => ({
-          title: String(service.title),
-          body: String(service.summary ?? ''),
-          link: {
-            type: 'internal' as const,
-            label: String(service.title),
-            reference: { relationTo: 'services' as const, value: Number(service.id) },
-          },
-        })),
-      },
-      {
-        blockType: 'process',
-        eyebrow: 'Our process',
-        heading: 'Your success starts here',
-        body: 'We screen every engineer for technical skills, communication and reliability.',
-        steps: [
-          { title: 'Sourcing & profile screening', body: 'We shortlist engineers whose experience matches the role.' },
-          { title: 'Language & communication screening', body: 'A structured interview confirms they can collaborate clearly with your team.' },
-          { title: 'HR & commitment evaluation', body: 'We assess professionalism, availability and long-term fit.' },
-          { title: 'Technical evaluation', body: 'A practical assessment based on the real requirements of the role.' },
-          { title: 'Technical interview', body: 'A detailed interview validating depth and hands-on capability.' },
-        ],
-      },
-      {
         blockType: 'stats',
         heading: 'Trusted by',
         items: [
@@ -819,13 +789,6 @@ const run = async () => {
         heading: "Let's Talk Business!",
         showOffices: true,
         showForm: true,
-      },
-      {
-        blockType: 'cta',
-        tone: 'brand',
-        heading: 'Ready to scale your engineering team?',
-        body: 'We embed high-performance developers directly into your team, skipping the friction of traditional hiring.',
-        ctas: [{ variant: 'secondary', link: route('Book a 30-Min Meeting', '/meeting', 'booking_cta_click') }],
       },
     ],
   })

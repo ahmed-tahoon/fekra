@@ -107,7 +107,11 @@
   --radius-panel: 2rem;
   --radius-pill: 9999px;
 
-  --container-site: 1280px;
+  /* 1440 matches the comp frame, so on a 1440 screen the gutter is the
+     designed one. Above that the old 1280 cap left the page marooned in the
+     middle of a wide monitor — this recovers 160px of width there without
+     touching how it reads at the design size. */
+  --container-site: 1440px;
   /* Editorial pages run near full-bleed — only a gutter, no centred column. */
   --container-wide: 1700px;
 
