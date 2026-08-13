@@ -795,8 +795,8 @@ const run = async () => {
       },
       {
         blockType: 'contact',
-        eyebrow: 'Contact us',
-        heading: "Let's Talk Business!",
+        eyebrow: "Let's talk business!",
+        heading: 'Contact us',
         showOffices: true,
         showForm: true,
       },
@@ -814,7 +814,15 @@ const run = async () => {
     title: 'Contact Us',
     availableLocales: ['en'],
     _status: 'published',
-    layout: [{ blockType: 'contact', heading: "Let's Talk Business!", showOffices: true, showForm: true }],
+    layout: [
+      {
+        blockType: 'contact',
+        eyebrow: "Let's talk business!",
+        heading: 'Contact us',
+        showOffices: true,
+        showForm: true,
+      },
+    ],
   })
 
   await payload.updateGlobal({
