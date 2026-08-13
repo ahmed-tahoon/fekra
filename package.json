@@ -26,7 +26,8 @@
     "test:api": "newman run postman/FEKRA.postman_collection.json -e postman/FEKRA.local.postman_environment.json --working-dir postman",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
-    "check:storage": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/check-storage.mjs"
+    "check:storage": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/check-storage.mjs",
+    "sync:uploads": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/sync-uploads.mjs"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.87.1",
