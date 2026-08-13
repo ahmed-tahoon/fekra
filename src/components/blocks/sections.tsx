@@ -140,8 +140,19 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   return (
     <section
       id={block.anchor ?? undefined}
-      className="relative mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-[calc(var(--header-block)+clamp(1.5rem,5vh,3rem))] pb-0 md:h-dvh dark:bg-none dark:bg-background"
+      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.5rem,5vh,3rem))] pb-7 md:h-dvh dark:bg-background"
     >
+      {/*
+        The tint is its own layer, stopping where the collage stops, so the
+        section can hold padding under the tiles without the gradient bleeding
+        into it. On the section itself those two are the same edge — you get a
+        coloured strip below the images or no clearance at all, not both.
+        `isolate` on the section keeps this -z-10 above the page background.
+      */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 bottom-7 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:hidden"
+      />
       <div className="container-wide shrink-0">
         <div className="mx-auto flex max-w-[844px] flex-col items-center gap-[clamp(0.5rem,1.8vh,1.25rem)] text-center">
           {block.trustLine ? (
@@ -292,9 +303,11 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
 
   return (
     <section id={block.anchor ?? undefined} className="section">
-      <div className="container-wide grid items-center gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16">
+      {/* container-site, not container-wide: the comp is a 1440 frame, and at
+          1700 the four columns stretch until the rows drift apart. */}
+      <div className="container-site grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_520px] lg:gap-20">
         {hasStatement ? (
-          <p className="font-display text-2xl leading-[1.45] font-bold text-balance text-navy-800 md:text-[28px] dark:text-foreground">
+          <p className="max-w-[350px] font-display text-2xl leading-[1.45] font-bold text-navy-800 md:text-[26px] dark:text-foreground">
             {statement?.before}{' '}
             {statement?.highlight ? <span className="text-primary">{statement.highlight}</span> : null}{' '}
             {statement?.after}
@@ -309,22 +322,23 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
           /* Four across, as designed. The last row is deliberately left-aligned
              rather than spread — a partial row that justifies itself reads as a
              layout bug. */
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3 lg:grid-cols-4">
+          <ul className="grid w-full max-w-[520px] grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-3 lg:max-w-none lg:grid-cols-4">
             {logos.map((logo) => {
               const image = logo.image as MediaDoc | undefined
               if (!image?.url) return null
               return (
-                <li key={logo.name} className="relative aspect-[3/2]">
-                  {/* Uniform cells with the mark contained inside, so wide marks
-                      and tall ones stay optically even — they range from 3:2 to
-                      2:3 and one shared max-height would shrink the tall ones to
-                      nothing. */}
+                /* A fixed row height rather than an aspect ratio: aspect ties row
+                   height to column width, so the rows drifted apart as the grid
+                   widened. The marks run from 3:2 to 2:3, so they are contained
+                   in the cell rather than share a max-height, which would shrink
+                   the tall ones to nothing. */
+                <li key={logo.name} className="relative h-[74px]">
                   <Image
                     src={mediaUrl(image)}
                     alt={logo.name}
                     fill
-                    sizes="(min-width: 1024px) 200px, (min-width: 640px) 30vw, 45vw"
-                    className="object-contain p-4 opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:brightness-0 dark:invert dark:hover:brightness-100 dark:hover:invert-0"
+                    sizes="(min-width: 1024px) 130px, (min-width: 640px) 20vw, 40vw"
+                    className="object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:brightness-0 dark:invert dark:hover:brightness-100 dark:hover:invert-0"
                   />
                 </li>
               )
