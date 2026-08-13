@@ -154,7 +154,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
         aria-hidden
         className="absolute inset-x-0 top-0 bottom-7 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:hidden"
       />
-      <div className="container-wide shrink-0">
+      <div className="relative z-10 container-wide shrink-0">
         <div className="mx-auto flex max-w-[844px] flex-col items-center gap-[clamp(0.5rem,1.8vh,1.25rem)] text-center">
           {block.trustLine ? (
             <p
@@ -234,7 +234,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
         <>
           {/* Desktop: the collage, positioned exactly as designed. Full-bleed —
               it runs past the container to the viewport edges. */}
-          <div className="relative mt-[clamp(0.75rem,2.6vh,2rem)] hidden min-h-0 w-full flex-1 md:block">
+          <div className="relative -mt-[clamp(2.5rem,6vh,4.5rem)] hidden min-h-0 w-full flex-1 md:block">
             {mosaic.map((item, index) => {
               const pos = MOSAIC_LAYOUT[index]
               if (!pos) return null
