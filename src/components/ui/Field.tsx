@@ -5,8 +5,9 @@ import { useId, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 
 const controlClass =
-  'w-full rounded-card border border-input bg-card px-4 py-3 text-base text-foreground ' +
-  'placeholder:text-muted-foreground/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ' +
+  'w-full rounded-[32px] border border-transparent bg-panel-grey px-6 py-4 text-lg text-navy-800 ' +
+  'placeholder:text-ink-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ' +
+  'dark:bg-card dark:text-foreground dark:placeholder:text-muted-foreground ' +
   'aria-[invalid=true]:border-danger-600'
 
 /**

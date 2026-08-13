@@ -162,6 +162,16 @@ export const LogoCloudBlock: Block = {
   interfaceName: 'LogoCloudBlock',
   labels: { singular: 'Logo strip', plural: 'Logo strips' },
   fields: [
+    {
+      name: 'variant',
+      type: 'select',
+      defaultValue: 'statement',
+      options: [
+        { label: 'Statement beside a logo grid', value: 'statement' },
+        { label: 'Centred badge row (partnerships & certifications)', value: 'badges' },
+      ],
+    },
+    { name: 'eyebrow', type: 'text', localized: true },
     { name: 'heading', type: 'text', localized: true },
     {
       // "50+ companies rely on our top 3% talent…" — sits left of the grid.
@@ -364,6 +374,8 @@ export const FaqBlock: Block = {
       label: 'Emit FAQPage structured data',
       admin: { description: 'Only enable on pages where the FAQ is the primary content (18.8/19.3).' },
     },
+    { name: 'footnote', type: 'text', localized: true, admin: { description: 'Small line above the closing button.' } },
+    linksArray('ctas', 1),
     anchor,
   ],
 }
@@ -386,8 +398,10 @@ export const CtaBlock: Block = {
   interfaceName: 'CtaBlock',
   labels: { singular: 'CTA band', plural: 'CTA bands' },
   fields: [
+    { name: 'eyebrow', type: 'text', localized: true },
     { name: 'heading', type: 'text', localized: true, required: true },
     { name: 'body', type: 'textarea', localized: true },
+    { name: 'media', type: 'upload', relationTo: 'media', admin: { description: 'Optional illustration above the button.' } },
     linksArray('ctas'),
     {
       name: 'tone',
@@ -397,6 +411,7 @@ export const CtaBlock: Block = {
         { label: 'Brand', value: 'brand' },
         { label: 'Ink', value: 'ink' },
         { label: 'Subtle', value: 'subtle' },
+        { label: 'Feature (gradient wash, gradient heading)', value: 'feature' },
       ],
     },
     anchor,

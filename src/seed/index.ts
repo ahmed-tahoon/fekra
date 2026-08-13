@@ -211,6 +211,20 @@ const run = async () => {
     })),
   )
 
+  // Figma 1:11600.
+  const certBadges = await Promise.all(
+    [
+      ['ISTQB Platinum Partner', 'cert-istqb'],
+      ['ISO 9001 certified', 'cert-iso-9001'],
+      ['ISO 27001 certified', 'cert-iso-27001'],
+      ['GDPR compliant', 'cert-gdpr'],
+      ['SOC 2 Type 2', 'cert-soc2'],
+    ].map(async ([name, file]) => ({
+      name: name as string,
+      image: (await upsertMedia(payload, `${file}.png`, name as string, 'certs'))?.id,
+    })),
+  )
+
   // Figma 1:11493 — the comp reuses two portraits across five quotes.
   const testimonialAvatars = Object.fromEntries(
     await Promise.all(
@@ -653,6 +667,23 @@ const run = async () => {
         ],
       },
       {
+        blockType: 'logoCloud',
+        variant: 'badges',
+        eyebrow: 'Our partnerships',
+        heading: '& Certifications',
+        logos: certBadges.filter((c) => c.image).map((c) => ({ name: c.name, image: c.image! })),
+      },
+      {
+        // Figma 3:2214.
+        blockType: 'cta',
+        tone: 'feature',
+        eyebrow: 'Your assistant',
+        heading: 'Meet Fika',
+        body: 'Fika is Fekra\u2019s AI-powered hiring assistant, built to help our team organize candidate data, accelerate screening, and support faster, more structured hiring decisions.',
+        media: (await upsertMedia(payload, 'fika.png', 'Fika, the FEKRA hiring assistant', 'decor'))?.id,
+        ctas: [{ variant: 'primary', link: route('Meet Fika', '/contact') }],
+      },
+      {
         blockType: 'testimonials',
         eyebrow: 'Trusted by',
         heading: 'Industry Leaders',
@@ -747,8 +778,11 @@ const run = async () => {
       },
       {
         blockType: 'faq',
+        eyebrow: 'Take a look at',
         heading: 'Frequently Asked Questions',
         emitSchema: true,
+        footnote: 'We are here to answer your questions & inquiries…',
+        ctas: [{ variant: 'secondary', link: route('Inquire Now', '/contact') }],
         items: [
           {
             question: 'What makes Fekra different?',
@@ -769,6 +803,7 @@ const run = async () => {
         eyebrow: 'Latest blogs',
         heading: 'Our Recent Blogs',
         limit: 3,
+        ctas: [{ variant: 'secondary', link: route('View all blogs', '/blog') }],
       },
       {
         blockType: 'contact',

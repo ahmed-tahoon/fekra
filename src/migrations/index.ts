@@ -6,6 +6,9 @@ import * as migration_20260813_131949_talent_panel_tone_side from './20260813_13
 import * as migration_20260813_135600_card_grid_variant from './20260813_135600_card_grid_variant';
 import * as migration_20260813_160007_industries_block from './20260813_160007_industries_block';
 import * as migration_20260813_161941_testimonial_stats from './20260813_161941_testimonial_stats';
+import * as migration_20260813_165009_cta_feature_media from './20260813_165009_cta_feature_media';
+import * as migration_20260813_165418_logo_cloud_badges from './20260813_165418_logo_cloud_badges';
+import * as migration_20260813_165657_faq_footnote_cta from './20260813_165657_faq_footnote_cta';
 
 export const migrations = [
   {
@@ -46,6 +49,21 @@ export const migrations = [
   {
     up: migration_20260813_161941_testimonial_stats.up,
     down: migration_20260813_161941_testimonial_stats.down,
-    name: '20260813_161941_testimonial_stats'
+    name: '20260813_161941_testimonial_stats',
+  },
+  {
+    up: migration_20260813_165009_cta_feature_media.up,
+    down: migration_20260813_165009_cta_feature_media.down,
+    name: '20260813_165009_cta_feature_media',
+  },
+  {
+    up: migration_20260813_165418_logo_cloud_badges.up,
+    down: migration_20260813_165418_logo_cloud_badges.down,
+    name: '20260813_165418_logo_cloud_badges',
+  },
+  {
+    up: migration_20260813_165657_faq_footnote_cta.up,
+    down: migration_20260813_165657_faq_footnote_cta.down,
+    name: '20260813_165657_faq_footnote_cta'
   },
 ];

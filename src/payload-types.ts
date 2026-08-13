@@ -459,6 +459,8 @@ export interface Post {
  * via the `definition` "LogoCloudBlock".
  */
 export interface LogoCloudBlock {
+  variant?: ('statement' | 'badges') | null;
+  eyebrow?: string | null;
   heading?: string | null;
   statement?: {
     before?: string | null;
@@ -994,6 +996,47 @@ export interface FaqBlock {
    */
   emitSchema?: boolean | null;
   /**
+   * Small line above the closing button.
+   */
+  footnote?: string | null;
+  ctas?:
+    | {
+        variant?: ('primary' | 'secondary' | 'ghost') | null;
+        link?: {
+          type?: ('internal' | 'route' | 'external') | null;
+          /**
+           * Visible link text. A link with no label is not rendered.
+           */
+          label?: string | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'jobs';
+                value: number | Job;
+              } | null);
+          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          url?: string | null;
+          newTab?: boolean | null;
+          /**
+           * Optional. Sent as the GA4 event name when clicked (22.5).
+           */
+          analyticsId?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Optional #id for in-page links. Lowercase, no spaces.
    */
   anchor?: string | null;
@@ -1113,8 +1156,13 @@ export interface TechStackBlock {
  * via the `definition` "CtaBlock".
  */
 export interface CtaBlock {
+  eyebrow?: string | null;
   heading: string;
   body?: string | null;
+  /**
+   * Optional illustration above the button.
+   */
+  media?: (number | null) | Media;
   ctas?:
     | {
         variant?: ('primary' | 'secondary' | 'ghost') | null;
@@ -1152,7 +1200,7 @@ export interface CtaBlock {
         id?: string | null;
       }[]
     | null;
-  tone?: ('brand' | 'ink' | 'subtle') | null;
+  tone?: ('brand' | 'ink' | 'subtle' | 'feature') | null;
   /**
    * Optional #id for in-page links. Lowercase, no spaces.
    */
@@ -1565,6 +1613,8 @@ export interface HeroBlockSelect<T extends boolean = true> {
  * via the `definition` "LogoCloudBlock_select".
  */
 export interface LogoCloudBlockSelect<T extends boolean = true> {
+  variant?: T;
+  eyebrow?: T;
   heading?: T;
   statement?:
     | T
@@ -1798,6 +1848,24 @@ export interface FaqBlockSelect<T extends boolean = true> {
         id?: T;
       };
   emitSchema?: T;
+  footnote?: T;
+  ctas?:
+    | T
+    | {
+        variant?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              label?: T;
+              reference?: T;
+              route?: T;
+              url?: T;
+              newTab?: T;
+              analyticsId?: T;
+            };
+        id?: T;
+      };
   anchor?: T;
   id?: T;
   blockName?: T;
@@ -1865,8 +1933,10 @@ export interface TechStackBlockSelect<T extends boolean = true> {
  * via the `definition` "CtaBlock_select".
  */
 export interface CtaBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
   heading?: T;
   body?: T;
+  media?: T;
   ctas?:
     | T
     | {

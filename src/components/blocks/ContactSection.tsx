@@ -35,9 +35,16 @@ export function ContactSection({
       <div className="container-site grid gap-12 lg:grid-cols-2">
         <div>
           {block.eyebrow ? (
-            <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{block.eyebrow}</p>
+            <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
+              {block.eyebrow}
+            </p>
           ) : null}
-          <Heading className="mt-2 text-4xl md:text-5xl">{block.heading ?? dict.contact.title}</Heading>
+          {/* Same gradient lockup as every other section heading (Figma 1:11728). */}
+          <Heading className="mt-2 font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+            <span className="bg-[linear-gradient(142deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+              {block.heading ?? dict.contact.title}
+            </span>
+          </Heading>
           <p className="mt-4 max-w-lg text-lg text-muted-foreground">{block.body ?? dict.contact.subtitle}</p>
 
           {block.showOffices !== false && offices?.length ? (

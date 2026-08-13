@@ -72,10 +72,12 @@ export type BlockProps = {
   width?: 'prose' | 'full' | 'container'
   content?: SerializedEditorState | null
   columns?: '2' | '3' | '4'
-  variant?: 'plain' | 'business' | null
-  tone?: 'brand' | 'ink' | 'subtle'
+  /** cardGrid: plain|business. logoCloud: statement|badges. */
+  variant?: 'plain' | 'business' | 'statement' | 'badges' | null
+  tone?: 'brand' | 'ink' | 'subtle' | 'feature'
   marquee?: boolean | null
   emitSchema?: boolean | null
+  footnote?: string | null
   limit?: number | null
   category?: { slug?: string } | string | null
   calendlyUrl?: string | null

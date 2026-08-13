@@ -295,6 +295,54 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 }
 
 export function LogoCloudSection({ block }: { block: BlockProps }) {
+  /* Figma 1:11600 — the same logo array, presented as a centred badge row
+     under a gradient heading instead of beside a statement. */
+  if (block.variant === 'badges') {
+    const badges = block.logos ?? []
+    if (!badges.length) return null
+    return (
+      <section
+        id={block.anchor ?? undefined}
+        className="section bg-[linear-gradient(180deg,#eafafb_0%,#ffffff_100%)] dark:bg-none dark:bg-background"
+      >
+        <div className="container-site flex flex-col items-center gap-10">
+          <div className="flex flex-col items-center gap-4 text-center">
+            {block.eyebrow ? (
+              <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
+                {block.eyebrow}
+              </p>
+            ) : null}
+            <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+              <span className="bg-[linear-gradient(139.28deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+                {block.heading}
+              </span>
+            </h2>
+          </div>
+
+          <ul className="flex w-full flex-wrap items-center justify-center gap-x-12 gap-y-8 lg:justify-between">
+            {badges.map((badge) => {
+              const image = badge.image as MediaDoc | undefined
+              if (!image?.url) return null
+              return (
+                <li key={badge.name} className="flex items-center justify-center">
+                  {/* Heights are equalised, widths left to each badge: the row
+                      mixes a wide lockup with four round seals. */}
+                  <Image
+                    src={mediaUrl(image)}
+                    alt={badge.name}
+                    width={296}
+                    height={125}
+                    className="h-[92px] w-auto object-contain sm:h-[125px]"
+                  />
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
   const logos = block.logos ?? []
   const statement = block.statement
   const hasStatement = Boolean(statement?.before || statement?.highlight || statement?.after)
@@ -695,34 +743,67 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
   )
 }
 
-export function FaqSection({ block }: { block: BlockProps }) {
+export function FaqSection({ block, locale }: { block: BlockProps; locale: Locale }) {
   const items = block.items ?? []
   return (
     <section id={block.anchor ?? undefined} className="section">
-      <div className="container-site max-w-3xl">
-        <SectionHeading
-          eyebrow={block.eyebrow}
-          heading={block.heading}
-          headingAccent={block.headingAccent}
-          body={block.body}
-        />
-        {/* Native disclosure — keyboard accessible and readable by crawlers without JS (19.2/19.3). */}
-        <div className="mt-10 divide-y divide-border border-y border-border">
+      <div className="container-site flex max-w-[1280px] flex-col items-center gap-10">
+        <div className="flex flex-col items-center gap-2 text-center">
+          {block.eyebrow ? (
+            <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
+              {block.eyebrow}
+            </p>
+          ) : null}
+          <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+            <span className="bg-[linear-gradient(154.58deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+              {block.heading}
+              {block.headingAccent ? ` ${block.headingAccent}` : null}
+            </span>
+          </h2>
+        </div>
+
+        {/* Native <details> — keyboard accessible, findable by in-page search and
+            readable by crawlers with no JS (19.2/19.3). The comp's open/closed
+            chevrons are the same control rotated, so one icon covers both. */}
+        <div className="flex w-full flex-col gap-4">
           {items.map((item, i) => (
-            <details key={i} className="group py-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold">
-                {item.question}
-                <span className="text-primary transition-transform group-open:rotate-45" aria-hidden>
-                  +
+            <details
+              key={i}
+              open={i === 0}
+              className="group rounded-card border border-panel-grey bg-card px-8 py-6 shadow-[0_1px_2px_rgba(25,33,61,0.06)] open:shadow-[0_5px_15px_rgba(25,33,61,0.06)] dark:border-border"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 [&::-webkit-details-marker]:hidden">
+                <span className="max-w-[650px] text-xl/[1.35] font-semibold text-navy-800 dark:text-foreground">
+                  {item.question}
+                </span>
+                <span
+                  aria-hidden
+                  className="grid size-[34px] shrink-0 place-items-center rounded-pill bg-[linear-gradient(135deg,rgba(72,155,194,0.4)_0%,rgba(142,142,142,0.1)_100%)] text-navy-800 transition-transform duration-300 group-open:rotate-90 group-open:bg-primary group-open:bg-none group-open:text-white"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" className="size-4" strokeWidth="2.5" stroke="currentColor">
+                    <path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </span>
               </summary>
-              <div className="pt-4">
+              <div className="pt-4 text-base/[1.66] text-ink-500 dark:text-muted-foreground">
                 <RichText data={item.answer} />
               </div>
             </details>
           ))}
         </div>
+
+        {block.footnote || block.ctas?.length ? (
+          <div className="flex flex-col items-center gap-4 text-center">
+            {block.footnote ? (
+              <p className="text-sm font-semibold tracking-[2.8px] text-ink-500 uppercase dark:text-muted-foreground">
+                {block.footnote}
+              </p>
+            ) : null}
+            <Ctas ctas={block.ctas} locale={locale} size="md" />
+          </div>
+        ) : null}
       </div>
+
       {block.emitSchema && items.length ? (
         <JsonLd
           data={faqSchema(
@@ -738,6 +819,49 @@ export function FaqSection({ block }: { block: BlockProps }) {
 
 export function CtaSection({ block, locale }: { block: BlockProps; locale: Locale }) {
   const tone = block.tone ?? 'brand'
+  const media = block.media as MediaDoc | undefined
+
+  /* Figma 3:2214 "Meet Fika" — full-bleed teal wash, gradient heading and a
+     portrait illustration above the button, rather than the boxed CTA band. */
+  if (tone === 'feature') {
+    return (
+      <section
+        id={block.anchor ?? undefined}
+        className="section bg-[linear-gradient(180deg,rgba(25,190,200,0.1)_0%,rgba(255,255,255,0.1)_100%)] dark:bg-none dark:bg-background-subtle"
+      >
+        <div className="container-site flex flex-col items-center gap-10 text-center">
+          <div className="flex flex-col items-center gap-2">
+            {block.eyebrow ? (
+              <p className="text-sm font-semibold tracking-[2.8px] text-ink-900 uppercase dark:text-foreground">
+                {block.eyebrow}
+              </p>
+            ) : null}
+            <h2 className="font-display text-[clamp(1.75rem,3.4vw,2.5rem)] leading-tight font-bold">
+              <span className="bg-[linear-gradient(121.18deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+                {block.heading}
+              </span>
+            </h2>
+            {block.body ? (
+              <p className="max-w-[818px] text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p>
+            ) : null}
+          </div>
+
+          {media?.url ? (
+            <Image
+              src={mediaUrl(media)}
+              alt={mediaAlt(media)}
+              width={384}
+              height={417}
+              className="h-auto w-[280px] rounded-[30px] object-contain sm:w-[384px]"
+            />
+          ) : null}
+
+          <Ctas ctas={block.ctas} locale={locale} />
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id={block.anchor ?? undefined} className="section">
       <div className="container-site">

@@ -69,7 +69,7 @@ export function RenderBlocks({
           case 'testimonials':
             return reveal(<TestimonialsSection key={key} block={block} />)
           case 'faq':
-            return reveal(<FaqSection key={key} block={block} />)
+            return reveal(<FaqSection key={key} block={block} locale={locale} />)
           case 'postsTeaser':
             return reveal(<PostsTeaser key={key} block={block} locale={locale} />)
           case 'industries':
