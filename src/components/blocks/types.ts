@@ -82,7 +82,7 @@ export type BlockProps = {
   showOffices?: boolean | null
   showForm?: boolean | null
   ctas?: { variant?: 'primary' | 'secondary' | 'ghost'; link?: PayloadLink }[] | null
-  stats?: { value: string; label: string }[] | null
+  stats?: { value: string; label: string; star?: boolean | null }[] | null
   items?: BlockItem[] | null
   cards?: { icon?: unknown; title: string; body?: string | null; link?: PayloadLink }[] | null
   steps?: { title: string; body: string }[] | null
@@ -106,6 +106,9 @@ export type BlockProps = {
 
   /** Logo cloud: the statement beside the grid. */
   statement?: { before?: string | null; highlight?: string | null; after?: string | null } | null
+
+  /** Industry grid. */
+  industries?: { label: string; tone?: 'pink' | 'mint' | 'lilac' | 'teal' | 'blue' | null; icon?: unknown }[] | null
 
   /** Talent showcase. */
   roles?: { label: string }[] | null

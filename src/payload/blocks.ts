@@ -226,6 +226,44 @@ export const CardGridBlock: Block = {
   ],
 }
 
+export const IndustriesBlock: Block = {
+  slug: 'industries',
+  interfaceName: 'IndustriesBlock',
+  labels: { singular: 'Industry grid', plural: 'Industry grids' },
+  fields: [
+    ...heading,
+    {
+      name: 'industries',
+      type: 'array',
+      minRows: 1,
+      labels: { singular: 'Industry', plural: 'Industries' },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'label', type: 'text', localized: true, required: true, admin: { width: '60%' } },
+            {
+              name: 'tone',
+              type: 'select',
+              defaultValue: 'teal',
+              options: [
+                { label: 'Pink', value: 'pink' },
+                { label: 'Mint', value: 'mint' },
+                { label: 'Lilac', value: 'lilac' },
+                { label: 'Teal', value: 'teal' },
+                { label: 'Blue', value: 'blue' },
+              ],
+              admin: { width: '40%' },
+            },
+          ],
+        },
+        { name: 'icon', type: 'upload', relationTo: 'media' },
+      ],
+    },
+    anchor,
+  ],
+}
+
 export const StatsBlock: Block = {
   slug: 'stats',
   interfaceName: 'StatsBlock',
@@ -281,6 +319,23 @@ export const TestimonialsBlock: Block = {
         { name: 'authorName', type: 'text', required: true },
         { name: 'authorRole', type: 'text', localized: true, required: true },
         { name: 'avatar', type: 'upload', relationTo: 'media' },
+      ],
+    },
+    {
+      // The proof bar under the quotes (Figma 1:11493).
+      name: 'stats',
+      type: 'array',
+      maxRows: 4,
+      labels: { singular: 'Proof stat', plural: 'Proof stats' },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'value', type: 'text', required: true, admin: { width: '40%' } },
+            { name: 'label', type: 'text', localized: true, required: true, admin: { width: '45%' } },
+            { name: 'star', type: 'checkbox', admin: { width: '15%', description: 'Star icon' } },
+          ],
+        },
       ],
     },
     anchor,
@@ -516,6 +571,7 @@ export const TalentShowcaseBlock: Block = {
 export const allBlocks = [
   HeroBlock,
   LogoCloudBlock,
+  IndustriesBlock,
   TalentShowcaseBlock,
   CardGridBlock,
   StatsBlock,

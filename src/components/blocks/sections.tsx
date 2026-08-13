@@ -489,6 +489,64 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
   )
 }
 
+/* Figma 3:1825 — the five pastels cycle across the grid; the editor picks
+   each tile's tone so a new industry does not have to inherit a neighbour's. */
+const INDUSTRY_TONE = {
+  pink: 'bg-industry-pink',
+  mint: 'bg-industry-mint',
+  lilac: 'bg-industry-lilac',
+  teal: 'bg-industry-teal',
+  blue: 'bg-industry-blue',
+} as const
+
+export function IndustriesSection({ block }: { block: BlockProps }) {
+  const items = block.industries ?? []
+  if (!items.length) return null
+
+  return (
+    <section
+      id={block.anchor ?? undefined}
+      className="section bg-[linear-gradient(180deg,#ffffff_0%,#e9f9fa_100%)] dark:bg-none dark:bg-background"
+    >
+      <div className="mx-auto flex w-full max-w-[1312px] flex-col items-center gap-12 px-6">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <h2 className="font-display text-[clamp(1.75rem,3.4vw,2.5rem)] leading-tight font-bold">
+            <span className="bg-[linear-gradient(145.94deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+              {block.heading}
+              {block.headingAccent ? ` ${block.headingAccent}` : null}
+            </span>
+          </h2>
+          {block.body ? <p className="max-w-3xl text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p> : null}
+        </div>
+
+        {/* Centred wrap rather than fixed rows: the comp is 7/6/7 at 1440, and
+            a wrap keeps that shape while still reflowing on narrower screens. */}
+        <ul className="flex flex-wrap justify-center gap-6">
+          {items.map((item) => {
+            const icon = item.icon as MediaDoc | undefined
+            return (
+              <li
+                key={item.label}
+                className={cn(
+                  'flex w-[132px] flex-col items-center gap-4 rounded-tl-industry rounded-br-industry px-4 py-4 sm:w-[160px]',
+                  INDUSTRY_TONE[item.tone ?? 'teal'],
+                )}
+              >
+                <span className="flex size-8 items-center justify-center">
+                  {icon?.url ? (
+                    <Image src={mediaUrl(icon)} alt="" width={32} height={32} aria-hidden className="size-8" />
+                  ) : null}
+                </span>
+                <span className="text-center text-base leading-6 font-semibold text-ink-900">{item.label}</span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
 export function StatsSection({ block }: { block: BlockProps }) {
   return (
     <section id={block.anchor ?? undefined} className="section">
@@ -535,43 +593,103 @@ export function ProcessSection({ block }: { block: BlockProps }) {
 }
 
 export function TestimonialsSection({ block }: { block: BlockProps }) {
+  const items = block.items ?? []
+  const stats = block.stats ?? []
+
   return (
-    <section id={block.anchor ?? undefined} className="section bg-background-subtle">
-      <div className="container-site">
-        <SectionHeading
-          eyebrow={block.eyebrow}
-          heading={block.heading}
-          headingAccent={block.headingAccent}
-          body={block.body}
-        />
-        <ul className="mt-12 grid gap-6 md:grid-cols-2">
-          {(block.items ?? []).map((item, i) => {
+    <section id={block.anchor ?? undefined} className="section bg-brand-50 dark:bg-background-subtle">
+      <div className="container-site flex flex-col gap-10">
+        <div className="flex flex-col items-center gap-2 text-center">
+          {block.eyebrow ? (
+            <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
+              {block.eyebrow}
+            </p>
+          ) : null}
+          <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+            <span className="bg-[linear-gradient(141.83deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+              {block.heading}
+              {block.headingAccent ? ` ${block.headingAccent}` : null}
+            </span>
+          </h2>
+        </div>
+
+        {/* Three across, then a narrow card beside a wide one — the comp's
+            rhythm. A six-column grid expresses it without per-row markup: the
+            first three span two each, then two and four. */}
+        <ul className="grid gap-6 md:grid-cols-6">
+          {items.map((item, i) => {
             const avatar = item.avatar as MediaDoc | undefined
+            const span = i < 3 ? 'md:col-span-2' : i === 3 ? 'md:col-span-2' : 'md:col-span-4'
             return (
-              <li key={i} className="rounded-card border border-border bg-card p-8">
-                <figure>
-                  <blockquote className="text-lg text-foreground">{item.quote}</blockquote>
-                  <figcaption className="mt-6 flex items-center gap-3">
-                    {avatar ? (
-                      <Image
-                        src={mediaUrl(avatar)}
-                        alt=""
-                        width={44}
-                        height={44}
-                        className="size-11 rounded-pill object-cover"
-                        aria-hidden
-                      />
-                    ) : null}
-                    <span>
-                      <span className="block text-sm font-semibold">{item.authorName}</span>
-                      <span className="block text-xs text-muted-foreground">{item.authorRole}</span>
-                    </span>
-                  </figcaption>
+              <li
+                key={i}
+                className={cn(
+                  'flex flex-col justify-between gap-4 rounded-card border border-panel-grey bg-card p-6 dark:border-border',
+                  span,
+                )}
+              >
+                <figure className="flex flex-col gap-4">
+                  <Image
+                    aria-hidden
+                    src="/images/decor/quote-mark.svg"
+                    alt=""
+                    width={31}
+                    height={31}
+                    className="size-8"
+                  />
+                  <blockquote className="text-base/6 text-ink-500 dark:text-muted-foreground">
+                    {item.quote}
+                  </blockquote>
                 </figure>
+                <figcaption className="flex items-center gap-3">
+                  {avatar ? (
+                    <Image
+                      src={mediaUrl(avatar)}
+                      alt=""
+                      width={40}
+                      height={40}
+                      aria-hidden
+                      className="size-10 shrink-0 rounded-pill object-cover"
+                    />
+                  ) : null}
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-navy-800 dark:text-foreground">
+                      {item.authorName}
+                    </span>
+                    <span className="block truncate text-xs text-ink-500 dark:text-muted-foreground">
+                      {item.authorRole}
+                    </span>
+                  </span>
+                </figcaption>
               </li>
             )
           })}
         </ul>
+
+        {stats.length ? (
+          <ul className="flex flex-wrap items-start justify-center gap-x-8 gap-y-6 border-t border-panel-grey pt-8 dark:border-border">
+            {stats.map((stat) => (
+              <li key={stat.label} className="flex flex-col items-center gap-1">
+                <span className="flex items-center justify-center gap-1">
+                  {stat.star ? (
+                    <Image
+                      aria-hidden
+                      src="/images/decor/star.svg"
+                      alt=""
+                      width={24}
+                      height={24}
+                      className="size-6"
+                    />
+                  ) : null}
+                  <span dir="ltr" className="font-display text-3xl font-bold text-navy-800 dark:text-foreground">
+                    {stat.value}
+                  </span>
+                </span>
+                <span className="text-xs text-ink-500 dark:text-muted-foreground">{stat.label}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     </section>
   )

@@ -161,6 +161,7 @@ export interface Page {
     | (
         | HeroBlock
         | LogoCloudBlock
+        | IndustriesBlock
         | TalentShowcaseBlock
         | CardGridBlock
         | StatsBlock
@@ -407,6 +408,7 @@ export interface Post {
     | (
         | HeroBlock
         | LogoCloudBlock
+        | IndustriesBlock
         | TalentShowcaseBlock
         | CardGridBlock
         | StatsBlock
@@ -482,6 +484,34 @@ export interface LogoCloudBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'logoCloud';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IndustriesBlock".
+ */
+export interface IndustriesBlock {
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Optional second line rendered in the brand colour.
+   */
+  headingAccent?: string | null;
+  body?: string | null;
+  industries?:
+    | {
+        label: string;
+        tone?: ('pink' | 'mint' | 'lilac' | 'teal' | 'blue') | null;
+        icon?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'industries';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -595,6 +625,7 @@ export interface Service {
     | (
         | HeroBlock
         | LogoCloudBlock
+        | IndustriesBlock
         | TalentShowcaseBlock
         | CardGridBlock
         | StatsBlock
@@ -903,6 +934,17 @@ export interface TestimonialsBlock {
         authorName: string;
         authorRole: string;
         avatar?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  stats?:
+    | {
+        value: string;
+        label: string;
+        /**
+         * Star icon
+         */
+        star?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -1424,6 +1466,7 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
+        industries?: T | IndustriesBlockSelect<T>;
         talentShowcase?: T | TalentShowcaseBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
@@ -1539,6 +1582,27 @@ export interface LogoCloudBlockSelect<T extends boolean = true> {
         id?: T;
       };
   marquee?: T;
+  anchor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IndustriesBlock_select".
+ */
+export interface IndustriesBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  headingAccent?: T;
+  body?: T;
+  industries?:
+    | T
+    | {
+        label?: T;
+        tone?: T;
+        icon?: T;
+        id?: T;
+      };
   anchor?: T;
   id?: T;
   blockName?: T;
@@ -1703,6 +1767,14 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
         authorName?: T;
         authorRole?: T;
         avatar?: T;
+        id?: T;
+      };
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        star?: T;
         id?: T;
       };
   anchor?: T;
@@ -1884,6 +1956,7 @@ export interface PostsSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
+        industries?: T | IndustriesBlockSelect<T>;
         talentShowcase?: T | TalentShowcaseBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
@@ -1943,6 +2016,7 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
+        industries?: T | IndustriesBlockSelect<T>;
         talentShowcase?: T | TalentShowcaseBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;

@@ -211,6 +211,44 @@ const run = async () => {
     })),
   )
 
+  // Figma 1:11493 — the comp reuses two portraits across five quotes.
+  const testimonialAvatars = Object.fromEntries(
+    await Promise.all(
+      ['sarah-chen', 'marcus-rivera'].map(async (n) => [n, await upsertMedia(payload, `${n}.png`, '', 'people')]),
+    ),
+  )
+
+  // Figma 3:1825 — 20 tiles, tones exactly as the comp cycles them.
+  const industryRows: [string, string, string][] = [
+    ['Finance & Banking', 'finance', 'pink'],
+    ['E-commerce', 'ecommerce', 'mint'],
+    ['Telecom', 'telecom', 'lilac'],
+    ['Real Estate', 'real-estate', 'teal'],
+    ['Software', 'software', 'blue'],
+    ['Health & Fitness', 'health', 'mint'],
+    ['Automotive', 'automotive', 'lilac'],
+    ['Photo & Video', 'photo-video', 'blue'],
+    ['Business', 'business', 'blue'],
+    ['Startup', 'startup', 'teal'],
+    ['AR/VR', 'arvr', 'lilac'],
+    ['Legal Services', 'legal', 'teal'],
+    ['Non-profit', 'nonprofit', 'blue'],
+    ['Govt. & Public Sector', 'government', 'teal'],
+    ['Sports & Fitness', 'sports', 'lilac'],
+    ['Gaming', 'gaming', 'teal'],
+    ['Fashion & Apparel', 'fashion', 'blue'],
+    ['Energy & Utilities', 'energy', 'mint'],
+    ['Agriculture', 'agriculture', 'mint'],
+    ['Logistics', 'logistics', 'teal'],
+  ]
+  const industryItems = await Promise.all(
+    industryRows.map(async ([label, file, tone]) => ({
+      label,
+      tone,
+      icon: (await upsertMedia(payload, `ind-${file}.svg`, '', 'industries'))?.id,
+    })),
+  )
+
   // Figma 3:1656. Only the AI/ML tab's tools are specified in that node; the
   // other eight tabs exist so the bar matches the design and are filled in
   // through the CMS.
@@ -613,6 +651,59 @@ const run = async () => {
           { name: 'CMS & E-commerce', items: [] },
           { name: 'Low-Code & Automation', items: [] },
         ],
+      },
+      {
+        blockType: 'testimonials',
+        eyebrow: 'Trusted by',
+        heading: 'Industry Leaders',
+        items: [
+          {
+            quote:
+              '“Fekra transformed our legacy platform into a modern, scalable architecture. Their team didn\u2019t just write code — they became true partners in our product vision.”',
+            authorName: 'Sarah Chen',
+            authorRole: 'CTO at FinFlow',
+            avatar: testimonialAvatars['sarah-chen']?.id,
+          },
+          {
+            quote:
+              '“The mobile app Fekra built for us hit 4.8 stars on both stores within the first month. Their attention to UX details is on another level entirely.”',
+            authorName: 'Marcus Rivera',
+            authorRole: 'VP Product at HealthSync',
+            avatar: testimonialAvatars['marcus-rivera']?.id,
+          },
+          {
+            quote:
+              '“We migrated 500+ stores to their headless commerce engine. Zero downtime, 40% faster page loads. Fekra over-delivered on every single metric.”',
+            authorName: 'Aiko Tanaka',
+            authorRole: 'CEO at RetailX',
+            avatar: testimonialAvatars['sarah-chen']?.id,
+          },
+          {
+            quote:
+              '“Fekra took our rough idea and delivered a polished MVP in just 8 weeks. We raised our seed round largely because of how professional the product looked.”',
+            authorName: 'Elena Vasquez',
+            authorRole: 'Founder at EduSpark',
+            avatar: testimonialAvatars['sarah-chen']?.id,
+          },
+          {
+            quote:
+              '“The AI team they assembled developed an impressive prediction model that successfully reduced our logistics costs by an astounding 35%. We saw a clear return on investment within just the first quarter of implementation. Their work is truly world-class and sets a new standard in the industry.”',
+            authorName: 'David Okonkwo',
+            authorRole: 'Engineering Lead at LogiTrack',
+            avatar: testimonialAvatars['marcus-rivera']?.id,
+          },
+        ],
+        stats: [
+          { value: '4.9', label: 'Clutch Rating', star: true },
+          { value: '98%', label: 'Client Retention' },
+          { value: '200+', label: '5-Star Reviews' },
+        ],
+      },
+      {
+        blockType: 'industries',
+        heading: 'Our Industry Expertises',
+        body: 'Fekra helps companies scale with carefully vetted software engineers, structured technical evaluation, and a transparent delivery process built for speed, quality, and trust.',
+        industries: industryItems,
       },
       {
         blockType: 'cardGrid',

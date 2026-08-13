@@ -69,6 +69,14 @@
   /* Tech stack tabs — Figma 3:1656. */
   --color-tab-bar: #f8f8fc;
   --color-tab-panel: #d4edf2;
+
+  /* Industry tiles — Figma 3:1825. Five pastels that cycle across the grid. */
+  --color-industry-pink: #ffd4ee;
+  --color-industry-mint: #ccffee;
+  --color-industry-lilac: #d9d3ff;
+  --color-industry-teal: #bce3eb;
+  --color-industry-blue: #d6e2f4;
+  --radius-industry: 30px;
   --color-ink-900: #192424;
   --color-ink-700: #424242;
   --color-ink-500: #687170;

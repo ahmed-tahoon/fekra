@@ -9,6 +9,7 @@ import {
   CtaSection,
   FaqSection,
   HeroSection,
+  IndustriesSection,
   LogoCloudSection,
   MediaSection,
   ProcessSection,
@@ -71,6 +72,8 @@ export function RenderBlocks({
             return reveal(<FaqSection key={key} block={block} />)
           case 'postsTeaser':
             return reveal(<PostsTeaser key={key} block={block} locale={locale} />)
+          case 'industries':
+            return reveal(<IndustriesSection key={key} block={block} />)
           case 'techStack':
             return reveal(<TechStackSection key={key} block={block} />)
           case 'cta':

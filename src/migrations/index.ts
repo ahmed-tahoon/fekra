@@ -4,6 +4,8 @@ import * as migration_20260812_211156_hero_tile_corner from './20260812_211156_h
 import * as migration_20260813_125157_add_storage_prefix from './20260813_125157_add_storage_prefix';
 import * as migration_20260813_131949_talent_panel_tone_side from './20260813_131949_talent_panel_tone_side';
 import * as migration_20260813_135600_card_grid_variant from './20260813_135600_card_grid_variant';
+import * as migration_20260813_160007_industries_block from './20260813_160007_industries_block';
+import * as migration_20260813_161941_testimonial_stats from './20260813_161941_testimonial_stats';
 
 export const migrations = [
   {
@@ -34,6 +36,16 @@ export const migrations = [
   {
     up: migration_20260813_135600_card_grid_variant.up,
     down: migration_20260813_135600_card_grid_variant.down,
-    name: '20260813_135600_card_grid_variant'
+    name: '20260813_135600_card_grid_variant',
+  },
+  {
+    up: migration_20260813_160007_industries_block.up,
+    down: migration_20260813_160007_industries_block.down,
+    name: '20260813_160007_industries_block',
+  },
+  {
+    up: migration_20260813_161941_testimonial_stats.up,
+    down: migration_20260813_161941_testimonial_stats.down,
+    name: '20260813_161941_testimonial_stats'
   },
 ];
