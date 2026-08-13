@@ -47,7 +47,7 @@ const MOSAIC_LAYOUT = [
   { left: 64.702, top: 58.333, width: 22.94, height: 41.667 },
   { left: 77.557, top: 14.254, width: 10.085, height: 40.57 },
   { left: 88.636, top: 2.412, width: 11.364, height: 59.211 },
-  { left: 88.636, top: 65.132, width: 11.364, height: 35.088 },
+  { left: 88.636, top: 65.132, width: 11.364, height: 34.868 },
   { left: 0, top: 62.719, width: 24.574, height: 37.281 },
 ] as const
 
@@ -140,7 +140,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   return (
     <section
       id={block.anchor ?? undefined}
-      className="relative mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-[calc(var(--header-block)+clamp(1.5rem,5vh,3rem))] pb-6 md:h-dvh dark:bg-none dark:bg-background"
+      className="relative mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] pt-[calc(var(--header-block)+clamp(1.5rem,5vh,3rem))] pb-0 md:h-dvh dark:bg-none dark:bg-background"
     >
       <div className="container-wide shrink-0">
         <div className="mx-auto flex max-w-[844px] flex-col items-center gap-[clamp(0.5rem,1.8vh,1.25rem)] text-center">
