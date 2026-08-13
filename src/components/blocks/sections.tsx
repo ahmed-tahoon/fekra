@@ -862,6 +862,25 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
     )
   }
 
+  /* Figma 1:13917 — full-bleed navy band, copy left, dot field right. */
+  if (tone === 'band') {
+    return (
+      <section id={block.anchor ?? undefined} className="relative isolate overflow-hidden bg-navy-800">
+        <div
+          aria-hidden
+          className="absolute inset-y-0 right-0 -z-10 hidden w-[38%] bg-[radial-gradient(circle,rgba(146,221,236,0.85)_2.2px,transparent_2.2px)] [background-size:36px_36px] md:block"
+        />
+        <div className="container-site flex flex-col items-start gap-6 py-16 md:py-20">
+          <h2 className="max-w-[640px] font-display text-[clamp(1.75rem,3.4vw,2.5rem)] leading-tight font-bold text-white">
+            {block.heading}
+          </h2>
+          {block.body ? <p className="max-w-[560px] text-base/6 text-white/80">{block.body}</p> : null}
+          <Ctas ctas={block.ctas} locale={locale} size="md" />
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id={block.anchor ?? undefined} className="section">
       <div className="container-site">

@@ -9,6 +9,7 @@ import * as migration_20260813_161941_testimonial_stats from './20260813_161941_
 import * as migration_20260813_165009_cta_feature_media from './20260813_165009_cta_feature_media';
 import * as migration_20260813_165418_logo_cloud_badges from './20260813_165418_logo_cloud_badges';
 import * as migration_20260813_165657_faq_footnote_cta from './20260813_165657_faq_footnote_cta';
+import * as migration_20260813_171156_cta_band_tone from './20260813_171156_cta_band_tone';
 
 export const migrations = [
   {
@@ -64,6 +65,11 @@ export const migrations = [
   {
     up: migration_20260813_165657_faq_footnote_cta.up,
     down: migration_20260813_165657_faq_footnote_cta.down,
-    name: '20260813_165657_faq_footnote_cta'
+    name: '20260813_165657_faq_footnote_cta',
+  },
+  {
+    up: migration_20260813_171156_cta_band_tone.up,
+    down: migration_20260813_171156_cta_band_tone.down,
+    name: '20260813_171156_cta_band_tone'
   },
 ];

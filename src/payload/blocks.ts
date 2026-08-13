@@ -412,6 +412,7 @@ export const CtaBlock: Block = {
         { label: 'Ink', value: 'ink' },
         { label: 'Subtle', value: 'subtle' },
         { label: 'Feature (gradient wash, gradient heading)', value: 'feature' },
+        { label: 'Navy band (left aligned, dot pattern)', value: 'band' },
       ],
     },
     anchor,

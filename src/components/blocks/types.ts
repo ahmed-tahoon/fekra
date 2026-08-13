@@ -74,7 +74,7 @@ export type BlockProps = {
   columns?: '2' | '3' | '4'
   /** cardGrid: plain|business. logoCloud: statement|badges. */
   variant?: 'plain' | 'business' | 'statement' | 'badges' | null
-  tone?: 'brand' | 'ink' | 'subtle' | 'feature'
+  tone?: 'brand' | 'ink' | 'subtle' | 'feature' | 'band'
   marquee?: boolean | null
   emitSchema?: boolean | null
   footnote?: string | null

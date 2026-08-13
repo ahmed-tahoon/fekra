@@ -1200,7 +1200,7 @@ export interface CtaBlock {
         id?: string | null;
       }[]
     | null;
-  tone?: ('brand' | 'ink' | 'subtle' | 'feature') | null;
+  tone?: ('brand' | 'ink' | 'subtle' | 'feature' | 'band') | null;
   /**
    * Optional #id for in-page links. Lowercase, no spaces.
    */

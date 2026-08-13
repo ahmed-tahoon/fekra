@@ -799,6 +799,14 @@ const run = async () => {
         ],
       },
       {
+        // Figma 1:13917.
+        blockType: 'cta',
+        tone: 'band',
+        heading: 'Ready to scale your engineering team?',
+        body: 'We embed high-performance developers directly into your team, skipping the friction of traditional recruiting. Increase your engineering velocity with fast onboarding and talent that fundamentally elevates your product architecture.',
+        ctas: [{ variant: 'secondary', link: route('Get in Touch', '/contact') }],
+      },
+      {
         blockType: 'postsTeaser',
         eyebrow: 'Latest blogs',
         heading: 'Our Recent Blogs',

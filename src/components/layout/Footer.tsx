@@ -42,7 +42,7 @@ export function Footer({
   const legal = (data.legalLinks ?? []).map((l) => resolveLink(l.link, locale)).filter(Boolean)
 
   return (
-    <footer className="mt-24 border-t border-border bg-background-subtle">
+    <footer className="mt-24 border-t border-border bg-brand-50 dark:bg-background-subtle">
       <div className="container-wide grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-1">
           <Link href={localeHref(locale, '/')} className="font-display text-2xl font-bold">
