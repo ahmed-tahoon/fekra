@@ -876,7 +876,7 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
             whole half. */}
         <div
           aria-hidden
-          className="absolute inset-y-12 right-10 -z-10 hidden w-[252px] bg-[radial-gradient(circle,rgba(146,221,236,0.9)_4px,transparent_4px)] [background-size:36px_36px] lg:block"
+          className="absolute inset-y-0 right-0 -z-10 hidden w-[288px] bg-[radial-gradient(circle,rgba(146,221,236,0.9)_4px,transparent_4px)] [background-size:36px_36px] lg:block"
         />
         <div className="container-site flex flex-col items-start gap-6 py-16 md:py-20">
           <h2 className="max-w-[860px] font-display text-[clamp(1.75rem,3.4vw,2.5rem)] leading-tight font-bold text-white">

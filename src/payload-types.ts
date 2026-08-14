@@ -2627,7 +2627,7 @@ export interface SiteSetting {
    */
   socialProfiles?:
     | {
-        platform: 'linkedin' | 'x' | 'facebook' | 'instagram' | 'youtube' | 'github';
+        platform: 'linkedin' | 'whatsapp' | 'x' | 'facebook' | 'instagram' | 'youtube' | 'github';
         url: string;
         id?: string | null;
       }[]

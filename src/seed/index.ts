@@ -857,22 +857,16 @@ const run = async () => {
     data: {
       tagline: 'Loyalty . Innovation . Expansion',
       blurb: 'We provide your teams with a diverse group of highly skilled engineers.',
+      // The comp's footer has no nav column; an omitted key would leave the
+      // previously seeded one in place, so clear it explicitly.
+      columns: [],
       newsletter: {
         enabled: true,
         heading: "Let's create something remarkable together.",
-        body: 'Stay updated with the latest in tech, design and digital innovation.',
+        // The comp pairs the heading with the partnership line; its "Stay
+        // updated…" sentence sits beside the form and has no field yet.
+        body: 'Partner with Fekra and turn your vision into a market-ready product that stands out.',
       },
-      columns: [
-        {
-          title: 'Company',
-          links: [
-            { link: page('Home', home.id) },
-            { link: route('Services', '/services') },
-            { link: route('Careers', '/careers') },
-            { link: page('Contact Us', contact.id) },
-          ],
-        },
-      ],
       copyright: `© ${new Date().getFullYear()} Fekra. All rights reserved.`,
     },
   })
