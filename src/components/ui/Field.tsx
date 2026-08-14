@@ -20,6 +20,7 @@ export function Field({
   error,
   hint,
   required,
+  hideLabel,
   children,
   className,
 }: {
@@ -27,12 +28,16 @@ export function Field({
   error?: string
   hint?: string
   required?: boolean
+  /** Renders the cue inside the control, as the comp does. The label element
+   *  remains for assistive tech — a placeholder is not a substitute (23.4). */
+  hideLabel?: boolean
   className?: string
   children: (props: {
     id: string
     'aria-invalid': boolean
     'aria-describedby': string | undefined
     required?: boolean
+    placeholder?: string
     className: string
   }) => ReactNode
 }) {
@@ -43,7 +48,7 @@ export function Field({
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
+      <label htmlFor={id} className={cn('text-sm font-medium text-foreground', hideLabel && 'sr-only')}>
         {label}
         {required ? (
           <span className="text-danger-600" aria-hidden>
@@ -57,6 +62,7 @@ export function Field({
         'aria-invalid': Boolean(error),
         'aria-describedby': describedBy,
         required,
+        ...(hideLabel ? { placeholder: label } : {}),
         className: controlClass,
       })}
 
