@@ -8,6 +8,7 @@ import { ConsentBanner } from '@/components/analytics/ConsentBanner'
 import { JsonLd } from '@/components/JsonLd'
 import { Footer, type FooterData } from '@/components/layout/Footer'
 import { Header, type HeaderData } from '@/components/layout/Header'
+import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { TalkToFika } from '@/components/layout/TalkToFika'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { getDictionary } from '@/i18n/getDictionary'
@@ -155,6 +156,7 @@ export default async function SiteLayout({
         />
       </head>
       <body className="min-h-dvh antialiased">
+        <SmoothScroll />
         <ThemeProvider>
           <Header data={header} locale={locale} dict={dict} siteName={siteName} servicesMenu={servicesMenu} />
 

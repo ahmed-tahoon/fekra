@@ -226,6 +226,18 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* Lenis drives the scroll position itself; CSS smooth scrolling on top of it
+     would double-animate every anchor jump. `scroll-behavior: smooth` above
+     stays as the no-JS fallback. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);
@@ -453,12 +465,29 @@
    * everywhere else degrades to no animation, which is a valid design.
    */
   @supports (animation-timeline: view()) {
-    /* Sections rise into place as they enter the viewport. */
-    /* Sections get no entrance animation. Any wrapper-level effect — a
-       translate, a fade, even a blur — disturbs the section's painted
-       background at its top edge, which reads as a white seam between two
-       tinted sections until the animation completes. Entrances live on the
-       content inside sections (hero, tiles, marquee, funnel) instead. */
+    /*
+     * Section content rises as it enters the viewport, scrubbed by the scroll
+     * itself. The animation lives on each section's direct children — never on
+     * the section or its wrapper, because moving a painted section background
+     * reads as a white seam at the boundary between two tinted sections. The
+     * background stays pinned; only the content inside travels.
+     */
+    .fk-reveal section > * {
+      animation: fk-reveal var(--ease-out-soft) both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 45%;
+    }
+
+    @keyframes fk-reveal {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 32px, 0);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
 
     /*
      * Hero tiles drift at slightly different rates as the page scrolls, which
@@ -555,6 +584,7 @@
    * by name or the page would still move under someone who asked it not to.
    */
   .fk-reveal,
+  .fk-reveal section > *,
   .fk-drift,
   .fk-enter,
   .fk-tile-enter,
