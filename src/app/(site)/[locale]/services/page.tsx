@@ -23,7 +23,16 @@ export default async function ServicesIndex({ params }: { params: Promise<{ loca
 
   const [dict, { docs }] = await Promise.all([
     getDictionary(locale),
-    findDocs<ServiceDoc>({ collection: 'services', locale, limit: 100, sort: 'order' }),
+    findDocs<ServiceDoc>({
+      collection: 'services',
+      locale,
+      limit: 100,
+      sort: 'order',
+      depth: 0,
+      // The card grid needs five fields; without a select this query joins
+      // every block table for every service and times out on the pooler.
+      select: { title: true, slug: true, summary: true, parent: true, order: true },
+    }),
   ])
 
   // 7.1 — top-level services first; landing pages nest under their parent.

@@ -8,11 +8,12 @@ import { ConsentBanner } from '@/components/analytics/ConsentBanner'
 import { JsonLd } from '@/components/JsonLd'
 import { Footer, type FooterData } from '@/components/layout/Footer'
 import { Header, type HeaderData } from '@/components/layout/Header'
+import { TalkToFika } from '@/components/layout/TalkToFika'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { getDictionary } from '@/i18n/getDictionary'
 import { LOCALES, dir, isLocale } from '@/i18n/routing'
 import { organizationSchema, websiteSchema } from '@/lib/jsonld'
-import { getGlobal } from '@/lib/payload'
+import { findDocs, getGlobal } from '@/lib/payload'
 import { isComingSoon } from '@/lib/site-mode'
 import { siteUrl } from '@/lib/urls'
 
@@ -99,16 +100,29 @@ export default async function SiteLayout({
   const { locale } = await params
   if (!isLocale(locale)) notFound()
 
-  const [dict, header, footer, settings] = await Promise.all([
+  const [dict, header, footer, settings, servicesDocs] = await Promise.all([
     getDictionary(locale),
     getGlobal<HeaderData>('header', locale),
     getGlobal<FooterData>('footer', locale),
     getGlobal<SiteSettings>('site-settings', locale),
+    findDocs<{ title: string; slug: string; menuRoles?: { label: string }[] | null }>({
+      collection: 'services',
+      locale,
+      limit: 24,
+      depth: 0,
+      sort: 'order',
+      // Runs on every page — keep it to the three columns the menu shows.
+      select: { title: true, slug: true, menuRoles: true, order: true },
+    }),
   ])
+
+  // Only services with roles form columns in the header's Services mega-menu.
+  const servicesMenu = servicesDocs.docs
+    .filter((s) => s.menuRoles?.length)
+    .map((s) => ({ title: s.title, slug: s.slug, roles: (s.menuRoles ?? []).map((r) => r.label) }))
 
   const siteName = settings.siteName ?? 'FEKRA'
   const logoUrl = settings.logoLight?.url ? mediaUrl(settings.logoLight) : null
-  const logoDarkUrl = settings.logoDark?.url ? mediaUrl(settings.logoDark) : null
 
   return (
     // 14.5 — lang and dir are emitted per locale, not patched in on the client.
@@ -137,7 +151,7 @@ export default async function SiteLayout({
       </head>
       <body className="min-h-dvh antialiased">
         <ThemeProvider>
-          <Header data={header} locale={locale} dict={dict} logo={{ light: logoUrl, dark: logoDarkUrl }} siteName={siteName} />
+          <Header data={header} locale={locale} dict={dict} siteName={siteName} servicesMenu={servicesMenu} />
 
           <main id="main">{children}</main>
 
@@ -150,6 +164,7 @@ export default async function SiteLayout({
             socials={settings.socialProfiles}
           />
 
+          <TalkToFika locale={locale} dict={dict} />
           <ConsentBanner dict={dict} enabled={(settings.consentMode ?? 'opt-in') === 'opt-in'} />
           <Analytics
             gtmId={settings.gtmContainerId}

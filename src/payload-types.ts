@@ -160,6 +160,8 @@ export interface Page {
   layout?:
     | (
         | HeroBlock
+        | ServiceHeroBlock
+        | HiringModelsBlock
         | LogoCloudBlock
         | IndustriesBlock
         | TalentShowcaseBlock
@@ -407,6 +409,8 @@ export interface Post {
   layout?:
     | (
         | HeroBlock
+        | ServiceHeroBlock
+        | HiringModelsBlock
         | LogoCloudBlock
         | IndustriesBlock
         | TalentShowcaseBlock
@@ -434,6 +438,187 @@ export interface Post {
   availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
   featured?: boolean | null;
   publishedAt?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Only set this when the page must point at a different canonical (18.3).
+     */
+    canonicalOverride?: string | null;
+    /**
+     * Excludes the page from search results and the sitemap (18.13).
+     */
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceHeroBlock".
+ */
+export interface ServiceHeroBlock {
+  heading: string;
+  /**
+   * Colour of the band behind the hero — the comps alternate per service.
+   */
+  heroTone?: ('mint' | 'blue' | 'blush' | 'amber' | 'sky' | 'coral' | 'teal' | 'gold' | 'lilac') | null;
+  /**
+   * Each line renders as its own paragraph.
+   */
+  body?: string | null;
+  /**
+   * Bold closing line under the paragraphs.
+   */
+  closer?: string | null;
+  highlights?:
+    | {
+        icon?: (number | null) | Media;
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  formTitle?: string | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'serviceHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HiringModelsBlock".
+ */
+export interface HiringModelsBlock {
+  eyebrow?: string | null;
+  heading: string;
+  models?:
+    | {
+        title: string;
+        tone?: ('amber' | 'lavender' | 'blue') | null;
+        stats?:
+          | {
+              value: string;
+              label: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  benefitsTitle?: string | null;
+  benefits?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  ctas?:
+    | {
+        variant?: ('primary' | 'secondary' | 'ghost') | null;
+        link?: {
+          type?: ('internal' | 'route' | 'external') | null;
+          /**
+           * Visible link text. A link with no label is not rendered.
+           */
+          label?: string | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'jobs';
+                value: number | Job;
+              } | null);
+          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          url?: string | null;
+          newTab?: boolean | null;
+          /**
+           * Optional. Sent as the GA4 event name when clicked (22.5).
+           */
+          analyticsId?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hiringModels';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
+  id: number;
+  title: string;
+  /**
+   * URL path segment. Changing this on a live page needs a redirect entry.
+   */
+  slug: string;
+  summary: string;
+  icon?: (number | null) | Media;
+  layout?:
+    | (
+        | HeroBlock
+        | ServiceHeroBlock
+        | HiringModelsBlock
+        | LogoCloudBlock
+        | IndustriesBlock
+        | TalentShowcaseBlock
+        | CardGridBlock
+        | StatsBlock
+        | ProcessBlock
+        | TestimonialsBlock
+        | FaqBlock
+        | PostsTeaserBlock
+        | TechStackBlock
+        | CtaBlock
+        | RichTextBlock
+        | MediaBlock
+        | ContactBlock
+        | BookingBlock
+      )[]
+    | null;
+  /**
+   * Set for SEO landing pages under a parent service. Drives breadcrumbs (18.9) and internal linking (18.10).
+   */
+  parent?: (number | null) | Service;
+  relatedServices?: (number | Service)[] | null;
+  /**
+   * Lower numbers appear first in the Services overview.
+   */
+  order?: number | null;
+  /**
+   * Roles listed under this service in the header Services mega-menu. Leave empty to keep the service out of the menu columns.
+   */
+  menuRoles?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -612,9 +797,9 @@ export interface TalentShowcaseBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "services".
+ * via the `definition` "jobs".
  */
-export interface Service {
+export interface Job {
   id: number;
   title: string;
   /**
@@ -622,37 +807,67 @@ export interface Service {
    */
   slug: string;
   summary: string;
-  icon?: (number | null) | Media;
-  layout?:
-    | (
-        | HeroBlock
-        | LogoCloudBlock
-        | IndustriesBlock
-        | TalentShowcaseBlock
-        | CardGridBlock
-        | StatsBlock
-        | ProcessBlock
-        | TestimonialsBlock
-        | FaqBlock
-        | PostsTeaserBlock
-        | TechStackBlock
-        | CtaBlock
-        | RichTextBlock
-        | MediaBlock
-        | ContactBlock
-        | BookingBlock
-      )[]
-    | null;
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  requirements?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  benefits?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  department?: string | null;
+  location: string;
+  workModel: 'onsite' | 'hybrid' | 'remote';
+  employmentType: 'FULL_TIME' | 'PART_TIME' | 'CONTRACTOR' | 'TEMPORARY' | 'INTERN';
+  countryCode?: string | null;
+  city?: string | null;
   /**
-   * Set for SEO landing pages under a parent service. Drives breadcrumbs (18.9) and internal linking (18.10).
+   * Schema expiry. Blank = 90 days after publish.
    */
-  parent?: (number | null) | Service;
-  relatedServices?: (number | Service)[] | null;
-  /**
-   * Lower numbers appear first in the Services overview.
-   */
-  order?: number | null;
+  validThrough?: string | null;
   availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
+  /**
+   * Closing a role removes its JobPosting schema and disables the form (10.9).
+   */
+  roleStatus: 'open' | 'closed';
+  publishedAt?: string | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -773,99 +988,6 @@ export interface CardGridBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'cardGrid';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "jobs".
- */
-export interface Job {
-  id: number;
-  title: string;
-  /**
-   * URL path segment. Changing this on a live page needs a redirect entry.
-   */
-  slug: string;
-  summary: string;
-  description: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  requirements?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  benefits?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  department?: string | null;
-  location: string;
-  workModel: 'onsite' | 'hybrid' | 'remote';
-  employmentType: 'FULL_TIME' | 'PART_TIME' | 'CONTRACTOR' | 'TEMPORARY' | 'INTERN';
-  countryCode?: string | null;
-  city?: string | null;
-  /**
-   * Schema expiry. Blank = 90 days after publish.
-   */
-  validThrough?: string | null;
-  availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
-  /**
-   * Closing a role removes its JobPosting schema and disables the form (10.9).
-   */
-  roleStatus: 'open' | 'closed';
-  publishedAt?: string | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    /**
-     * Only set this when the page must point at a different canonical (18.3).
-     */
-    canonicalOverride?: string | null;
-    /**
-     * Excludes the page from search results and the sitemap (18.13).
-     */
-    noindex?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1513,6 +1635,8 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        serviceHero?: T | ServiceHeroBlockSelect<T>;
+        hiringModels?: T | HiringModelsBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
         industries?: T | IndustriesBlockSelect<T>;
         talentShowcase?: T | TalentShowcaseBlockSelect<T>;
@@ -1602,6 +1726,76 @@ export interface HeroBlockSelect<T extends boolean = true> {
         image?: T;
         value?: T;
         label?: T;
+        id?: T;
+      };
+  anchor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceHeroBlock_select".
+ */
+export interface ServiceHeroBlockSelect<T extends boolean = true> {
+  heading?: T;
+  heroTone?: T;
+  body?: T;
+  closer?: T;
+  highlights?:
+    | T
+    | {
+        icon?: T;
+        text?: T;
+        id?: T;
+      };
+  formTitle?: T;
+  anchor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HiringModelsBlock_select".
+ */
+export interface HiringModelsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  models?:
+    | T
+    | {
+        title?: T;
+        tone?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  benefitsTitle?: T;
+  benefits?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  ctas?:
+    | T
+    | {
+        variant?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              label?: T;
+              reference?: T;
+              route?: T;
+              url?: T;
+              newTab?: T;
+              analyticsId?: T;
+            };
         id?: T;
       };
   anchor?: T;
@@ -2025,6 +2219,8 @@ export interface PostsSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        serviceHero?: T | ServiceHeroBlockSelect<T>;
+        hiringModels?: T | HiringModelsBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
         industries?: T | IndustriesBlockSelect<T>;
         talentShowcase?: T | TalentShowcaseBlockSelect<T>;
@@ -2085,6 +2281,8 @@ export interface ServicesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        serviceHero?: T | ServiceHeroBlockSelect<T>;
+        hiringModels?: T | HiringModelsBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
         industries?: T | IndustriesBlockSelect<T>;
         talentShowcase?: T | TalentShowcaseBlockSelect<T>;
@@ -2104,6 +2302,12 @@ export interface ServicesSelect<T extends boolean = true> {
   parent?: T;
   relatedServices?: T;
   order?: T;
+  menuRoles?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
   availableLocales?: T;
   meta?:
     | T

@@ -68,6 +68,16 @@ export const Services: CollectionConfig = {
               admin: { description: 'Lower numbers appear first in the Services overview.' },
             },
             {
+              name: 'menuRoles',
+              type: 'array',
+              labels: { singular: 'Role', plural: 'Roles' },
+              admin: {
+                description:
+                  'Roles listed under this service in the header Services mega-menu. Leave empty to keep the service out of the menu columns.',
+              },
+              fields: [{ name: 'label', type: 'text', localized: true, required: true }],
+            },
+            {
               name: 'availableLocales',
               type: 'select',
               hasMany: true,

@@ -41,7 +41,13 @@ export function RotatingWords({ words, intervalMs = 2600 }: { words: string[]; i
       <span aria-hidden className="invisible block h-0 overflow-hidden">
         {words.reduce((a, b) => (b.length > a.length ? b : a), '')}
       </span>
-      <span key={current} className="fk-rotate-in inline-block">
+      {/* Gradient sits on the animating span itself so the clipped background
+          repaints as one layer with the animation — on a wrapper it leaves
+          stale slivers in Chrome. */}
+      <span
+        key={current}
+        className="fk-rotate-in inline-block bg-[linear-gradient(137.53deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent"
+      >
         {current}
       </span>
     </span>

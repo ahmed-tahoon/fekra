@@ -55,26 +55,31 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
     { name: service.title, path: `/services/${slug}` },
   ]
 
+  // A serviceHero block carries the H1 itself; the plain header would double it.
+  const hasHero = service.layout?.[0]?.blockType === 'serviceHero'
+
   return (
     <>
-      <div className="container-site pt-10">
-        <nav aria-label={dict.common.breadcrumb} className="text-sm text-muted-foreground">
-          <ol className="flex flex-wrap items-center gap-2">
-            {crumbs.slice(0, -1).map((crumb) => (
-              <li key={crumb.path} className="flex items-center gap-2">
-                <Link href={localeHref(locale, crumb.path)}>{crumb.name}</Link>
-                <span aria-hidden>/</span>
-              </li>
-            ))}
-            <li aria-current="page">{service.title}</li>
-          </ol>
-        </nav>
+      {!hasHero ? (
+        <div className="container-site pt-10">
+          <nav aria-label={dict.common.breadcrumb} className="text-sm text-muted-foreground">
+            <ol className="flex flex-wrap items-center gap-2">
+              {crumbs.slice(0, -1).map((crumb) => (
+                <li key={crumb.path} className="flex items-center gap-2">
+                  <Link href={localeHref(locale, crumb.path)}>{crumb.name}</Link>
+                  <span aria-hidden>/</span>
+                </li>
+              ))}
+              <li aria-current="page">{service.title}</li>
+            </ol>
+          </nav>
 
-        <h1 className="mt-6 text-4xl md:text-5xl">{service.title}</h1>
-        {service.summary ? (
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">{service.summary}</p>
-        ) : null}
-      </div>
+          <h1 className="mt-6 text-4xl md:text-5xl">{service.title}</h1>
+          {service.summary ? (
+            <p className="mt-4 max-w-2xl text-lg text-muted-foreground">{service.summary}</p>
+          ) : null}
+        </div>
+      ) : null}
 
       <RenderBlocks
         blocks={service.layout}

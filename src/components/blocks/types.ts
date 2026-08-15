@@ -112,6 +112,23 @@ export type BlockProps = {
   /** Industry grid. */
   industries?: { label: string; tone?: 'pink' | 'mint' | 'lilac' | 'teal' | 'blue' | null; icon?: unknown }[] | null
 
+  /** Service hero (Figma service pages 15:22742 / 20:27309 / 22:31063). */
+  heroTone?: 'mint' | 'blue' | 'blush' | 'amber' | 'sky' | 'coral' | 'teal' | 'gold' | 'lilac' | null
+  closer?: string | null
+  highlights?: { icon?: unknown; text: string }[] | null
+  formTitle?: string | null
+
+  /** Hiring models (Figma service pages, "Our Hiring Models"). */
+  models?:
+    | {
+        title: string
+        tone?: 'amber' | 'lavender' | 'blue' | null
+        stats?: { value: string; label: string }[] | null
+      }[]
+    | null
+  benefitsTitle?: string | null
+  benefits?: { text: string }[] | null
+
   /** Talent showcase. */
   roles?: { label: string }[] | null
   panelTitle?: string | null

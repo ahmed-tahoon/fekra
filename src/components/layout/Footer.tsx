@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
+import { BrandLogo } from './BrandLogo'
+
 
 import type { Dictionary } from '@/i18n/getDictionary'
 import { type Locale, localeHref } from '@/i18n/routing'
@@ -69,8 +71,7 @@ export function Footer({
       <div className="container-site grid gap-12 py-16 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:gap-20">
         <div className="max-w-[340px]">
           <Link href={localeHref(locale, '/')} aria-label={siteName}>
-            {/* The wordmark artwork already carries the tagline. */}
-            <Image src="/images/fekra-logo.webp" alt={siteName} width={172} height={44} className="h-11 w-auto" />
+            <BrandLogo />
           </Link>
           {data.blurb ? <p className="mt-5 text-sm text-muted-foreground">{data.blurb}</p> : null}
 
@@ -85,7 +86,7 @@ export function Footer({
                       target="_blank"
                       rel="noopener noreferrer me"
                       aria-label={s.platform}
-                      className="inline-grid size-10 place-items-center rounded-xl bg-card text-navy-800 shadow-card transition-colors hover:text-primary dark:text-foreground"
+                      className="inline-grid size-9 place-items-center rounded-lg bg-card text-navy-800 shadow-card transition-colors hover:text-primary dark:text-foreground"
                     >
                       {path ? (
                         <svg viewBox="0 0 24 24" fill="currentColor" className="size-[18px]" aria-hidden>
@@ -104,7 +105,7 @@ export function Footer({
 
         {offices?.length ? (
           <div>
-            <h2 className="font-display text-base font-bold text-navy-800 dark:text-foreground">
+            <h2 className="font-display text-sm font-bold tracking-[0.35px] text-navy-800 dark:text-foreground">
               {dict.contact.offices}
             </h2>
             <ul className="mt-4 flex flex-col gap-3 text-sm text-muted-foreground">
@@ -120,7 +121,7 @@ export function Footer({
 
         {contact ? (
           <div>
-            <h2 className="font-display text-base font-bold text-navy-800 dark:text-foreground">
+            <h2 className="font-display text-sm font-bold tracking-[0.35px] text-navy-800 dark:text-foreground">
               {dict.nav.contact}
             </h2>
             <ul className="mt-4 flex flex-col gap-3 text-sm text-muted-foreground">
@@ -144,7 +145,7 @@ export function Footer({
 
         {(data.columns ?? []).map((column) => (
           <nav key={column.title} aria-label={column.title}>
-            <h2 className="font-display text-base font-bold text-navy-800 dark:text-foreground">{column.title}</h2>
+            <h2 className="font-display text-sm font-bold tracking-[0.35px] text-navy-800 dark:text-foreground">{column.title}</h2>
             <ul className="mt-4 flex flex-col gap-3">
               {(column.links ?? []).map((entry) => {
                 const link = resolveLink(entry.link, locale)
@@ -175,7 +176,7 @@ export function Footer({
             />
             <div>
               {data.newsletter.heading ? (
-                <h2 className="font-display text-lg leading-snug font-bold text-navy-800 dark:text-foreground">
+                <h2 className="font-display text-xl leading-snug font-bold text-navy-800 dark:text-foreground">
                   {data.newsletter.heading}
                 </h2>
               ) : null}
@@ -184,24 +185,52 @@ export function Footer({
               ) : null}
             </div>
           </div>
-          <div className="lg:justify-self-end lg:w-[420px]">
+          <div className="flex flex-col gap-3 lg:w-[420px] lg:justify-self-end">
+            {/* Comp: the form carries its own line, separate from the promo body. */}
+            <p className="ps-1 text-sm text-muted-foreground">{dict.form.newsletterHint}</p>
             <NewsletterForm dict={dict} locale={locale} />
           </div>
         </div>
       ) : null}
 
-      <div className="border-t border-border">
-        <div className="container-site flex flex-col gap-4 py-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
+      {/* Comp: the bottom rule is navy, and the socials repeat as small muted marks. */}
+      <div className="border-t border-navy-800 dark:border-border">
+        <div className="container-site flex flex-col gap-4 py-5 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
           <p>{data.copyright ?? `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`}</p>
-          <ul className="flex flex-wrap gap-4">
-            {legal.map((link) => (
-              <li key={link!.href}>
-                <Link href={link!.href} className="transition-colors hover:text-foreground">
-                  {link!.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <div className="flex flex-wrap items-center gap-5">
+            <ul className="flex flex-wrap gap-4">
+              {legal.map((link) => (
+                <li key={link!.href}>
+                  <Link href={link!.href} className="transition-colors hover:text-foreground">
+                    {link!.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            {socials?.length ? (
+              <ul className="flex items-center gap-5">
+                {socials.map((s) => {
+                  const path = SOCIAL_PATH[s.platform.toLowerCase()]
+                  if (!path) return null
+                  return (
+                    <li key={s.url}>
+                      <a
+                        href={s.url}
+                        target="_blank"
+                        rel="noopener noreferrer me"
+                        aria-label={s.platform}
+                        className="transition-colors hover:text-foreground"
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="size-4" aria-hidden>
+                          <path d={path} />
+                        </svg>
+                      </a>
+                    </li>
+                  )
+                })}
+              </ul>
+            ) : null}
+          </div>
         </div>
       </div>
     </footer>

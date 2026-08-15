@@ -86,14 +86,34 @@ function SectionHeading({
   )
 }
 
-function Ctas({ ctas, locale, size = 'lg' }: { ctas?: BlockProps['ctas']; locale: Locale; size?: 'md' | 'lg' }) {
+function Ctas({
+  ctas,
+  locale,
+  size = 'lg',
+  className,
+  withArrow = true,
+}: {
+  ctas?: BlockProps['ctas']
+  locale: Locale
+  size?: 'md' | 'lg'
+  /** Extra classes per button — the comps size or recolour a few CTAs. */
+  className?: string
+  withArrow?: boolean
+}) {
   const resolved = (ctas ?? []).map((c) => ({ variant: c.variant, link: resolveLink(c.link, locale) }))
   if (!resolved.some((c) => c.link)) return null
   return (
     <div className="flex flex-wrap gap-3">
       {resolved.map((c) =>
         c.link ? (
-          <LinkButton key={c.link.href} link={c.link} variant={c.variant ?? 'primary'} size={size} withArrow />
+          <LinkButton
+            key={c.link.href}
+            link={c.link}
+            variant={c.variant ?? 'primary'}
+            size={size}
+            withArrow={withArrow}
+            className={className}
+          />
         ) : null,
       )}
     </div>
@@ -176,10 +196,17 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           >
             {block.heading}
             <br />
-            {/* Second line is a gradient fill in the comp, teal -> blue. */}
-            <span className="bg-[linear-gradient(137.53deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
-              {words.length ? <RotatingWords words={words} /> : block.headingAccent}
-            </span>
+            {/* Second line is a gradient fill in the comp, teal -> blue.
+                The gradient must live ON the animated word (inside
+                RotatingWords), not on a wrapper: Chrome leaves paint slivers
+                when a `background-clip: text` element has animating children. */}
+            {words.length ? (
+              <RotatingWords words={words} />
+            ) : (
+              <span className="bg-[linear-gradient(137.53deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+                {block.headingAccent}
+              </span>
+            )}
           </Title>
 
           {block.body ? (
@@ -619,7 +646,8 @@ export function ProcessSection({ block }: { block: BlockProps }) {
 
   return (
     <section id={block.anchor ?? undefined} className="section">
-      <div className="container-site flex flex-col items-center gap-10">
+      {/* Figma 1:11041 — 100px between the heading block and the funnel. */}
+      <div className="container-site flex flex-col items-center gap-10 lg:gap-[100px]">
         <div className="flex flex-col items-center gap-2 text-center">
           {block.eyebrow ? (
             <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
@@ -637,9 +665,7 @@ export function ProcessSection({ block }: { block: BlockProps }) {
           ) : null}
         </div>
 
-        <div className="w-full max-w-[900px]">
-          <ProcessStepper steps={steps} />
-        </div>
+        <ProcessStepper steps={steps} />
       </div>
     </section>
   )
@@ -861,7 +887,8 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
             />
           ) : null}
 
-          <Ctas ctas={block.ctas} locale={locale} />
+          {/* The comp's wide solid pill — 340px, label only, no arrow. */}
+          <Ctas ctas={block.ctas} locale={locale} withArrow={false} className="min-w-[340px]" />
         </div>
       </section>
     )
@@ -883,7 +910,13 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
             {block.heading}
           </h2>
           {block.body ? <p className="max-w-[700px] text-base/6 text-white/80">{block.body}</p> : null}
-          <Ctas ctas={block.ctas} locale={locale} size="md" />
+          {/* On navy the outlined pill flips to white per the comp. */}
+          <Ctas
+            ctas={block.ctas}
+            locale={locale}
+            size="md"
+            className="border-white text-white hover:bg-white/10 dark:border-white dark:text-white dark:hover:bg-white/10"
+          />
         </div>
       </section>
     )

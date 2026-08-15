@@ -3,7 +3,9 @@ import type { Locale } from '@/i18n/routing'
 
 import { BookingSection } from './BookingSection'
 import { ContactSection } from './ContactSection'
+import { HiringModelsSection } from './HiringModels'
 import { PostsTeaser } from './PostsTeaser'
+import { ServiceHeroSection } from './ServiceHero'
 import {
   CardGridSection,
   CtaSection,
@@ -51,11 +53,17 @@ export function RenderBlocks({
          * and the hero is excluded because it already has its own entrance.
          */
         const reveal = (node: React.ReactNode) =>
-          isFirst ? node : <div className="fk-reveal">{node}</div>
+          isFirst ? node : <div key={key} className="fk-reveal">{node}</div>
 
         switch (block.blockType) {
           case 'hero':
             return <HeroSection key={key} block={block} locale={locale} isFirst={isFirst} />
+          case 'serviceHero':
+            return (
+              <ServiceHeroSection key={key} block={block} locale={locale} dict={dict} isFirst={isFirst} />
+            )
+          case 'hiringModels':
+            return reveal(<HiringModelsSection key={key} block={block} locale={locale} />)
           case 'logoCloud':
             return reveal(<LogoCloudSection key={key} block={block} />)
           case 'talentShowcase':

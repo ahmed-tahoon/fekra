@@ -11,6 +11,8 @@ import * as migration_20260813_165418_logo_cloud_badges from './20260813_165418_
 import * as migration_20260813_165657_faq_footnote_cta from './20260813_165657_faq_footnote_cta';
 import * as migration_20260813_171156_cta_band_tone from './20260813_171156_cta_band_tone';
 import * as migration_20260814_004459_social_whatsapp from './20260814_004459_social_whatsapp';
+import * as migration_20260814_124609_service_pages_blocks from './20260814_124609_service_pages_blocks';
+import * as migration_20260814_135055_services_menu_roles_and_hero_tones from './20260814_135055_services_menu_roles_and_hero_tones';
 
 export const migrations = [
   {
@@ -76,6 +78,16 @@ export const migrations = [
   {
     up: migration_20260814_004459_social_whatsapp.up,
     down: migration_20260814_004459_social_whatsapp.down,
-    name: '20260814_004459_social_whatsapp'
+    name: '20260814_004459_social_whatsapp',
+  },
+  {
+    up: migration_20260814_124609_service_pages_blocks.up,
+    down: migration_20260814_124609_service_pages_blocks.down,
+    name: '20260814_124609_service_pages_blocks',
+  },
+  {
+    up: migration_20260814_135055_services_menu_roles_and_hero_tones.up,
+    down: migration_20260814_135055_services_menu_roles_and_hero_tones.down,
+    name: '20260814_135055_services_menu_roles_and_hero_tones'
   },
 ];

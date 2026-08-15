@@ -114,10 +114,16 @@
    *   px-200 -> 1040 content  (testimonials, FAQ — the reading columns)
    * Each token carries the 2rem inline padding the utilities add, so the
    * content lands on the designed number rather than 64px short of it.
+   *
+   * Above 1440 the comp's fixed gutters are kept as a PROPORTION of the
+   * viewport (1200/1440 = 83.33vw and so on) rather than as a fixed cap, so a
+   * wide monitor doesn't get ever-growing side margins. At exactly 1440 each
+   * expression resolves to the measured value; the outer min() stops ultra-wide
+   * screens from stretching lines past readability.
    */
-  --container-site: 1264px;
-  --container-board: 1392px;
-  --container-reading: 1104px;
+  --container-site: max(1264px, min(83.33vw + 4rem, 1664px));
+  --container-board: max(1392px, min(92.22vw + 4rem, 1840px));
+  --container-reading: max(1104px, min(72.22vw + 4rem, 1456px));
   /* Editorial pages run near full-bleed — only a gutter, no centred column. */
   --container-wide: 1700px;
 
@@ -381,15 +387,16 @@
   }
 
   @keyframes fk-rotate-in {
+    /* No blur here on purpose: animating `filter` on text inside a
+       `background-clip: text` span leaves stale repaint slivers above the
+       glyphs in Chrome. */
     from {
       opacity: 0;
       transform: translateY(0.35em);
-      filter: blur(4px);
     }
     to {
       opacity: 1;
       transform: none;
-      filter: none;
     }
   }
 
@@ -411,15 +418,15 @@
   }
 
   @keyframes fk-enter {
+    /* No blur: animating `filter` over elements containing
+       `background-clip: text` leaves stale repaint slivers in Chrome. */
     from {
       opacity: 0;
       transform: translate3d(0, 14px, 0);
-      filter: blur(6px);
     }
     to {
       opacity: 1;
       transform: none;
-      filter: none;
     }
   }
 
@@ -447,12 +454,11 @@
    */
   @supports (animation-timeline: view()) {
     /* Sections rise into place as they enter the viewport. */
-    .fk-reveal {
-      animation: fk-enter linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 55%;
-      animation-delay: 0s;
-    }
+    /* Sections get no entrance animation. Any wrapper-level effect — a
+       translate, a fade, even a blur — disturbs the section's painted
+       background at its top edge, which reads as a white seam between two
+       tinted sections until the animation completes. Entrances live on the
+       content inside sections (hero, tiles, marquee, funnel) instead. */
 
     /*
      * Hero tiles drift at slightly different rates as the page scrolls, which

@@ -16,7 +16,9 @@ const base =
 
 const variants: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary-hover',
-  secondary: 'border border-border bg-card text-foreground hover:bg-background-subtle',
+  // The comp's outlined pill: navy hairline, transparent fill, navy label.
+  secondary:
+    'border border-navy-800 bg-transparent text-navy-800 hover:bg-navy-800/5 dark:border-foreground dark:text-foreground dark:hover:bg-foreground/10',
   ghost: 'text-foreground hover:bg-background-subtle',
 }
 

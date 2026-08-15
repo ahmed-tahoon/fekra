@@ -584,8 +584,113 @@ export const TalentShowcaseBlock: Block = {
   ],
 }
 
+export const ServiceHeroBlock: Block = {
+  slug: 'serviceHero',
+  interfaceName: 'ServiceHeroBlock',
+  labels: { singular: 'Service hero', plural: 'Service heroes' },
+  fields: [
+    { name: 'heading', type: 'text', localized: true, required: true },
+    {
+      name: 'heroTone',
+      type: 'select',
+      defaultValue: 'mint',
+      options: [
+        { label: 'Mint', value: 'mint' },
+        { label: 'Periwinkle', value: 'blue' },
+        { label: 'Blush', value: 'blush' },
+        { label: 'Amber', value: 'amber' },
+        { label: 'Sky', value: 'sky' },
+        { label: 'Coral', value: 'coral' },
+        { label: 'Teal', value: 'teal' },
+        { label: 'Gold', value: 'gold' },
+        { label: 'Lilac', value: 'lilac' },
+      ],
+      admin: { description: 'Colour of the band behind the hero — the comps alternate per service.' },
+    },
+    {
+      name: 'body',
+      type: 'textarea',
+      localized: true,
+      admin: { description: 'Each line renders as its own paragraph.' },
+    },
+    {
+      name: 'closer',
+      type: 'text',
+      localized: true,
+      admin: { description: 'Bold closing line under the paragraphs.' },
+    },
+    {
+      name: 'highlights',
+      type: 'array',
+      maxRows: 3,
+      labels: { singular: 'Highlight card', plural: 'Highlight cards' },
+      fields: [
+        { name: 'icon', type: 'upload', relationTo: 'media' },
+        { name: 'text', type: 'text', localized: true, required: true },
+      ],
+    },
+    { name: 'formTitle', type: 'text', localized: true },
+    anchor,
+  ],
+}
+
+export const HiringModelsBlock: Block = {
+  slug: 'hiringModels',
+  interfaceName: 'HiringModelsBlock',
+  labels: { singular: 'Hiring models', plural: 'Hiring models' },
+  fields: [
+    { name: 'eyebrow', type: 'text', localized: true },
+    { name: 'heading', type: 'text', localized: true, required: true },
+    {
+      name: 'models',
+      type: 'array',
+      maxRows: 3,
+      labels: { singular: 'Model', plural: 'Models' },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'title', type: 'text', localized: true, required: true, admin: { width: '60%' } },
+            {
+              name: 'tone',
+              type: 'select',
+              defaultValue: 'amber',
+              options: [
+                { label: 'Amber', value: 'amber' },
+                { label: 'Lavender', value: 'lavender' },
+                { label: 'Blue', value: 'blue' },
+              ],
+              admin: { width: '40%' },
+            },
+          ],
+        },
+        {
+          name: 'stats',
+          type: 'array',
+          maxRows: 2,
+          fields: [
+            { name: 'value', type: 'text', required: true },
+            { name: 'label', type: 'text', localized: true, required: true },
+          ],
+        },
+      ],
+    },
+    { name: 'benefitsTitle', type: 'text', localized: true },
+    {
+      name: 'benefits',
+      type: 'array',
+      labels: { singular: 'Benefit', plural: 'Benefits' },
+      fields: [{ name: 'text', type: 'text', localized: true, required: true }],
+    },
+    linksArray('ctas', 1),
+    anchor,
+  ],
+}
+
 export const allBlocks = [
   HeroBlock,
+  ServiceHeroBlock,
+  HiringModelsBlock,
   LogoCloudBlock,
   IndustriesBlock,
   TalentShowcaseBlock,

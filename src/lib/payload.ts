@@ -1,5 +1,5 @@
 import { draftMode } from 'next/headers'
-import { getPayload, type Where } from 'payload'
+import { getPayload, type SelectType, type Where } from 'payload'
 import configPromise from '@payload-config'
 
 import type { Locale } from '@/i18n/routing'
@@ -17,6 +17,9 @@ type FindArgs = {
   where?: Where
   sort?: string
   depth?: number
+  /** Column allow-list. Skips the block-table joins entirely — the full-layout
+      query for a list of services is heavy enough to hit statement timeouts. */
+  select?: SelectType
 }
 
 /**
@@ -50,6 +53,7 @@ export async function findDocs<T = unknown>({
   where = {} as Where,
   sort,
   depth = 2,
+  select,
 }: FindArgs): Promise<{ docs: T[]; totalPages: number; totalDocs: number }> {
   const draft = await isDraft()
   const payload = await payloadClient()
@@ -68,6 +72,7 @@ export async function findDocs<T = unknown>({
     limit,
     page,
     sort,
+    select,
     where: draft || !hasDrafts ? where : { ...where, _status: { equals: 'published' } },
   })
 
