@@ -168,7 +168,9 @@ export default buildConfig({
        * dev server, a seed run and a Vercel build to coexist. Raise via
        * DATABASE_POOL_MAX if the pooler's limit is ever increased.
        */
-      max: Number(process.env.DATABASE_POOL_MAX ?? 4),
+      // Tighter still on Vercel: next build prerenders with several worker
+      // processes, and each one boots its own pool against the same cap.
+      max: Number(process.env.DATABASE_POOL_MAX ?? (process.env.VERCEL ? 2 : 4)),
       // Give connections back to the pooler quickly once idle.
       idleTimeoutMillis: 10_000,
     },
