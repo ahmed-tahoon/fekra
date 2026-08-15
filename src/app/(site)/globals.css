@@ -41,10 +41,42 @@
   --color-blog-band-from: #e7f2fb;
   --color-blog-band-via: #eef6fb;
 
+  /*
+   * Hero collage — measured from the Figma "Hero" frame (node 1:10198).
+   * These greens and the indigo are not in the brand ramp; they only ever
+   * appear on hero stat cards, so they live in their own namespace.
+   */
+  --color-tile-green: #04f3ac;
+  --color-tile-emerald: #09e4af;
+  --color-tile-indigo: #4439d0;
+  --color-tile-teal: #1ab2b9;
+  --color-tile-sky: #92ddec;
+  --color-tile-mist: #e8f6f8;
+  /* The one corner every tile rounds, at the 1440 comp width. */
+  --radius-tile: clamp(28px, 5.7vw, 80px);
+
   /* Supporting palette */
   --color-navy-500: #326ec6;
   --color-navy-700: #293b6a;
   --color-navy-800: #273969;
+
+  /* Talent panel surfaces and role pills — Figma 1:10318. */
+  --color-panel-grey: #f1f2f9;
+  --color-panel-mint: #ccffee;
+  --color-role-pill: #b6e8f2;
+  --color-role-pill-ink: #0b3942;
+
+  /* Tech stack tabs — Figma 3:1656. */
+  --color-tab-bar: #f8f8fc;
+  --color-tab-panel: #d4edf2;
+
+  /* Industry tiles — Figma 3:1825. Five pastels that cycle across the grid. */
+  --color-industry-pink: #ffd4ee;
+  --color-industry-mint: #ccffee;
+  --color-industry-lilac: #d9d3ff;
+  --color-industry-teal: #bce3eb;
+  --color-industry-blue: #d6e2f4;
+  --radius-industry: 30px;
   --color-ink-900: #192424;
   --color-ink-700: #424242;
   --color-ink-500: #687170;
@@ -75,7 +107,23 @@
   --radius-panel: 2rem;
   --radius-pill: 9999px;
 
-  --container-site: 1280px;
+  /*
+   * Content widths measured off the comp frames, which use three gutters:
+   *   px-120 -> 1200 content  (most sections)
+   *   px-56  -> 1328 content  (technologies, industries — the wide boards)
+   *   px-200 -> 1040 content  (testimonials, FAQ — the reading columns)
+   * Each token carries the 2rem inline padding the utilities add, so the
+   * content lands on the designed number rather than 64px short of it.
+   *
+   * Above 1440 the comp's fixed gutters are kept as a PROPORTION of the
+   * viewport (1200/1440 = 83.33vw and so on) rather than as a fixed cap, so a
+   * wide monitor doesn't get ever-growing side margins. At exactly 1440 each
+   * expression resolves to the measured value; the outer min() stops ultra-wide
+   * screens from stretching lines past readability.
+   */
+  --container-site: max(1264px, min(83.33vw + 4rem, 1664px));
+  --container-board: max(1392px, min(92.22vw + 4rem, 1840px));
+  --container-reading: max(1104px, min(72.22vw + 4rem, 1456px));
   /* Editorial pages run near full-bleed — only a gutter, no centred column. */
   --container-wide: 1700px;
 
@@ -83,6 +131,29 @@
   --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.06), 0 16px 40px rgb(0 0 0 / 0.1);
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Symmetric curve for the header morph — eases in AND out, so
+     collapsing back to the pill is as calm as expanding. */
+  --ease-morph: cubic-bezier(0.45, 0, 0.15, 1);
+}
+
+/*
+ * How much vertical space the header occupies in flow: its top padding plus the
+ * 5rem bar itself. The hero pulls itself up by exactly this to sit its gradient
+ * under a transparent header, then pads its content back down by it.
+ *
+ * It has to be a token because the two must agree to the pixel. They did not:
+ * the hero hard-coded -6rem while the header is 6.5rem from `sm` up, so the
+ * hero started 8px down the page, and being 100dvh tall it ended 8px past the
+ * fold — which is what sliced the bottom off the collage.
+ */
+:root {
+  --header-block: 6rem; /* pt-4 (1rem) + h-20 (5rem) */
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --header-block: 6.5rem; /* sm:pt-6 (1.5rem) + h-20 (5rem) */
+  }
 }
 
 /*
@@ -205,15 +276,32 @@
 }
 
 @layer utilities {
-  .container-site {
+  .container-site,
+  .container-board,
+  .container-reading {
     width: 100%;
-    max-width: var(--container-site);
     margin-inline: auto;
     padding-inline: 1.25rem;
   }
 
+  .container-site {
+    max-width: var(--container-site);
+  }
+
+  /* Wide boards — technologies and industries sit on a 56px gutter. */
+  .container-board {
+    max-width: var(--container-board);
+  }
+
+  /* Reading columns — testimonials and FAQ sit on a 200px gutter. */
+  .container-reading {
+    max-width: var(--container-reading);
+  }
+
   @media (min-width: 768px) {
-    .container-site {
+    .container-site,
+    .container-board,
+    .container-reading {
       padding-inline: 2rem;
     }
   }
@@ -242,14 +330,13 @@
     }
   }
 
+  /*
+   * 140px at the 1440 comp width and above, easing down to 64px on phones.
+   * 9.72vw is what puts the upper clamp exactly on 140 at 1440, so the design
+   * width gets the designed rhythm rather than an approximation of it.
+   */
   .section {
-    padding-block: 4rem;
-  }
-
-  @media (min-width: 768px) {
-    .section {
-      padding-block: 6rem;
-    }
+    padding-block: clamp(4rem, 9.72vw, 8.75rem);
   }
 
   /* Slim brand scrollbar for the sticky table of contents. */
@@ -294,6 +381,150 @@
     }
   }
 
+  /* Hero headline word swap. */
+  .fk-rotate-in {
+    animation: fk-rotate-in 0.5s var(--ease-out-soft) both;
+  }
+
+  @keyframes fk-rotate-in {
+    /* No blur here on purpose: animating `filter` on text inside a
+       `background-clip: text` span leaves stale repaint slivers above the
+       glyphs in Chrome. */
+    from {
+      opacity: 0;
+      transform: translateY(0.35em);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ── Motion ────────────────────────────────────────────────────────────
+   *
+   * All of it is CSS. Scroll-linked animations run on the compositor rather
+   * than the main thread, so scrolling stays smooth and none of this costs a
+   * re-render or a scroll listener (17.8).
+   *
+   * Everything animates transform and opacity only — never a property that
+   * moves the layout — so none of it can cause layout shift (2.6).
+   */
+
+  /* Entrance. `both` fill means the end state sticks even if the animation is
+     reduced to nothing, so content can never be left invisible. */
+  .fk-enter {
+    animation: fk-enter 0.7s var(--ease-out-soft) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  @keyframes fk-enter {
+    /* No blur: animating `filter` over elements containing
+       `background-clip: text` leaves stale repaint slivers in Chrome. */
+    from {
+      opacity: 0;
+      transform: translate3d(0, 14px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Hero tiles land slightly later and scale up rather than slide. */
+  .fk-tile-enter {
+    animation: fk-tile-enter 0.85s var(--ease-out-soft) both;
+    animation-delay: calc(320ms + var(--i, 0) * 55ms);
+  }
+
+  @keyframes fk-tile-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.92) translate3d(0, 22px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /*
+   * Scroll-linked motion, gated on support so browsers without it simply show
+   * static content rather than a blank page. Chrome and Edge get it today;
+   * everywhere else degrades to no animation, which is a valid design.
+   */
+  @supports (animation-timeline: view()) {
+    /* Sections rise into place as they enter the viewport. */
+    /* Sections get no entrance animation. Any wrapper-level effect — a
+       translate, a fade, even a blur — disturbs the section's painted
+       background at its top edge, which reads as a white seam between two
+       tinted sections until the animation completes. Entrances live on the
+       content inside sections (hero, tiles, marquee, funnel) instead. */
+
+    /*
+     * Hero tiles drift at slightly different rates as the page scrolls, which
+     * is what reads as depth. `--drift` lets each column differ.
+     */
+    .fk-drift {
+      animation: fk-drift linear both;
+      animation-timeline: scroll();
+      animation-range: 0 60vh;
+    }
+
+    @keyframes fk-drift {
+      to {
+        transform: translate3d(0, calc(var(--drift, 1) * -42px), 0);
+      }
+    }
+  }
+
+  /*
+   * Talent panel marquee. The comp clips its card rows at the panel edge, so
+   * the track is rendered twice and translated by exactly half its width — at
+   * the loop point the second copy sits where the first began, which is what
+   * makes it seamless. Duration scales with the row's own width so a longer
+   * row moves at the same speed rather than the same rate.
+   */
+  .fk-marquee {
+    display: flex;
+    width: max-content;
+    animation: fk-marquee var(--marquee-duration, 46s) linear infinite;
+  }
+
+  .fk-marquee-reverse {
+    animation-direction: reverse;
+  }
+
+  /* Reading a card is impossible while it slides away under the cursor. */
+  .fk-marquee-stage:hover .fk-marquee,
+  .fk-marquee-stage:focus-within .fk-marquee {
+    animation-play-state: paused;
+  }
+
+  @keyframes fk-marquee {
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  /* Timing bar under the active process step. */
+  .fk-step-progress {
+    animation: fk-step-progress linear forwards;
+    transform-origin: left center;
+  }
+
+  [dir='rtl'] .fk-step-progress {
+    transform-origin: right center;
+  }
+
+  @keyframes fk-step-progress {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
   /* Logical properties everywhere so RTL mirrors for free (14.4). */
   .icon-flip {
     transition: transform 0.2s var(--ease-out-soft);
@@ -314,7 +545,24 @@
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /*
+   * Scroll-linked animations ignore duration, so they have to be switched off
+   * by name or the page would still move under someone who asked it not to.
+   */
+  .fk-reveal,
+  .fk-drift,
+  .fk-enter,
+  .fk-tile-enter,
+  .fk-marquee,
+  .fk-step-progress {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
   }
 }

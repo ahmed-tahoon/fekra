@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { getPayload } from 'payload'
 import config from '../payload.config'
 
@@ -78,22 +81,55 @@ async function upsert<T extends { id: number; title?: string }>(
   return (await payload.create({ ...(args as object), data: { ...data, slug } } as never)) as unknown as T
 }
 
-const run = async () => {
-  // Refuse to put the throwaway development password on a real database. It is
-  // printed in the README, so an admin account using it is effectively public.
-  if (isRemoteDatabase() && !process.env.SEED_ADMIN_PASSWORD) {
-    console.error(
-      '\n  Refusing to seed a remote database with the default admin password.\n' +
-        '  Re-run with your own credentials:\n\n' +
-        '    SEED_ADMIN_EMAIL=you@fekra-egy.com SEED_ADMIN_PASSWORD=\'<strong password>\' pnpm seed\n',
-    )
-    process.exit(1)
-  }
+/**
+ * Uploads a file from public/images into the Media collection, keyed by
+ * filename so re-running the seed reuses the existing document.
+ */
+async function upsertMedia(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  file: string,
+  alt: string,
+  folder = 'hero',
+): Promise<{ id: number } | null> {
+  // Media converts rasters to webp on upload, so the stored filename is not
+  // the one passed in. Look for both or every run creates duplicates.
+  const stored = file.replace(/\.(png|jpe?g)$/i, '.webp')
+  const existing = await payload.find({
+    collection: 'media',
+    where: { or: [{ filename: { equals: file } }, { filename: { equals: stored } }] },
+    limit: 1,
+    depth: 0,
+  })
+  if (existing.docs[0]) return existing.docs[0] as unknown as { id: number }
 
+  const path = join(process.cwd(), 'public', 'images', folder, file)
+  if (!existsSync(path)) return null
+
+  return (await payload.create({
+    collection: 'media',
+    data: { alt },
+    filePath: path,
+    context: { disableRevalidate: true },
+  })) as unknown as { id: number }
+}
+
+const run = async () => {
   const payload = await getPayload({ config })
 
   const users = await payload.find({ collection: 'users', limit: 1 })
   if (!users.docs.length) {
+    // Refuse to put the throwaway development password on a real database — it
+    // is printed in the README, so such an account is effectively public. The
+    // check belongs here rather than at the top: once an admin exists, seeding
+    // content creates no account and is safe to re-run without credentials.
+    if (isRemoteDatabase() && !process.env.SEED_ADMIN_PASSWORD) {
+      console.error(
+        '\n  Refusing to create the first admin on a remote database with the default password.\n' +
+          '  Re-run with your own credentials:\n\n' +
+          '    SEED_ADMIN_EMAIL=you@fekra-egy.com SEED_ADMIN_PASSWORD=\'<strong password>\' pnpm seed\n',
+      )
+      process.exit(1)
+    }
     await payload.create({
       collection: 'users',
       data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD, name: 'FEKRA Admin', role: 'admin' },
@@ -107,11 +143,20 @@ const run = async () => {
     data: {
       siteName: 'FEKRA',
       legalName: 'Fekra',
+      logoLight: (await upsertMedia(payload, 'fekra-logo.webp', 'FEKRA', ''))?.id,
+      logoDark: (await upsertMedia(payload, 'fekra-logo-white.webp', 'FEKRA', ''))?.id,
       tagline: 'Loyalty . Innovation . Expansion',
       generalEmail: 'info@fekra-egy.com',
       notificationEmails: ['info@fekra-egy.com'],
       careersEmails: ['careers@fekra-egy.com'],
       consentMode: 'opt-in',
+      // Live profiles, as published on fekra-egy.com.
+      socialProfiles: [
+        { platform: 'linkedin', url: 'https://www.linkedin.com/company/fekra-egy' },
+        { platform: 'facebook', url: 'https://www.facebook.com/FekraEgy.Company/' },
+        { platform: 'youtube', url: 'https://www.youtube.com/channel/UCA0UOTqXkRUZRc1NAH9M1aw' },
+        { platform: 'whatsapp', url: 'https://wa.me/+201101133572' },
+      ],
       crawlerPolicy: {
         allowSearchEngines: true,
         allowAiSearchBots: true,
@@ -152,6 +197,141 @@ const run = async () => {
     ...(analyticsId ? { analyticsId } : {}),
   })
 
+  // The client logos, in the order they appear in the comp (Figma 1:10296).
+  // `partner-pinwheel` is the one mark the design does not name — rename it in
+  // the CMS, since the name is what becomes its alt text.
+  const clientLogos = await Promise.all(
+    [
+      ['pitman-training', 'Pitman Training'],
+      ['kuwait-finance-house', 'Kuwait Finance House'],
+      ['partner-pinwheel', 'Partner'],
+      ['al-rajhi-bank', 'Al Rajhi Bank'],
+      ['allianz', 'Allianz'],
+      ['smart-management-systems', 'Smart Management Systems'],
+      ['stc', 'stc'],
+      ['datafusion-software', 'DataFusion Software'],
+      ['codewave-systems', 'Codewave Systems'],
+      ['adnoc', 'ADNOC'],
+    ].map(async ([slug, name]) => ({
+      name,
+      media: await upsertMedia(payload, `${slug}.png`, `${name} logo`, 'logos'),
+    })),
+  )
+
+  // Figma 1:11600.
+  const certBadges = await Promise.all(
+    [
+      ['ISTQB Platinum Partner', 'cert-istqb'],
+      ['ISO 9001 certified', 'cert-iso-9001'],
+      ['ISO 27001 certified', 'cert-iso-27001'],
+      ['GDPR compliant', 'cert-gdpr'],
+      ['SOC 2 Type 2', 'cert-soc2'],
+    ].map(async ([name, file]) => ({
+      name: name as string,
+      image: (await upsertMedia(payload, `${file}.png`, name as string, 'certs'))?.id,
+    })),
+  )
+
+  // Figma 1:11493 — the comp reuses two portraits across five quotes.
+  const testimonialAvatars = Object.fromEntries(
+    await Promise.all(
+      ['sarah-chen', 'marcus-rivera'].map(async (n) => [n, await upsertMedia(payload, `${n}.png`, '', 'people')]),
+    ),
+  )
+
+  // Figma 3:1825 — 20 tiles, tones exactly as the comp cycles them.
+  const industryRows: [string, string, string][] = [
+    ['Finance & Banking', 'finance', 'pink'],
+    ['E-commerce', 'ecommerce', 'mint'],
+    ['Telecom', 'telecom', 'lilac'],
+    ['Real Estate', 'real-estate', 'teal'],
+    ['Software', 'software', 'blue'],
+    ['Health & Fitness', 'health', 'mint'],
+    ['Automotive', 'automotive', 'lilac'],
+    ['Photo & Video', 'photo-video', 'blue'],
+    ['Business', 'business', 'blue'],
+    ['Startup', 'startup', 'teal'],
+    ['AR/VR', 'arvr', 'lilac'],
+    ['Legal Services', 'legal', 'teal'],
+    ['Non-profit', 'nonprofit', 'blue'],
+    ['Govt. & Public Sector', 'government', 'teal'],
+    ['Sports & Fitness', 'sports', 'lilac'],
+    ['Gaming', 'gaming', 'teal'],
+    ['Fashion & Apparel', 'fashion', 'blue'],
+    ['Energy & Utilities', 'energy', 'mint'],
+    ['Agriculture', 'agriculture', 'mint'],
+    ['Logistics', 'logistics', 'teal'],
+  ]
+  const industryItems = await Promise.all(
+    industryRows.map(async ([label, file, tone]) => ({
+      label,
+      tone,
+      icon: (await upsertMedia(payload, `ind-${file}.svg`, '', 'industries'))?.id,
+    })),
+  )
+
+  // Figma 3:1656. Only the AI/ML tab's tools are specified in that node; the
+  // other eight tabs exist so the bar matches the design and are filled in
+  // through the CMS.
+  const aiTools = [
+    ['TensorFlow', 'tensorflow.svg'],
+    ['PyTorch', 'pytorch.png'],
+    ['Keras', 'keras.svg'],
+    ['Scikit-learn', 'scikit-learn.svg'],
+    ['Hugging Face Transformers', 'hugging-face.png'],
+    ['FastAI', 'fastai.png'],
+    ['OpenCV', 'opencv.svg'],
+    ['LightGBM', 'lightgbm.svg'],
+    ['XGBoost', 'xgboost.png'],
+    ['Apache Spark MLlib', 'apache-spark.svg'],
+    ['NLP frameworks (NLTK, SpaCy)', 'spacy.svg'],
+  ]
+  const aiItems = await Promise.all(
+    aiTools.map(async ([name, file]) => ({
+      name: name as string,
+      logo: (await upsertMedia(payload, file as string, '', 'tech'))?.id,
+    })),
+  )
+
+  // "All Businesses Types" — Figma 1:10748. Icons exported from the same node.
+  const bizIcons = Object.fromEntries(
+    await Promise.all(
+      ['startups', 'small', 'enterprise', 'agency', 'innovation'].map(async (n) => [
+        n,
+        await upsertMedia(payload, `biz-${n}.svg`, '', 'icons'),
+      ]),
+    ),
+  )
+
+  // Shared by both talent panels — the comp shows the same four engineers in
+  // each, in a different order, which the component derives by rotating.
+  const talentPeople = await Promise.all(
+    [
+      ['Emma Williams', 'UX Designer', '3+ Years', 74, 'emma-williams'],
+      ['Priya Sharma', 'Data Scientist', '5+ Years', 85, 'priya-sharma'],
+      ['James Chen', 'DevOps Engineer', '10+ Years', 91, 'james-chen'],
+      ['Alex Rivera', 'Full Stack Developer', '6+ Years', 88, 'alex-rivera'],
+    ].map(async ([name, role, experience, match, file]) => ({
+      name: name as string,
+      role: role as string,
+      experience: experience as string,
+      match: match as number,
+      evaluated: true,
+      avatar: (await upsertMedia(payload, `${file}.png`, '', 'people'))?.id,
+    })),
+  )
+
+  const photoNames = ['team', 'office', 'desk', 'code', 'meeting', 'laptop', 'server', 'design', 'data', 'ai', 'review', 'ship']
+  const photos = Object.fromEntries(
+    await Promise.all(
+      photoNames.map(async (n) => [n, await upsertMedia(payload, `${n}.jpg`, 'FEKRA team at work', 'samples')]),
+    ),
+  ) as Record<string, { id: number } | null>
+
+  const serviceIcons = await Promise.all(
+    ['ai', 'code', 'review', 'server'].map((n) => upsertMedia(payload, `${n}.jpg`, '', 'samples')),
+  )
+
   const services = await Promise.all<{ id: number; title: string; summary: string }>(
     [
       { slug: 'ai-engineers', title: 'AI Engineers', summary: 'Vetted AI and machine-learning engineers.' },
@@ -162,6 +342,7 @@ const run = async () => {
       upsert<{ id: number; title: string; summary: string }>(payload, 'services', service.slug, {
         ...service,
         order: index,
+        icon: serviceIcons[index]?.id,
         availableLocales: ['en'],
         _status: 'published',
       }),
@@ -297,6 +478,7 @@ const run = async () => {
       upsert(payload, 'posts', post.slug, {
         title: post.title,
         excerpt: post.excerpt,
+        heroImage: photos[photoNames[index % photoNames.length]!]?.id,
         content: article(post.body),
         category: categories[post.category]!.id,
         tags: post.tags,
@@ -329,6 +511,200 @@ const run = async () => {
     _status: 'published',
   })
 
+  // Hero assets, exported from the Figma frame.
+  const icons = await Promise.all(
+    ['icon-1.svg', 'icon-2.svg', 'icon-3.svg'].map((f) => upsertMedia(payload, f, '')),
+  )
+  const tiles = await Promise.all(
+    Array.from({ length: 9 }, (_, i) => `tile-0${i + 1}.png`).map((f) =>
+      upsertMedia(payload, f, 'FEKRA engineers at work'),
+    ),
+  )
+
+  /*
+   * Blocks the service pages share with the home page (the Figma service
+   * comps repeat these sections verbatim), defined once and reused in both
+   * layouts.
+   */
+  const logoCloudStatement = {
+    blockType: 'logoCloud',
+    statement: {
+      before: '50+ companies rely on our',
+      highlight: 'top 3%',
+      after: 'talent to scale their dev teams.',
+    },
+    logos: clientLogos.filter((l) => l.media).map((l) => ({ name: l.name, image: l.media!.id })),
+  }
+
+  const techStackBlock = {
+    blockType: 'techStack',
+    heading: 'Technologies We Work With',
+    body: 'Modern tools for web, mobile, cloud, AI, data, and automation.',
+    groups: [
+      { name: 'AI / ML', items: aiItems },
+      { name: 'Frontend', items: [] },
+      { name: 'Backend', items: [] },
+      { name: 'Mobile', items: [] },
+      { name: 'Cloud & DevOps', items: [] },
+      { name: 'Databases', items: [] },
+      { name: 'QA & Testing', items: [] },
+      { name: 'CMS & E-commerce', items: [] },
+      { name: 'Low-Code & Automation', items: [] },
+    ],
+  }
+
+  const processBlock = {
+    // Figma 1:11041 — sits between the technologies and industries boards.
+    blockType: 'process',
+    eyebrow: 'Your success starts here',
+    heading: 'Our Process',
+    body: 'We screen every engineer for technical skills, communication, and reliability.',
+    steps: [
+      {
+        title: 'Application Review',
+        body: 'We review each application for role relevance, technical fit, experience, and overall profile quality.',
+      },
+      {
+        title: 'Language & Communication Screening',
+        body: 'Selected candidates go through a structured language and communication interview to ensure they can collaborate clearly and confidently with your team.',
+      },
+      {
+        title: 'HR & Commitment Evaluation',
+        body: 'We assess professionalism, reliability, availability, cultural fit, and commitment to support long-term collaboration.',
+      },
+      {
+        title: 'Technical Evaluation',
+        body: 'Candidates complete a structured technical assessment based on the role, covering practical knowledge, problem-solving ability, and real-job relevance.',
+      },
+      {
+        title: 'Technical Interview',
+        body: 'Our team conducts a detailed technical interview to validate depth of knowledge, hands-on capability, and readiness to perform in a real project environment.',
+      },
+    ],
+  }
+
+  const industriesBlock = {
+    blockType: 'industries',
+    heading: 'Our Industry Expertises',
+    body: 'Fekra helps companies scale with carefully vetted software engineers, structured technical evaluation, and a transparent delivery process built for speed, quality, and trust.',
+    industries: industryItems,
+  }
+
+  const testimonialsBlock = {
+    blockType: 'testimonials',
+    eyebrow: 'Trusted by',
+    heading: 'Industry Leaders',
+    items: [
+      {
+        quote:
+          '“Fekra transformed our legacy platform into a modern, scalable architecture. Their team didn’t just write code — they became true partners in our product vision.”',
+        authorName: 'Sarah Chen',
+        authorRole: 'CTO at FinFlow',
+        avatar: testimonialAvatars['sarah-chen']?.id,
+      },
+      {
+        quote:
+          '“The mobile app Fekra built for us hit 4.8 stars on both stores within the first month. Their attention to UX details is on another level entirely.”',
+        authorName: 'Marcus Rivera',
+        authorRole: 'VP Product at HealthSync',
+        avatar: testimonialAvatars['marcus-rivera']?.id,
+      },
+      {
+        quote:
+          '“We migrated 500+ stores to their headless commerce engine. Zero downtime, 40% faster page loads. Fekra over-delivered on every single metric.”',
+        authorName: 'Aiko Tanaka',
+        authorRole: 'CEO at RetailX',
+        avatar: testimonialAvatars['sarah-chen']?.id,
+      },
+      {
+        quote:
+          '“Fekra took our rough idea and delivered a polished MVP in just 8 weeks. We raised our seed round largely because of how professional the product looked.”',
+        authorName: 'Elena Vasquez',
+        authorRole: 'Founder at EduSpark',
+        avatar: testimonialAvatars['sarah-chen']?.id,
+      },
+      {
+        quote:
+          '“The AI team they assembled developed an impressive prediction model that successfully reduced our logistics costs by an astounding 35%. We saw a clear return on investment within just the first quarter of implementation. Their work is truly world-class and sets a new standard in the industry.”',
+        authorName: 'David Okonkwo',
+        authorRole: 'Engineering Lead at LogiTrack',
+        avatar: testimonialAvatars['marcus-rivera']?.id,
+      },
+    ],
+    stats: [
+      { value: '4.9', label: 'Clutch Rating', star: true },
+      { value: '98%', label: 'Client Retention' },
+      { value: '200+', label: '5-Star Reviews' },
+    ],
+  }
+
+  const fikaBlock = {
+    // Figma 3:2214 — Meet Fika comes before the certifications band.
+    blockType: 'cta',
+    tone: 'feature',
+    eyebrow: 'Your assistant',
+    heading: 'Meet Fika',
+    body: 'Fika is Fekra’s AI-powered hiring assistant, built to help our team organize candidate data, accelerate screening, and support faster, more structured hiring decisions.',
+    media: (await upsertMedia(payload, 'fika.png', 'Fika, the FEKRA hiring assistant', 'decor'))?.id,
+    ctas: [{ variant: 'primary', link: route('Meet Fika', '/contact') }],
+  }
+
+  const certBlock = {
+    blockType: 'logoCloud',
+    variant: 'badges',
+    eyebrow: 'Our partnerships',
+    heading: '& Certifications',
+    logos: certBadges.filter((c) => c.image).map((c) => ({ name: c.name, image: c.image! })),
+  }
+
+  const faqBlock = {
+    blockType: 'faq',
+    eyebrow: 'Take a look at',
+    heading: 'Frequently Asked Questions',
+    emitSchema: true,
+    footnote: 'We are here to answer your questions & inquiries…',
+    ctas: [{ variant: 'secondary', link: route('Inquire Now', '/contact') }],
+    items: [
+      {
+        question: 'What makes Fekra different?',
+        answer: rich('Access to vetted senior talent, rapid start, and a structured process that removes weeks of screening.'),
+      },
+      {
+        question: 'What is the estimated cost of hiring a dedicated development team?',
+        answer: rich('Cost depends on seniority, stack and engagement length. Book a 30-minute call for a concrete estimate.'),
+      },
+      {
+        question: 'How does Fekra protect client rights and data confidentiality?',
+        answer: rich('Every engagement is covered by NDAs and IP assignment, with access controls agreed before onboarding.'),
+      },
+    ],
+  }
+
+  const postsTeaserBlock = {
+    blockType: 'postsTeaser',
+    eyebrow: 'Latest blogs',
+    heading: 'Our Recent Blogs',
+    limit: 3,
+    ctas: [{ variant: 'secondary', link: route('View all blogs', '/blog') }],
+  }
+
+  const contactBlock = {
+    blockType: 'contact',
+    eyebrow: "Let's talk business!",
+    heading: 'Contact us',
+    showOffices: true,
+    showForm: true,
+  }
+
+  const ctaBandBlock = {
+    // Figma 1:13917.
+    blockType: 'cta',
+    tone: 'band',
+    heading: 'Ready to scale your engineering team?',
+    body: 'We embed high-performance developers directly into your team, skipping the friction of traditional recruiting. Increase your engineering velocity with fast onboarding and talent that fundamentally elevates your product architecture.',
+    ctas: [{ variant: 'secondary', link: route('Get in Touch', '/contact') }],
+  }
+
   const home = await upsert<{ id: number }>(payload, 'pages', 'home', {
     title: 'Home',
     availableLocales: ['en'],
@@ -339,106 +715,372 @@ const run = async () => {
         trustLine: 'Trusted by 50+ innovative companies',
         heading: 'Scale Your Team Faster With',
         headingAccent: 'AI Engineers',
-        body: 'Fekra helps companies scale with carefully vetted software engineers and a structured technical hiring process.',
-        ctas: [
-          { variant: 'primary', link: route('Book a 30-Min Meeting', '/meeting', 'booking_cta_click') },
-          { variant: 'secondary', link: route('Contact us', '/contact') },
+        body: 'Fekra helps companies scale with carefully vetted software engineers, structured technical evaluation, and a transparent delivery process built for speed, quality, and trust.',
+        rotatingWords: [
+          { text: 'AI Engineers' },
+          { text: 'Full-Stack Engineers' },
+          { text: 'Backend Engineers' },
+          { text: 'Mobile Engineers' },
+          { text: 'QA Engineers' },
+          { text: 'DevOps Engineers' },
+          { text: 'Data Engineers' },
         ],
-        stats: [
-          { value: '100+', label: 'Top Talents' },
-          { value: '20+', label: 'Tech Stack' },
-          { value: '8+', label: 'Experience' },
-          { value: '80+', label: 'Projects' },
+        bullets: [
+          { text: 'Vetted in days, not weeks', icon: icons[0]?.id },
+          { text: 'Structured technical evaluation', icon: icons[1]?.id },
+          { text: 'Transparent delivery process', icon: icons[2]?.id },
         ],
+        ctas: [{ variant: 'primary', link: route('Schedule a Call', '/meeting', 'booking_cta_click') }],
+        // Order matters: each entry maps to a fixed slot in MOSAIC_LAYOUT,
+        // which mirrors the Figma collage tile for tile.
+        mosaic: [
+          { kind: 'image', corner: 'tl', image: tiles[0]?.id },
+          { kind: 'stat', corner: 'tr', tone: 'green', value: '100+', label: 'Top Talents' },
+          { kind: 'image', corner: 'tr', image: tiles[1]?.id },
+          { kind: 'stat', corner: 'tr', tone: 'teal', value: '80+', label: 'Projects' },
+          { kind: 'image', corner: 'tr', image: tiles[2]?.id },
+          { kind: 'stat', corner: 'tl', tone: 'indigo', value: '8+', label: 'Experience' },
+          { kind: 'image', corner: 'tr', image: tiles[4]?.id },
+          { kind: 'image', corner: 'tl', image: tiles[3]?.id },
+          { kind: 'image', corner: 'tr', image: tiles[5]?.id },
+          { kind: 'stat', corner: 'tr', tone: 'emerald', value: '20+', label: 'Tech Stack' },
+          { kind: 'image', corner: 'tl', image: tiles[7]?.id },
+          { kind: 'image', corner: 'tr', image: tiles[6]?.id },
+          { kind: 'image', corner: 'tr', image: tiles[8]?.id },
+        ],
+      },
+      logoCloudStatement,
+      {
+        blockType: 'talentShowcase',
+        heading: 'Build Your',
+        headingAccent: 'Team Faster',
+        body: 'Get vetted engineers matched to your exact needs without wasting weeks on hiring, screening, and filtering.',
+        bullets: [
+          { text: 'Fast shortlisting' },
+          { text: 'Technical evaluation reports' },
+          { text: 'Flexible engagement models' },
+        ],
+        roles: [
+          { label: 'AI Engineers' },
+          { label: 'Software Developer' },
+          { label: 'Software Tester' },
+          { label: 'Project managers & business analysts' },
+          { label: 'UI/UX Designer' },
+          { label: 'Scrum Masters & product owners' },
+          { label: 'System administrators & DevOps' },
+        ],
+        panelTitle: 'Build your remote team',
+        panelTone: 'grey',
+        side: 'copyLeft',
+        people: talentPeople,
+      },
+      {
+        // Same block, mirrored and tinted — Figma 1:10318 lower half.
+        blockType: 'talentShowcase',
+        heading: 'Work With',
+        headingAccent: 'Confidence',
+        body: 'Start with clear contracts, NDA protection, secure access, dedicated engineers, and structured delivery follow-up from day one.',
+        bullets: [
+          { text: 'Contracts & NDA from day one' },
+          { text: 'Secure data & access' },
+          { text: 'Dedicated engineers with time zone fit' },
+          { text: 'Transparent delivery follow-up' },
+        ],
+        panelTitle: 'Build your remote team',
+        panelTone: 'mint',
+        side: 'copyRight',
+        people: talentPeople,
       },
       {
         blockType: 'cardGrid',
+        variant: 'business',
         eyebrow: 'We work with',
-        heading: 'Build Your',
-        headingAccent: 'Team Faster',
-        body: 'Get vetted engineers matched to your exact needs without wasting weeks on hiring and screening.',
-        columns: '3',
-        cards: services.map((service) => ({
-          title: String(service.title),
-          body: String(service.summary ?? ''),
-          link: {
-            type: 'internal' as const,
-            label: String(service.title),
-            reference: { relationTo: 'services' as const, value: Number(service.id) },
-          },
-        })),
-      },
-      {
-        blockType: 'process',
-        eyebrow: 'Our process',
-        heading: 'Your success starts here',
-        body: 'We screen every engineer for technical skills, communication and reliability.',
-        steps: [
-          { title: 'Sourcing & profile screening', body: 'We shortlist engineers whose experience matches the role.' },
-          { title: 'Language & communication screening', body: 'A structured interview confirms they can collaborate clearly with your team.' },
-          { title: 'HR & commitment evaluation', body: 'We assess professionalism, availability and long-term fit.' },
-          { title: 'Technical evaluation', body: 'A practical assessment based on the real requirements of the role.' },
-          { title: 'Technical interview', body: 'A detailed interview validating depth and hands-on capability.' },
-        ],
-      },
-      {
-        blockType: 'stats',
-        heading: 'Trusted by',
-        items: [
-          { value: '20+', label: 'Tech Stack' },
-          { value: '8+', label: 'Experience' },
-          { value: '300+', label: 'Top Talents' },
-          { value: '80+', label: 'Projects' },
-        ],
-      },
-      {
-        blockType: 'faq',
-        heading: 'Frequently Asked Questions',
-        emitSchema: true,
-        items: [
+        heading: 'All Businesses Types',
+        body: 'Tailored Outsourcing & Technology Solutions for Every Business — from Startups to Global Enterprises.',
+        cards: [
           {
-            question: 'What makes Fekra different?',
-            answer: rich('Access to vetted senior talent, rapid start, and a structured process that removes weeks of screening.'),
+            icon: bizIcons.startups?.id,
+            title: 'Startups Business',
+            body:
+              'At Fekra, we empower startups to transform their ideas into scalable digital products. Our expertise in MVP development, rapid prototyping, and agile delivery helps founders move fast from concept to market-ready solutions. Acting as your extended tech team, we provide the technical foundation while you focus on growth, investment, and customer traction.\nWe make innovation simple — you dream it, we build it.',
           },
           {
-            question: 'What is the estimated cost of hiring a dedicated development team?',
-            answer: rich('Cost depends on seniority, stack and engagement length. Book a 30-minute call for a concrete estimate.'),
+            icon: bizIcons.small?.id,
+            title: 'Small Business',
+            body:
+              'Small and mid-sized businesses trust Fekra to drive efficiency, scalability, and digital transformation. We deliver end-to-end technology services — from UI/UX design and web or mobile development to QA, cloud deployment, and ongoing support.\nOur flexible outsourcing models ensure you get enterprise-grade results without enterprise-level costs.',
           },
           {
-            question: 'How does Fekra protect client rights and data confidentiality?',
-            answer: rich('Every engagement is covered by NDAs and IP assignment, with access controls agreed before onboarding.'),
+            icon: bizIcons.enterprise?.id,
+            title: 'Enterprise Business',
+            body:
+              'For large enterprises, Fekra provides robust, secure, and scalable enterprise-grade software solutions that deliver measurable impact. Our teams specialize in complex system integrations, custom platforms, ERP/CRM implementations, and long-term dedicated resources.\nWe enable global organizations to innovate faster and scale confidently through our reliable offshore delivery centers in Egypt and Saudi Arabia.',
+          },
+          {
+            icon: bizIcons.agency?.id,
+            title: 'Agency Business',
+            body:
+              'We collaborate with agencies worldwide — providing the technical execution that transforms creative visions into real products. Through 360° technology consulting, flexible engagement models, and a skilled in-house team, we help agencies extend their capabilities, meet deadlines, and scale seamlessly.\nPartnering with Fekra means gaining a trusted technical backbone for your client projects.',
+          },
+          {
+            icon: bizIcons.innovation?.id,
+            title: 'Bringing Innovation Together',
+            body:
+              'Innovation is at the heart of Fekra.\nOur R&D and engineering teams stay ahead of emerging technologies — from AI and automation to cloud and data-driven platforms — ensuring our clients always benefit from the latest innovations, security standards, and global best practices. Let\u2019s build the future, together.',
           },
         ],
+        ctas: [{ variant: 'secondary', link: route('Get in Touch', '/contact') }],
       },
-      {
-        blockType: 'postsTeaser',
-        eyebrow: 'Latest blogs',
-        heading: 'Our Recent Blogs',
-        limit: 3,
-      },
-      {
-        blockType: 'contact',
-        eyebrow: 'Contact us',
-        heading: "Let's Talk Business!",
-        showOffices: true,
-        showForm: true,
-      },
-      {
-        blockType: 'cta',
-        tone: 'brand',
-        heading: 'Ready to scale your engineering team?',
-        body: 'We embed high-performance developers directly into your team, skipping the friction of traditional hiring.',
-        ctas: [{ variant: 'secondary', link: route('Book a 30-Min Meeting', '/meeting', 'booking_cta_click') }],
-      },
-    ],
+      techStackBlock,
+      processBlock,
+      industriesBlock,
+      testimonialsBlock,
+      fikaBlock,
+      certBlock,
+      faqBlock,
+      postsTeaserBlock,
+      contactBlock,
+      ctaBandBlock],
   })
 
   const contact = await upsert<{ id: number }>(payload, 'pages', 'contact', {
     title: 'Contact Us',
     availableLocales: ['en'],
     _status: 'published',
-    layout: [{ blockType: 'contact', heading: "Let's Talk Business!", showOffices: true, showForm: true }],
+    layout: [
+      {
+        blockType: 'contact',
+        eyebrow: "Let's talk business!",
+        heading: 'Contact us',
+        showOffices: true,
+        showForm: true,
+      },
+    ],
   })
+
+  /*
+   * The three "Hire … Developers" landing pages (Figma sections 15:18474,
+   * 20:24086, 22:27840). One shared template — hero, brands, hiring models,
+   * then the same sections the home page runs — with per-page hero copy and
+   * band tint.
+   */
+  const consultIcons = await Promise.all(
+    ['icon-cost.svg', 'icon-speed.png', 'icon-talent.svg'].map((f) => upsertMedia(payload, f, '', 'services')),
+  )
+
+  const hiringModelsBlock = {
+    blockType: 'hiringModels',
+    eyebrow: 'Hire Best Resources',
+    heading: 'Our Hiring Models',
+    models: [
+      {
+        title: 'Full Time Monthly Hire',
+        tone: 'amber',
+        stats: [
+          { value: '8', label: 'Hours Per Day' },
+          { value: '160', label: 'Hours' },
+        ],
+      },
+      {
+        title: 'Part Time Monthly Hire',
+        tone: 'lavender',
+        stats: [
+          { value: '4', label: 'Hours Per Day' },
+          { value: '80', label: 'Hours' },
+        ],
+      },
+      {
+        title: 'Hourly Hire',
+        tone: 'blue',
+        stats: [
+          { value: '400/200\n100/50', label: 'Hours' },
+          { value: 'Flexible', label: 'Maintenance service' },
+        ],
+      },
+    ],
+    benefitsTitle: 'Benefits',
+    // Listed row-major for the 3-column grid: column order in the comp is
+    // (Cost savings, Direct Communication) / (Speedy Staffing, Daily
+    // Reporting) / (Support 24/7, SCRUM Based Execution).
+    benefits: [
+      { text: 'Cost savings' },
+      { text: 'Speedy Staffing' },
+      { text: 'Support 24/7' },
+      { text: 'Direct Communication' },
+      { text: 'Daily Reporting' },
+      { text: 'SCRUM Based Execution' },
+    ],
+    ctas: [{ variant: 'primary', link: route('Schedule a Developer Interview', '/meeting') }],
+  }
+
+  const serviceLayout = (hero: {
+    heading: string
+    heroTone: 'mint' | 'blue' | 'blush' | 'amber' | 'sky' | 'coral' | 'teal' | 'gold' | 'lilac'
+    body: string
+    closer: string
+  }) => [
+    {
+      blockType: 'serviceHero',
+      ...hero,
+      highlights: [
+        { icon: consultIcons[0]?.id, text: '30% to 60% Cost savings per talent hired through Fekra' },
+        { icon: consultIcons[1]?.id, text: "Hire an individual or team in 6 to 14 days with Fekra's fast staffing solutions." },
+        { icon: consultIcons[2]?.id, text: "Access Fekra's top-rated, highly skilled talent pool" },
+      ],
+      formTitle: 'Get Free Consultation',
+    },
+    logoCloudStatement,
+    hiringModelsBlock,
+    processBlock,
+    techStackBlock,
+    industriesBlock,
+    testimonialsBlock,
+    fikaBlock,
+    certBlock,
+    faqBlock,
+    postsTeaserBlock,
+    contactBlock,
+    ctaBandBlock,
+  ]
+
+  const hireServices = await Promise.all(
+    [
+      {
+        slug: 'hire-dedicated-developers',
+        title: 'Hire Dedicated Developers',
+        summary: 'Access the right talent, scale with confidence, and build faster with FEKRA.',
+        heroTone: 'mint' as const,
+        roles: [] as string[],
+        body:
+          'Build and scale your technology team with dedicated developers selected to match your technical requirements, business goals, and preferred way of working.\n' +
+          'Whether you are a startup, growing business, or enterprise, FEKRA gives you access to experienced technology professionals without the delays, high overhead, infrastructure costs, and operational complexity of traditional in-house hiring.\n' +
+          'Gain the flexibility to expand your team when needed, maintain full visibility over every resource, and focus on delivery while we handle recruitment, onboarding, HR, and ongoing support.',
+      },
+      {
+        slug: 'hire-in-demand-developers',
+        title: 'Hire In-Demand Developers',
+        summary: 'Hire the skills your business needs today and stay ready for what comes next.',
+        heroTone: 'blue' as const,
+        roles: [
+          'AI Developer', 'MEAN Stack Developers', 'Data Engineers', 'Full Stack Developers',
+          'MERN Stack Developers', 'Python Developers', 'Javascript Developers', 'AWS Developers',
+          'CRM Developers', 'Graphics Designers', 'Odoo Developers', 'Blockchain Developers',
+        ],
+        body:
+          'Access experienced developers across today\u2019s most in-demand technologies and build the technical capabilities your business needs to grow.\n' +
+          'Whether you need AI engineers, data specialists, cloud experts, or experienced web and mobile developers, FEKRA helps startups, growing companies, and enterprises find the right talent without the delays and complexity of traditional hiring.\n' +
+          'Scale your team with carefully evaluated professionals selected according to your technical requirements, project goals, and preferred working model, while FEKRA manages recruitment, onboarding, HR, and ongoing support.',
+      },
+      {
+        slug: 'hire-full-stack-developers',
+        title: 'Hire Full-Stack Developers',
+        summary: 'Hire versatile full-stack talent and move your product from idea to production with confidence.',
+        heroTone: 'blush' as const,
+        roles: [
+          'Full-Stack Developers', 'MERN Stack Developers', 'MEAN Stack Developers',
+          'Java Full-Stack Developers', '.NET Full-Stack Developers', 'Python Full-Stack Developers',
+        ],
+        body:
+          'Build complete, scalable digital products with experienced full-stack developers who can work across both front-end and back-end technologies.\n' +
+          'Whether you are developing a new platform, improving an existing application, or expanding your internal team, FEKRA helps startups, growing businesses, and enterprises hire developers who can manage the entire development cycle\u2014from user interfaces and APIs to databases, integrations, and deployment.\n' +
+          'Our full-stack developers are carefully evaluated based on your technical requirements, project goals, and preferred technology stack, giving you the flexibility to scale faster without the delays and complexity of traditional hiring.',
+      },
+      {
+        slug: 'hire-mobile-app-developers',
+        title: 'Hire Mobile App Developers',
+        summary: 'Hire the right mobile development talent and turn your product vision into an app users enjoy and trust.',
+        heroTone: 'amber' as const,
+        roles: [
+          'iOS Developers', 'Android Developers', 'React Native Developers',
+          'Flutter Developers', 'Kotlin Developers', 'Swift Developers',
+        ],
+        body:
+          'Build fast, reliable, and user-friendly mobile applications with experienced developers who understand how to create seamless experiences across iOS and Android.\n' +
+          'Whether you are launching a new mobile product, modernizing an existing application, or expanding your development team, FEKRA helps startups, growing businesses, and enterprises hire specialists in native and cross-platform technologies, including React Native, Flutter, Swift, and Kotlin.\n' +
+          'Our mobile app developers are carefully evaluated based on your technical requirements, product goals, performance expectations, and preferred technology stack, helping you scale efficiently without the delays and complexity of traditional hiring.',
+      },
+      {
+        slug: 'hire-devops-cloud-engineers',
+        title: 'Hire DevOps & Cloud Engineers',
+        summary: 'Hire the right DevOps and cloud talent to build faster, operate reliably, and scale with confidence.',
+        heroTone: 'sky' as const,
+        roles: [
+          'DevOps Engineers', 'Cloud Engineers', 'AWS Engineers', 'Azure Engineers',
+          'Google Cloud Engineers', 'Site Reliability Engineers', 'Platform Engineers', 'Kubernetes Engineers',
+        ],
+        body:
+          'Build secure, scalable, and reliable infrastructure with experienced DevOps and cloud engineers who can streamline delivery, improve system performance, and support long-term growth.\n' +
+          'Whether you are migrating to the cloud, automating deployment pipelines, modernizing your infrastructure, or expanding your engineering team, FEKRA helps startups, growing businesses, and enterprises hire specialists across AWS, Microsoft Azure, Google Cloud, Kubernetes, CI/CD, and infrastructure automation.\n' +
+          'Our DevOps and cloud engineers are carefully evaluated based on your technical environment, security requirements, scalability goals, and preferred cloud platform, helping you improve release speed, reduce operational risks, and scale without the delays and complexity of traditional hiring.',
+      },
+      {
+        slug: 'hire-front-end-developers',
+        title: 'Hire Front-End Developers',
+        summary: 'Hire the right front-end talent to create digital experiences that look exceptional, perform smoothly, and keep users engaged.',
+        heroTone: 'coral' as const,
+        roles: [
+          'React Developers', 'Angular Developers', 'Vue.js Developers',
+          'Next.js Developers', 'JavaScript Developers', 'TypeScript Developers',
+        ],
+        body:
+          'Build fast, responsive, and engaging digital experiences with experienced front-end developers who can turn complex requirements and designs into intuitive, high-performing interfaces.\n' +
+          'Whether you are launching a new web application, improving an existing platform, or expanding your engineering team, FEKRA helps startups, growing businesses, and enterprises hire specialists across React, Angular, Vue.js, Next.js, JavaScript, and TypeScript.\n' +
+          'Our front-end developers are carefully evaluated based on your technical requirements, design standards, performance expectations, and preferred technology stack, helping you deliver consistent user experiences across devices without the delays and complexity of traditional hiring.',
+      },
+      {
+        slug: 'hire-back-end-developers',
+        title: 'Hire Back-End Developers',
+        summary: 'Hire the right back-end talent to power your applications, support business growth, and scale with confidence.',
+        heroTone: 'teal' as const,
+        roles: [
+          'Python Developers', 'Node.js Developers', 'Java Developers', 'Spring Boot Developers',
+          '.NET Developers', 'ASP.NET Core Developers', 'PHP Developers', 'Laravel Developers', 'Golang Developers',
+        ],
+        body:
+          'Build secure, scalable, and high-performing applications with experienced back-end developers who can create the reliable systems, APIs, and databases behind your digital products.\n' +
+          'Whether you are launching a new platform, modernizing an existing system, developing complex integrations, or expanding your engineering team, FEKRA helps startups, growing businesses, and enterprises hire specialists across Python, Node.js, Java, Spring Boot, .NET, PHP, Laravel, and Golang.\n' +
+          'Our back-end developers are carefully evaluated based on your technical requirements, system architecture, security standards, performance expectations, and preferred technology stack, helping you build reliable solutions without the delays and complexity of traditional hiring.',
+      },
+      {
+        slug: 'hire-ai-data-experts',
+        title: 'Hire AI & Data Experts',
+        summary: 'Hire the right AI and data talent to unlock valuable insights, automate complex processes, and build intelligent solutions that drive business growth.',
+        heroTone: 'gold' as const,
+        roles: [
+          'AI Engineers', 'Machine Learning Engineers', 'Data Scientists', 'Data Engineers',
+          'MLOps Engineers', 'NLP Engineers', 'Computer Vision Engineers', 'BI Developers',
+        ],
+        body:
+          'Turn your data into smarter decisions and powerful digital products with experienced AI and data experts who can design, build, and deploy intelligent, scalable solutions.\n' +
+          'Whether you are developing AI-powered features, building machine learning models, modernizing your data infrastructure, or expanding your technical team, FEKRA helps startups, growing businesses, and enterprises hire specialists across artificial intelligence, generative AI, machine learning, data science, data engineering, business intelligence, and MLOps.\n' +
+          'Our AI and data experts are carefully evaluated based on your technical requirements, data environment, business objectives, security standards, and preferred technology stack, helping you accelerate innovation without the delays and complexity of traditional hiring.',
+      },
+      {
+        slug: 'hire-qa-engineers',
+        title: 'Hire QA Engineers',
+        summary: 'Hire the right QA talent to strengthen every release, reduce costly issues, and deliver software your users can trust.',
+        heroTone: 'lilac' as const,
+        roles: [
+          'Manual QA Engineers', 'Automation QA Engineers', 'SDET Engineers',
+          'Performance Test Engineers', 'Mobile QA Engineers', 'API Test Engineers',
+        ],
+        body:
+          'Deliver reliable, secure, and high-performing software with experienced QA engineers who can identify risks early, improve product quality, and help your team release with confidence.\n' +
+          'Whether you are testing a new application, improving an existing product, building automated test coverage, or expanding your engineering team, FEKRA helps startups, growing businesses, and enterprises hire specialists across manual testing, automation testing, API testing, performance testing, mobile testing, and SDET.\n' +
+          'Our QA engineers are carefully evaluated based on your product requirements, testing strategy, quality standards, release process, and preferred tools, helping you reduce defects, improve user experience, and accelerate delivery without compromising quality.',
+      },
+    ].map((svc, index) =>
+      upsert<{ id: number; title: string }>(payload, 'services', svc.slug, {
+        title: svc.title,
+        summary: svc.summary,
+        order: services.length + index,
+        availableLocales: ['en'],
+        _status: 'published',
+        menuRoles: svc.roles.map((label) => ({ label })),
+        layout: serviceLayout({ heading: svc.title, heroTone: svc.heroTone, body: svc.body, closer: svc.summary }),
+      }),
+    ),
+  )
 
   await payload.updateGlobal({
     slug: 'header',
@@ -448,7 +1090,7 @@ const run = async () => {
         { link: page('Home', home.id) },
         {
           link: route('Services', '/services'),
-          children: services.map((service) => ({
+          children: hireServices.map((service) => ({
             link: {
               type: 'internal' as const,
               label: String(service.title),
@@ -472,22 +1114,16 @@ const run = async () => {
     data: {
       tagline: 'Loyalty . Innovation . Expansion',
       blurb: 'We provide your teams with a diverse group of highly skilled engineers.',
+      // The comp's footer has no nav column; an omitted key would leave the
+      // previously seeded one in place, so clear it explicitly.
+      columns: [],
       newsletter: {
         enabled: true,
         heading: "Let's create something remarkable together.",
-        body: 'Stay updated with the latest in tech, design and digital innovation.',
+        // The comp pairs the heading with the partnership line; its "Stay
+        // updated…" sentence sits beside the form and has no field yet.
+        body: 'Partner with Fekra and turn your vision into a market-ready product that stands out.',
       },
-      columns: [
-        {
-          title: 'Company',
-          links: [
-            { link: page('Home', home.id) },
-            { link: route('Services', '/services') },
-            { link: route('Careers', '/careers') },
-            { link: page('Contact Us', contact.id) },
-          ],
-        },
-      ],
       copyright: `© ${new Date().getFullYear()} Fekra. All rights reserved.`,
     },
   })

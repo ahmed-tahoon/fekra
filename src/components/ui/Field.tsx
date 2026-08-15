@@ -5,9 +5,10 @@ import { useId, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 
 const controlClass =
-  'w-full rounded-card border border-input bg-card px-4 py-3 text-base text-foreground ' +
-  'placeholder:text-muted-foreground/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ' +
-  'aria-[invalid=true]:border-[--color-danger-600]'
+  'w-full rounded-[32px] border border-transparent bg-panel-grey px-6 py-4 text-lg text-navy-800 ' +
+  'placeholder:text-ink-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ' +
+  'dark:bg-card dark:text-foreground dark:placeholder:text-muted-foreground ' +
+  'aria-[invalid=true]:border-danger-600'
 
 /**
  * One labelled control. The label is always a real <label for>, the error is
@@ -19,6 +20,7 @@ export function Field({
   error,
   hint,
   required,
+  hideLabel,
   children,
   className,
 }: {
@@ -26,12 +28,16 @@ export function Field({
   error?: string
   hint?: string
   required?: boolean
+  /** Renders the cue inside the control, as the comp does. The label element
+   *  remains for assistive tech — a placeholder is not a substitute (23.4). */
+  hideLabel?: boolean
   className?: string
   children: (props: {
     id: string
     'aria-invalid': boolean
     'aria-describedby': string | undefined
     required?: boolean
+    placeholder?: string
     className: string
   }) => ReactNode
 }) {
@@ -42,10 +48,10 @@ export function Field({
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
+      <label htmlFor={id} className={cn('text-sm font-medium text-foreground', hideLabel && 'sr-only')}>
         {label}
         {required ? (
-          <span className="text-[--color-danger-600]" aria-hidden>
+          <span className="text-danger-600" aria-hidden>
             {' *'}
           </span>
         ) : null}
@@ -56,6 +62,7 @@ export function Field({
         'aria-invalid': Boolean(error),
         'aria-describedby': describedBy,
         required,
+        ...(hideLabel ? { placeholder: label } : {}),
         className: controlClass,
       })}
 
@@ -66,7 +73,7 @@ export function Field({
       ) : null}
 
       {error ? (
-        <p id={errorId} role="alert" className="text-xs font-medium text-[--color-danger-600]">
+        <p id={errorId} role="alert" className="text-xs font-medium text-danger-600">
           {error}
         </p>
       ) : null}

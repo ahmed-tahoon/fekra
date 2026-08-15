@@ -76,27 +76,22 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
         <input id="contact-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <Field label={dict.form.name} required error={messageFor('fullName')}>
-          {(props) => <Input {...props} name="fullName" autoComplete="name" />}
-        </Field>
-        <Field label={dict.form.email} required error={messageFor('email')}>
-          {(props) => <Input {...props} name="email" type="email" autoComplete="email" inputMode="email" />}
-        </Field>
-        <Field label={dict.form.phone} error={messageFor('phone')}>
-          {(props) => <Input {...props} name="phone" type="tel" autoComplete="tel" inputMode="tel" dir="ltr" />}
-        </Field>
-        <Field label={dict.form.company} error={messageFor('company')}>
-          {(props) => <Input {...props} name="company" autoComplete="organization" />}
-        </Field>
-      </div>
+      {/* Four stacked fields, as the comp draws them. Phone and company are
+          gone from the form; the API still accepts them, so nothing breaks. */}
+      <Field hideLabel label={dict.form.name} required error={messageFor('fullName')}>
+        {(props) => <Input {...props} name="fullName" autoComplete="name" />}
+      </Field>
 
-      <Field label={dict.form.subject} required error={messageFor('subject')}>
+      <Field hideLabel label={dict.form.email} required error={messageFor('email')}>
+        {(props) => <Input {...props} name="email" type="email" autoComplete="email" inputMode="email" />}
+      </Field>
+
+      <Field hideLabel label={dict.form.subject} required error={messageFor('subject')}>
         {(props) => <Input {...props} name="subject" />}
       </Field>
 
-      <Field label={dict.form.message} required error={messageFor('message')}>
-        {(props) => <Textarea {...props} name="message" />}
+      <Field hideLabel label={dict.form.message} required error={messageFor('message')}>
+        {(props) => <Textarea {...props} name="message" rows={6} />}
       </Field>
 
       <label className="flex items-start gap-3 text-sm text-muted-foreground">
@@ -105,12 +100,12 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
       </label>
 
       {status === 'error' ? (
-        <p role="alert" className="text-sm font-medium text-[--color-danger-600]">
+        <p role="alert" className="text-sm font-medium text-danger-600">
           {dict.form.error}
         </p>
       ) : null}
 
-      <Button type="submit" size="lg" disabled={status === 'sending'} className="self-start">
+      <Button type="submit" size="lg" disabled={status === 'sending'} className="w-full justify-center">
         {status === 'sending' ? dict.form.submitting : dict.form.submit}
       </Button>
     </form>

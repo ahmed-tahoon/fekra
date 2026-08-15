@@ -1,5 +1,6 @@
 'use client'
 
+import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/Button'
@@ -42,11 +43,12 @@ export function NewsletterForm({ dict, locale }: { dict: Dictionary; locale: Loc
         type="email"
         required
         autoComplete="email"
-        placeholder={dict.form.email}
-        className="min-h-11 flex-1 rounded-pill border border-input bg-card px-4 text-sm"
+        placeholder={dict.form.emailPlaceholder}
+        className="h-13 flex-1 rounded-pill border border-input bg-card px-4 text-sm"
       />
-      <Button type="submit" disabled={state === 'sending'}>
-        {state === 'sending' ? dict.form.submitting : dict.form.submit}
+      <Button type="submit" disabled={state === 'sending'} className="h-13 px-8">
+        {state === 'sending' ? dict.form.submitting : dict.form.subscribe}
+        <ArrowRight className="icon-flip size-4" aria-hidden />
       </Button>
       {state === 'error' ? (
         <p role="alert" className="sr-only">

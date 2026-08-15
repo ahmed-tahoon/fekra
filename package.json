@@ -2,7 +2,7 @@
   "name": "fekra-website",
   "version": "1.0.0",
   "private": true,
-  "description": "FEKRA marketing website — Next.js App Router + Payload CMS, 5 locales, light/dark.",
+  "description": "FEKRA marketing website \u2014 Next.js App Router + Payload CMS, 5 locales, light/dark.",
   "license": "UNLICENSED",
   "type": "module",
   "engines": {
@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && pnpm dev",
-    "build": "node scripts/migrate.mjs && cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "build": "node scripts/migrate.mjs && cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap && cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "typecheck": "tsc --noEmit",
@@ -25,7 +25,9 @@
     "check:links": "node scripts/check-links.mjs",
     "test:api": "newman run postman/FEKRA.postman_collection.json -e postman/FEKRA.local.postman_environment.json --working-dir postman",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
-    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create"
+    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "check:storage": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/check-storage.mjs",
+    "sync:uploads": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/sync-uploads.mjs"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.87.1",
@@ -49,6 +51,7 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1105.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.12.3",
     "@types/react": "19.2.14",

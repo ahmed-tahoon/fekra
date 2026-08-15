@@ -11,7 +11,32 @@ export type MediaDoc = {
   height?: number | null
 }
 
-export const mediaUrl = (media: MediaDoc): string => media.url ?? ''
+/**
+ * Payload returns absolute media URLs because it knows its own serverURL. For
+ * next/image that means every upload is matched against `remotePatterns` and
+ * has to agree on protocol, host AND port — which silently 400s the moment any
+ * of the three differs (localhost vs the domain, http vs https, a preview URL).
+ *
+ * Same-origin uploads are emitted as relative paths instead, so they match
+ * `localPatterns` once and work in every environment. Genuinely remote assets
+ * (S3/R2) are passed through untouched.
+ */
+export const mediaUrl = (media: MediaDoc): string => {
+  const url = media.url ?? ''
+  if (!url.startsWith('http')) return url
+  try {
+    const parsed = new URL(url)
+    // Anything under the CMS route is served by THIS app, whatever host it is
+    // reached on — localhost, a vercel.app preview, or the live domain. Making
+    // it relative is what stops next/image having to agree on protocol, host
+    // and port; matching on NEXT_PUBLIC_SITE_URL alone silently failed on
+    // every preview deployment.
+    if (parsed.pathname.startsWith('/cms-api/')) return `${parsed.pathname}${parsed.search}`
+    return url
+  } catch {
+    return url
+  }
+}
 
 /** 18.11 — decorative images get an empty alt; everything else must have one. */
 export const mediaAlt = (media: MediaDoc): string => (media.decorative ? '' : (media.alt ?? ''))
@@ -47,19 +72,76 @@ export type BlockProps = {
   width?: 'prose' | 'full' | 'container'
   content?: SerializedEditorState | null
   columns?: '2' | '3' | '4'
-  tone?: 'brand' | 'ink' | 'subtle'
+  /** cardGrid: plain|business. logoCloud: statement|badges. */
+  variant?: 'plain' | 'business' | 'statement' | 'badges' | null
+  tone?: 'brand' | 'ink' | 'subtle' | 'feature' | 'band'
   marquee?: boolean | null
   emitSchema?: boolean | null
+  footnote?: string | null
   limit?: number | null
   category?: { slug?: string } | string | null
   calendlyUrl?: string | null
   showOffices?: boolean | null
   showForm?: boolean | null
   ctas?: { variant?: 'primary' | 'secondary' | 'ghost'; link?: PayloadLink }[] | null
-  stats?: { value: string; label: string }[] | null
+  stats?: { value: string; label: string; star?: boolean | null }[] | null
   items?: BlockItem[] | null
   cards?: { icon?: unknown; title: string; body?: string | null; link?: PayloadLink }[] | null
   steps?: { title: string; body: string }[] | null
   logos?: { image?: unknown; name: string; url?: string | null }[] | null
   groups?: { name: string; items?: { name: string; logo?: unknown }[] }[] | null
+
+  /** Hero: cycled headline phrases, feature bullets, bento mosaic. */
+  rotatingWords?: { text: string }[] | null
+  bullets?: { text: string; icon?: unknown }[] | null
+  mosaic?:
+    | {
+        kind?: 'image' | 'stat'
+        span?: 'normal' | 'tall' | 'wide'
+        tone?: 'green' | 'emerald' | 'indigo' | 'teal'
+        corner?: 'tl' | 'tr' | 'bl' | 'br'
+        image?: unknown
+        value?: string | null
+        label?: string | null
+      }[]
+    | null
+
+  /** Logo cloud: the statement beside the grid. */
+  statement?: { before?: string | null; highlight?: string | null; after?: string | null } | null
+
+  /** Industry grid. */
+  industries?: { label: string; tone?: 'pink' | 'mint' | 'lilac' | 'teal' | 'blue' | null; icon?: unknown }[] | null
+
+  /** Service hero (Figma service pages 15:22742 / 20:27309 / 22:31063). */
+  heroTone?: 'mint' | 'blue' | 'blush' | 'amber' | 'sky' | 'coral' | 'teal' | 'gold' | 'lilac' | null
+  closer?: string | null
+  highlights?: { icon?: unknown; text: string }[] | null
+  formTitle?: string | null
+
+  /** Hiring models (Figma service pages, "Our Hiring Models"). */
+  models?:
+    | {
+        title: string
+        tone?: 'amber' | 'lavender' | 'blue' | null
+        stats?: { value: string; label: string }[] | null
+      }[]
+    | null
+  benefitsTitle?: string | null
+  benefits?: { text: string }[] | null
+
+  /** Talent showcase. */
+  roles?: { label: string }[] | null
+  panelTitle?: string | null
+  panelTone?: 'grey' | 'mint' | null
+  side?: 'copyLeft' | 'copyRight' | null
+  people?:
+    | {
+        name: string
+        role: string
+        experience?: string | null
+        match?: number | null
+        evaluated?: boolean | null
+        avatar?: unknown
+      }[]
+    | null
 }

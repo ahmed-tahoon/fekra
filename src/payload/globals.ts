@@ -118,7 +118,7 @@ export const SiteSettings: GlobalConfig = {
                 {
                   name: 'platform',
                   type: 'select',
-                  options: ['linkedin', 'x', 'facebook', 'instagram', 'youtube', 'github'].map((v) => ({
+                  options: ['linkedin', 'whatsapp', 'x', 'facebook', 'instagram', 'youtube', 'github'].map((v) => ({
                     label: v,
                     value: v,
                   })),

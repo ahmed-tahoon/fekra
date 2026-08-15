@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone } from 'lucide-react'
+import Image from 'next/image'
 
 import { ContactForm } from '@/components/forms/ContactForm'
 import type { Dictionary } from '@/i18n/getDictionary'
@@ -31,56 +31,56 @@ export function ContactSection({
   as?: 'h1' | 'h2'
 }) {
   return (
+    /*
+     * Figma 1:11725 — 140/120 padding, heading centred over a row of form (489)
+     * beside the presence map (655), 56px apart.
+     */
     <section id={block.anchor ?? 'contact'} className="section">
-      <div className="container-site grid gap-12 lg:grid-cols-2">
-        <div>
+      <div className="container-site flex flex-col gap-8">
+        <div className="flex flex-col items-center gap-2 text-center">
           {block.eyebrow ? (
-            <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{block.eyebrow}</p>
+            <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
+              {block.eyebrow}
+            </p>
           ) : null}
-          <Heading className="mt-2 text-4xl md:text-5xl">{block.heading ?? dict.contact.title}</Heading>
-          <p className="mt-4 max-w-lg text-lg text-muted-foreground">{block.body ?? dict.contact.subtitle}</p>
+          <Heading className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+            <span className="bg-[linear-gradient(142deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+              {block.heading ?? dict.contact.title}
+            </span>
+          </Heading>
+          {block.body ? <p className="max-w-2xl text-lg text-muted-foreground">{block.body}</p> : null}
+        </div>
+
+        <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,489fr)_minmax(0,655fr)]">
+          {block.showForm !== false ? <ContactForm dict={dict} locale={locale} /> : null}
 
           {block.showOffices !== false && offices?.length ? (
-            <div className="mt-10">
-              <h3 className="text-sm font-semibold tracking-wide uppercase">{dict.contact.offices}</h3>
-              <ul className="mt-4 grid gap-5 sm:grid-cols-2">
+            <div className="relative">
+              {/* The map carries its own city pills and caption, so it is
+                  decorative here — the offices themselves are real content and
+                  are exposed to assistive tech as a plain list instead. */}
+              <Image
+                src="/images/decor/global-presence-map.png"
+                alt=""
+                aria-hidden
+                width={655}
+                height={374}
+                className="h-auto w-full"
+              />
+              <ul className="sr-only">
                 {offices.map((office) => (
-                  <li key={`${office.city}-${office.country}`} className="rounded-card border border-border p-5">
-                    <p className="flex items-center gap-2 font-medium">
-                      <MapPin className="size-4 text-primary" aria-hidden />
-                      {office.city}, {office.country}
-                    </p>
-                    {office.addressLine ? (
-                      <p className="mt-2 text-sm text-muted-foreground">{office.addressLine}</p>
-                    ) : null}
-                    {office.phone ? (
-                      <a
-                        href={`tel:${office.phone.replace(/\s/g, '')}`}
-                        className="mt-2 flex items-center gap-2 text-sm"
-                      >
-                        <Phone className="size-3.5" aria-hidden />
-                        <span dir="ltr">{office.phone}</span>
-                      </a>
-                    ) : null}
-                    {office.email ? (
-                      <a href={`mailto:${office.email}`} className="mt-1 flex items-center gap-2 text-sm">
-                        <Mail className="size-3.5" aria-hidden />
-                        <span dir="ltr">{office.email}</span>
-                      </a>
-                    ) : null}
+                  <li key={`${office.city}-${office.country}`}>
+                    {office.city}, {office.country}
+                    {office.phone ? ` — ${office.phone}` : ''}
+                    {office.email ? ` — ${office.email}` : ''}
                   </li>
                 ))}
               </ul>
             </div>
           ) : null}
         </div>
-
-        {block.showForm !== false ? (
-          <div className="rounded-panel border border-border bg-card p-6 md:p-10">
-            <ContactForm dict={dict} locale={locale} />
-          </div>
-        ) : null}
       </div>
     </section>
   )
+
 }

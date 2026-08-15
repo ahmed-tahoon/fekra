@@ -10,7 +10,9 @@
     "bookMeeting": "30-Min-Termin buchen",
     "openMenu": "Menü öffnen",
     "closeMenu": "Menü schließen",
-    "skipToContent": "Zum Inhalt springen"
+    "skipToContent": "Zum Inhalt springen",
+    "buildTeam": "Stellen Sie Ihr eigenes Team aus den Top 3% der FEKRA-Entwickler zusammen",
+    "hireNow": "Jetzt einstellen!"
   },
   "theme": {
     "toggle": "Design wechseln",
@@ -62,7 +64,10 @@
       "fileType": "Es werden nur PDF-, DOC- und DOCX-Dateien akzeptiert.",
       "fileSize": "Diese Datei ist größer als 5 MB.",
       "tooMany": "Zu viele Versuche. Bitte eine Minute warten und erneut versuchen."
-    }
+    },
+    "subscribe": "Abonnieren",
+    "emailPlaceholder": "E-Mail eingeben",
+    "newsletterHint": "Bleiben Sie auf dem Laufenden über Technologie, Design und digitale Innovation."
   },
   "blog": {
     "title": "Blog",
@@ -136,5 +141,10 @@
   },
   "a11y": {
     "reducedMotionNote": "Animationen sind entsprechend Ihrer Systemeinstellung reduziert."
+  },
+  "chat": {
+    "talk": "Mit Fika sprechen",
+    "open": "Chat öffnen",
+    "close": "Chat schließen"
   }
 }

@@ -10,7 +10,9 @@
     "bookMeeting": "Book a 30-Min Meeting",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "buildTeam": "Build Your Own Team By Hiring Top 3% Rated Developers from FEKRA",
+    "hireNow": "Hire Now!"
   },
   "theme": {
     "toggle": "Switch theme",
@@ -46,7 +48,7 @@
     "linkedin": "LinkedIn profile",
     "cv": "CV / Resume",
     "cvHint": "PDF, DOC or DOCX. Max 5 MB.",
-    "submit": "Send",
+    "submit": "Send a Message",
     "submitting": "Sending…",
     "apply": "Apply for this role",
     "success": "Thank you — we received your message and will reply shortly.",
@@ -62,7 +64,10 @@
       "fileType": "Only PDF, DOC and DOCX files are accepted.",
       "fileSize": "This file is larger than 5 MB.",
       "tooMany": "Too many attempts. Please wait a minute and try again."
-    }
+    },
+    "subscribe": "Subscribe",
+    "emailPlaceholder": "Enter your email",
+    "newsletterHint": "Stay updated with the latest in tech, design, and digital innovation."
   },
   "blog": {
     "title": "Blog",
@@ -104,7 +109,7 @@
   "contact": {
     "title": "Let's talk business",
     "subtitle": "Tell us what you're building and we'll get back within one business day.",
-    "offices": "Our global presence",
+    "offices": "Our locations",
     "headquarters": "Headquarters"
   },
   "meeting": {
@@ -136,5 +141,10 @@
   },
   "a11y": {
     "reducedMotionNote": "Animations are reduced based on your system preference."
+  },
+  "chat": {
+    "talk": "Talk to Fika",
+    "open": "Open chat",
+    "close": "Close chat"
   }
 }

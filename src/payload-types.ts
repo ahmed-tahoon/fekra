@@ -160,7 +160,11 @@ export interface Page {
   layout?:
     | (
         | HeroBlock
+        | ServiceHeroBlock
+        | HiringModelsBlock
         | LogoCloudBlock
+        | IndustriesBlock
+        | TalentShowcaseBlock
         | CardGridBlock
         | StatsBlock
         | ProcessBlock
@@ -217,6 +221,22 @@ export interface HeroBlock {
   headingAccent?: string | null;
   body?: string | null;
   trustLine?: string | null;
+  /**
+   * Cycled in the headline. Leave empty to use the accent line instead.
+   */
+  rotatingWords?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  bullets?:
+    | {
+        text: string;
+        icon?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
   ctas?:
     | {
         variant?: ('primary' | 'secondary' | 'ghost') | null;
@@ -254,11 +274,25 @@ export interface HeroBlock {
         id?: string | null;
       }[]
     | null;
-  media?: (number | null) | Media;
+  /**
+   * Simple stat row. Use the mosaic below for the bento layout instead.
+   */
   stats?:
     | {
         value: string;
         label: string;
+        id?: string | null;
+      }[]
+    | null;
+  mosaic?:
+    | {
+        kind?: ('image' | 'stat') | null;
+        span?: ('normal' | 'tall' | 'wide') | null;
+        tone?: ('green' | 'emerald' | 'indigo' | 'teal') | null;
+        corner?: ('tl' | 'tr' | 'bl' | 'br') | null;
+        image?: (number | null) | Media;
+        value?: string | null;
+        label?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -269,85 +303,6 @@ export interface HeroBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  title: string;
-  /**
-   * URL path segment. Changing this on a live page needs a redirect entry.
-   */
-  slug: string;
-  excerpt?: string | null;
-  heroImage?: (number | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  /**
-   * CTA, FAQ or related blocks under the article body.
-   */
-  layout?:
-    | (
-        | HeroBlock
-        | LogoCloudBlock
-        | CardGridBlock
-        | StatsBlock
-        | ProcessBlock
-        | TestimonialsBlock
-        | FaqBlock
-        | PostsTeaserBlock
-        | TechStackBlock
-        | CtaBlock
-        | RichTextBlock
-        | MediaBlock
-        | ContactBlock
-        | BookingBlock
-      )[]
-    | null;
-  category?: (number | null) | Category;
-  /**
-   * Shown as the byline and used in Article schema (19.4).
-   */
-  author?: (number | null) | User;
-  tags?: string[] | null;
-  relatedPosts?: (number | Post)[] | null;
-  availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
-  featured?: boolean | null;
-  publishedAt?: string | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    /**
-     * Only set this when the page must point at a different canonical (18.3).
-     */
-    canonicalOverride?: string | null;
-    /**
-     * Excludes the page from search results and the sitemap (18.13).
-     */
-    noindex?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -365,6 +320,7 @@ export interface Media {
   decorative?: boolean | null;
   caption?: string | null;
   credit?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -421,76 +377,146 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LogoCloudBlock".
+ * via the `definition` "posts".
  */
-export interface LogoCloudBlock {
-  heading?: string | null;
-  logos?:
+export interface Post {
+  id: number;
+  title: string;
+  /**
+   * URL path segment. Changing this on a live page needs a redirect entry.
+   */
+  slug: string;
+  excerpt?: string | null;
+  heroImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * CTA, FAQ or related blocks under the article body.
+   */
+  layout?:
+    | (
+        | HeroBlock
+        | ServiceHeroBlock
+        | HiringModelsBlock
+        | LogoCloudBlock
+        | IndustriesBlock
+        | TalentShowcaseBlock
+        | CardGridBlock
+        | StatsBlock
+        | ProcessBlock
+        | TestimonialsBlock
+        | FaqBlock
+        | PostsTeaserBlock
+        | TechStackBlock
+        | CtaBlock
+        | RichTextBlock
+        | MediaBlock
+        | ContactBlock
+        | BookingBlock
+      )[]
+    | null;
+  category?: (number | null) | Category;
+  /**
+   * Shown as the byline and used in Article schema (19.4).
+   */
+  author?: (number | null) | User;
+  tags?: string[] | null;
+  relatedPosts?: (number | Post)[] | null;
+  availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
+  featured?: boolean | null;
+  publishedAt?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Only set this when the page must point at a different canonical (18.3).
+     */
+    canonicalOverride?: string | null;
+    /**
+     * Excludes the page from search results and the sitemap (18.13).
+     */
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceHeroBlock".
+ */
+export interface ServiceHeroBlock {
+  heading: string;
+  /**
+   * Colour of the band behind the hero — the comps alternate per service.
+   */
+  heroTone?: ('mint' | 'blue' | 'blush' | 'amber' | 'sky' | 'coral' | 'teal' | 'gold' | 'lilac') | null;
+  /**
+   * Each line renders as its own paragraph.
+   */
+  body?: string | null;
+  /**
+   * Bold closing line under the paragraphs.
+   */
+  closer?: string | null;
+  highlights?:
     | {
-        image: number | Media;
-        name: string;
-        url?: string | null;
+        icon?: (number | null) | Media;
+        text: string;
         id?: string | null;
       }[]
     | null;
-  marquee?: boolean | null;
+  formTitle?: string | null;
   /**
    * Optional #id for in-page links. Lowercase, no spaces.
    */
   anchor?: string | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'logoCloud';
+  blockType: 'serviceHero';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CardGridBlock".
+ * via the `definition` "HiringModelsBlock".
  */
-export interface CardGridBlock {
+export interface HiringModelsBlock {
   eyebrow?: string | null;
   heading: string;
-  /**
-   * Optional second line rendered in the brand colour.
-   */
-  headingAccent?: string | null;
-  body?: string | null;
-  columns?: ('2' | '3' | '4') | null;
-  cards?:
+  models?:
     | {
-        icon?: (number | null) | Media;
         title: string;
-        body?: string | null;
-        link?: {
-          type?: ('internal' | 'route' | 'external') | null;
-          /**
-           * Visible link text. A link with no label is not rendered.
-           */
-          label?: string | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null)
-            | ({
-                relationTo: 'services';
-                value: number | Service;
-              } | null)
-            | ({
-                relationTo: 'jobs';
-                value: number | Job;
-              } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
-          url?: string | null;
-          newTab?: boolean | null;
-          /**
-           * Optional. Sent as the GA4 event name when clicked (22.5).
-           */
-          analyticsId?: string | null;
-        };
+        tone?: ('amber' | 'lavender' | 'blue') | null;
+        stats?:
+          | {
+              value: string;
+              label: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  benefitsTitle?: string | null;
+  benefits?:
+    | {
+        text: string;
         id?: string | null;
       }[]
     | null;
@@ -537,7 +563,7 @@ export interface CardGridBlock {
   anchor?: string | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'cardGrid';
+  blockType: 'hiringModels';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -555,7 +581,11 @@ export interface Service {
   layout?:
     | (
         | HeroBlock
+        | ServiceHeroBlock
+        | HiringModelsBlock
         | LogoCloudBlock
+        | IndustriesBlock
+        | TalentShowcaseBlock
         | CardGridBlock
         | StatsBlock
         | ProcessBlock
@@ -579,6 +609,15 @@ export interface Service {
    * Lower numbers appear first in the Services overview.
    */
   order?: number | null;
+  /**
+   * Roles listed under this service in the header Services mega-menu. Leave empty to keep the service out of the menu columns.
+   */
+  menuRoles?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
   availableLocales?: ('en' | 'ar' | 'de' | 'fr' | 'es')[] | null;
   meta?: {
     title?: string | null;
@@ -602,143 +641,115 @@ export interface Service {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "StatsBlock".
+ * via the `definition` "LogoCloudBlock".
  */
-export interface StatsBlock {
+export interface LogoCloudBlock {
+  variant?: ('statement' | 'badges') | null;
+  eyebrow?: string | null;
   heading?: string | null;
-  items?:
+  statement?: {
+    before?: string | null;
+    /**
+     * Rendered in the brand colour.
+     */
+    highlight?: string | null;
+    after?: string | null;
+  };
+  logos?:
     | {
-        value: string;
+        image: number | Media;
+        name: string;
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  marquee?: boolean | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'logoCloud';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IndustriesBlock".
+ */
+export interface IndustriesBlock {
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Optional second line rendered in the brand colour.
+   */
+  headingAccent?: string | null;
+  body?: string | null;
+  industries?:
+    | {
+        label: string;
+        tone?: ('pink' | 'mint' | 'lilac' | 'teal' | 'blue') | null;
+        icon?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'industries';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TalentShowcaseBlock".
+ */
+export interface TalentShowcaseBlock {
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Optional second line rendered in the brand colour.
+   */
+  headingAccent?: string | null;
+  body?: string | null;
+  bullets?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  roles?:
+    | {
         label: string;
         id?: string | null;
       }[]
     | null;
+  panelTitle?: string | null;
   /**
-   * Optional #id for in-page links. Lowercase, no spaces.
+   * Background of the engineer panel.
    */
-  anchor?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'stats';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProcessBlock".
- */
-export interface ProcessBlock {
-  eyebrow?: string | null;
-  heading: string;
+  panelTone?: ('grey' | 'mint') | null;
   /**
-   * Optional second line rendered in the brand colour.
+   * Alternate this between stacked showcases.
    */
-  headingAccent?: string | null;
-  body?: string | null;
-  /**
-   * Rendered as an ordered list — step numbers come from the order.
-   */
-  steps?:
+  side?: ('copyLeft' | 'copyRight') | null;
+  people?:
     | {
-        title: string;
-        body: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Optional #id for in-page links. Lowercase, no spaces.
-   */
-  anchor?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'process';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TestimonialsBlock".
- */
-export interface TestimonialsBlock {
-  eyebrow?: string | null;
-  heading: string;
-  /**
-   * Optional second line rendered in the brand colour.
-   */
-  headingAccent?: string | null;
-  body?: string | null;
-  items?:
-    | {
-        quote: string;
-        authorName: string;
-        authorRole: string;
+        name: string;
+        role: string;
+        /**
+         * e.g. 5+ Years
+         */
+        experience?: string | null;
+        /**
+         * Match %
+         */
+        match?: number | null;
+        evaluated?: boolean | null;
         avatar?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
-  /**
-   * Optional #id for in-page links. Lowercase, no spaces.
-   */
-  anchor?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'testimonials';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FaqBlock".
- */
-export interface FaqBlock {
-  eyebrow?: string | null;
-  heading: string;
-  /**
-   * Optional second line rendered in the brand colour.
-   */
-  headingAccent?: string | null;
-  body?: string | null;
-  items?:
-    | {
-        question: string;
-        answer: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Only enable on pages where the FAQ is the primary content (18.8/19.3).
-   */
-  emitSchema?: boolean | null;
-  /**
-   * Optional #id for in-page links. Lowercase, no spaces.
-   */
-  anchor?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'faq';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "PostsTeaserBlock".
- */
-export interface PostsTeaserBlock {
-  eyebrow?: string | null;
-  heading: string;
-  /**
-   * Optional second line rendered in the brand colour.
-   */
-  headingAccent?: string | null;
-  body?: string | null;
-  limit?: number | null;
-  category?: (number | null) | Category;
   ctas?:
     | {
         variant?: ('primary' | 'secondary' | 'ghost') | null;
@@ -782,22 +793,7 @@ export interface PostsTeaserBlock {
   anchor?: string | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'postsTeaser';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  title: string;
-  /**
-   * URL path segment. Changing this on a live page needs a redirect entry.
-   */
-  slug: string;
-  description?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  blockType: 'talentShowcase';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -894,9 +890,13 @@ export interface Job {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TechStackBlock".
+ * via the `definition` "CardGridBlock".
  */
-export interface TechStackBlock {
+export interface CardGridBlock {
+  /**
+   * Business styles the cards like the "All Businesses Types" section.
+   */
+  variant?: ('plain' | 'business') | null;
   eyebrow?: string | null;
   heading: string;
   /**
@@ -904,34 +904,46 @@ export interface TechStackBlock {
    */
   headingAccent?: string | null;
   body?: string | null;
-  groups?:
+  columns?: ('2' | '3' | '4') | null;
+  cards?:
     | {
-        name: string;
-        items?:
-          | {
-              name: string;
-              logo?: (number | null) | Media;
-              id?: string | null;
-            }[]
-          | null;
+        icon?: (number | null) | Media;
+        title: string;
+        body?: string | null;
+        link?: {
+          type?: ('internal' | 'route' | 'external') | null;
+          /**
+           * Visible link text. A link with no label is not rendered.
+           */
+          label?: string | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'jobs';
+                value: number | Job;
+              } | null);
+          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          url?: string | null;
+          newTab?: boolean | null;
+          /**
+           * Optional. Sent as the GA4 event name when clicked (22.5).
+           */
+          analyticsId?: string | null;
+        };
         id?: string | null;
       }[]
     | null;
-  /**
-   * Optional #id for in-page links. Lowercase, no spaces.
-   */
-  anchor?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'techStack';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CtaBlock".
- */
-export interface CtaBlock {
-  heading: string;
-  body?: string | null;
   ctas?:
     | {
         variant?: ('primary' | 'secondary' | 'ghost') | null;
@@ -969,7 +981,348 @@ export interface CtaBlock {
         id?: string | null;
       }[]
     | null;
-  tone?: ('brand' | 'ink' | 'subtle') | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cardGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock".
+ */
+export interface StatsBlock {
+  heading?: string | null;
+  items?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stats';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProcessBlock".
+ */
+export interface ProcessBlock {
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Optional second line rendered in the brand colour.
+   */
+  headingAccent?: string | null;
+  body?: string | null;
+  /**
+   * Rendered as an ordered list — step numbers come from the order.
+   */
+  steps?:
+    | {
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'process';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock".
+ */
+export interface TestimonialsBlock {
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Optional second line rendered in the brand colour.
+   */
+  headingAccent?: string | null;
+  body?: string | null;
+  items?:
+    | {
+        quote: string;
+        authorName: string;
+        authorRole: string;
+        avatar?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  stats?:
+    | {
+        value: string;
+        label: string;
+        /**
+         * Star icon
+         */
+        star?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock".
+ */
+export interface FaqBlock {
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Optional second line rendered in the brand colour.
+   */
+  headingAccent?: string | null;
+  body?: string | null;
+  items?:
+    | {
+        question: string;
+        answer: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Only enable on pages where the FAQ is the primary content (18.8/19.3).
+   */
+  emitSchema?: boolean | null;
+  /**
+   * Small line above the closing button.
+   */
+  footnote?: string | null;
+  ctas?:
+    | {
+        variant?: ('primary' | 'secondary' | 'ghost') | null;
+        link?: {
+          type?: ('internal' | 'route' | 'external') | null;
+          /**
+           * Visible link text. A link with no label is not rendered.
+           */
+          label?: string | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'jobs';
+                value: number | Job;
+              } | null);
+          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          url?: string | null;
+          newTab?: boolean | null;
+          /**
+           * Optional. Sent as the GA4 event name when clicked (22.5).
+           */
+          analyticsId?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PostsTeaserBlock".
+ */
+export interface PostsTeaserBlock {
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Optional second line rendered in the brand colour.
+   */
+  headingAccent?: string | null;
+  body?: string | null;
+  limit?: number | null;
+  category?: (number | null) | Category;
+  ctas?:
+    | {
+        variant?: ('primary' | 'secondary' | 'ghost') | null;
+        link?: {
+          type?: ('internal' | 'route' | 'external') | null;
+          /**
+           * Visible link text. A link with no label is not rendered.
+           */
+          label?: string | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'jobs';
+                value: number | Job;
+              } | null);
+          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          url?: string | null;
+          newTab?: boolean | null;
+          /**
+           * Optional. Sent as the GA4 event name when clicked (22.5).
+           */
+          analyticsId?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'postsTeaser';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  /**
+   * URL path segment. Changing this on a live page needs a redirect entry.
+   */
+  slug: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TechStackBlock".
+ */
+export interface TechStackBlock {
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Optional second line rendered in the brand colour.
+   */
+  headingAccent?: string | null;
+  body?: string | null;
+  groups?:
+    | {
+        name: string;
+        items?:
+          | {
+              name: string;
+              logo?: (number | null) | Media;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional #id for in-page links. Lowercase, no spaces.
+   */
+  anchor?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'techStack';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaBlock".
+ */
+export interface CtaBlock {
+  eyebrow?: string | null;
+  heading: string;
+  body?: string | null;
+  /**
+   * Optional illustration above the button.
+   */
+  media?: (number | null) | Media;
+  ctas?:
+    | {
+        variant?: ('primary' | 'secondary' | 'ghost') | null;
+        link?: {
+          type?: ('internal' | 'route' | 'external') | null;
+          /**
+           * Visible link text. A link with no label is not rendered.
+           */
+          label?: string | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'jobs';
+                value: number | Job;
+              } | null);
+          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          url?: string | null;
+          newTab?: boolean | null;
+          /**
+           * Optional. Sent as the GA4 event name when clicked (22.5).
+           */
+          analyticsId?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  tone?: ('brand' | 'ink' | 'subtle' | 'feature' | 'band') | null;
   /**
    * Optional #id for in-page links. Lowercase, no spaces.
    */
@@ -1106,6 +1459,7 @@ export interface User {
 export interface ApplicantFile {
   id: number;
   originalName?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1281,7 +1635,11 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        serviceHero?: T | ServiceHeroBlockSelect<T>;
+        hiringModels?: T | HiringModelsBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
+        industries?: T | IndustriesBlockSelect<T>;
+        talentShowcase?: T | TalentShowcaseBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;
@@ -1321,6 +1679,19 @@ export interface HeroBlockSelect<T extends boolean = true> {
   headingAccent?: T;
   body?: T;
   trustLine?: T;
+  rotatingWords?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  bullets?:
+    | T
+    | {
+        text?: T;
+        icon?: T;
+        id?: T;
+      };
   ctas?:
     | T
     | {
@@ -1338,12 +1709,93 @@ export interface HeroBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
-  media?: T;
   stats?:
     | T
     | {
         value?: T;
         label?: T;
+        id?: T;
+      };
+  mosaic?:
+    | T
+    | {
+        kind?: T;
+        span?: T;
+        tone?: T;
+        corner?: T;
+        image?: T;
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  anchor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceHeroBlock_select".
+ */
+export interface ServiceHeroBlockSelect<T extends boolean = true> {
+  heading?: T;
+  heroTone?: T;
+  body?: T;
+  closer?: T;
+  highlights?:
+    | T
+    | {
+        icon?: T;
+        text?: T;
+        id?: T;
+      };
+  formTitle?: T;
+  anchor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HiringModelsBlock_select".
+ */
+export interface HiringModelsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  models?:
+    | T
+    | {
+        title?: T;
+        tone?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  benefitsTitle?: T;
+  benefits?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  ctas?:
+    | T
+    | {
+        variant?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              label?: T;
+              reference?: T;
+              route?: T;
+              url?: T;
+              newTab?: T;
+              analyticsId?: T;
+            };
         id?: T;
       };
   anchor?: T;
@@ -1355,7 +1807,16 @@ export interface HeroBlockSelect<T extends boolean = true> {
  * via the `definition` "LogoCloudBlock_select".
  */
 export interface LogoCloudBlockSelect<T extends boolean = true> {
+  variant?: T;
+  eyebrow?: T;
   heading?: T;
+  statement?:
+    | T
+    | {
+        before?: T;
+        highlight?: T;
+        after?: T;
+      };
   logos?:
     | T
     | {
@@ -1371,9 +1832,87 @@ export interface LogoCloudBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IndustriesBlock_select".
+ */
+export interface IndustriesBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  headingAccent?: T;
+  body?: T;
+  industries?:
+    | T
+    | {
+        label?: T;
+        tone?: T;
+        icon?: T;
+        id?: T;
+      };
+  anchor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TalentShowcaseBlock_select".
+ */
+export interface TalentShowcaseBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  headingAccent?: T;
+  body?: T;
+  bullets?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  roles?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  panelTitle?: T;
+  panelTone?: T;
+  side?: T;
+  people?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        experience?: T;
+        match?: T;
+        evaluated?: T;
+        avatar?: T;
+        id?: T;
+      };
+  ctas?:
+    | T
+    | {
+        variant?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              label?: T;
+              reference?: T;
+              route?: T;
+              url?: T;
+              newTab?: T;
+              analyticsId?: T;
+            };
+        id?: T;
+      };
+  anchor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CardGridBlock_select".
  */
 export interface CardGridBlockSelect<T extends boolean = true> {
+  variant?: T;
   eyebrow?: T;
   heading?: T;
   headingAccent?: T;
@@ -1474,6 +2013,14 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
         avatar?: T;
         id?: T;
       };
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        star?: T;
+        id?: T;
+      };
   anchor?: T;
   id?: T;
   blockName?: T;
@@ -1495,6 +2042,24 @@ export interface FaqBlockSelect<T extends boolean = true> {
         id?: T;
       };
   emitSchema?: T;
+  footnote?: T;
+  ctas?:
+    | T
+    | {
+        variant?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              label?: T;
+              reference?: T;
+              route?: T;
+              url?: T;
+              newTab?: T;
+              analyticsId?: T;
+            };
+        id?: T;
+      };
   anchor?: T;
   id?: T;
   blockName?: T;
@@ -1562,8 +2127,10 @@ export interface TechStackBlockSelect<T extends boolean = true> {
  * via the `definition` "CtaBlock_select".
  */
 export interface CtaBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
   heading?: T;
   body?: T;
+  media?: T;
   ctas?:
     | T
     | {
@@ -1652,7 +2219,11 @@ export interface PostsSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        serviceHero?: T | ServiceHeroBlockSelect<T>;
+        hiringModels?: T | HiringModelsBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
+        industries?: T | IndustriesBlockSelect<T>;
+        talentShowcase?: T | TalentShowcaseBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;
@@ -1710,7 +2281,11 @@ export interface ServicesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        serviceHero?: T | ServiceHeroBlockSelect<T>;
+        hiringModels?: T | HiringModelsBlockSelect<T>;
         logoCloud?: T | LogoCloudBlockSelect<T>;
+        industries?: T | IndustriesBlockSelect<T>;
+        talentShowcase?: T | TalentShowcaseBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;
@@ -1727,6 +2302,12 @@ export interface ServicesSelect<T extends boolean = true> {
   parent?: T;
   relatedServices?: T;
   order?: T;
+  menuRoles?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
   availableLocales?: T;
   meta?:
     | T
@@ -1784,6 +2365,7 @@ export interface MediaSelect<T extends boolean = true> {
   decorative?: T;
   caption?: T;
   credit?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1856,6 +2438,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface ApplicantFilesSelect<T extends boolean = true> {
   originalName?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -2248,7 +2831,7 @@ export interface SiteSetting {
    */
   socialProfiles?:
     | {
-        platform: 'linkedin' | 'x' | 'facebook' | 'instagram' | 'youtube' | 'github';
+        platform: 'linkedin' | 'whatsapp' | 'x' | 'facebook' | 'instagram' | 'youtube' | 'github';
         url: string;
         id?: string | null;
       }[]

@@ -76,6 +76,19 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  /*
+   * Prerender reads from Supabase through the transaction pooler, and nine
+   * build workers hitting it at once can push a page past the 60s default.
+   * That is a timeout, never a real error, but it fails the build all the same.
+   */
+  staticPageGenerationTimeout: 180,
+  /*
+   * Same pooler budget: it holds ~15 backend connections for the whole
+   * project, and each build worker opens its own Payload pool (max 4). Nine
+   * workers = 36 clients fighting for 15 slots → ECHECKOUTTIMEOUT after 60s.
+   * Three workers (12 clients) leave room for a dev server alongside.
+   */
+  experimental: { cpus: 3 },
   // Trailing-slash policy is a canonical signal — keep it fixed forever (18.1/18.3).
   trailingSlash: false,
 
@@ -84,9 +97,18 @@ const nextConfig: NextConfig = {
     // Setting localPatterns at all makes it an allow-list: anything not listed
     // is a 400 from /_next/image. Both CMS uploads and static brand assets.
     localPatterns: [{ pathname: '/cms-api/media/file/**' }, { pathname: '/images/**' }],
+    /*
+     * Payload returns ABSOLUTE media URLs (it knows its serverURL), so uploads
+     * are matched here rather than by localPatterns. The protocol has to come
+     * from SITE_URL — hardcoding https 400s every image in local development.
+     */
     remotePatterns: [
       ...(S3_HOST ? [{ protocol: 'https' as const, hostname: S3_HOST }] : []),
-      { protocol: 'https', hostname: new URL(SITE_URL).hostname },
+      {
+        protocol: new URL(SITE_URL).protocol.replace(':', '') as 'http' | 'https',
+        hostname: new URL(SITE_URL).hostname,
+        port: new URL(SITE_URL).port || undefined,
+      },
     ],
   },
 
