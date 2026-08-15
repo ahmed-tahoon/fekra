@@ -43,7 +43,8 @@ export function ServiceHeroSection({
   return (
     <section
       id={block.anchor ?? undefined}
-      className={cn('mt-2.5 dark:bg-background-subtle', HERO_TONE[block.heroTone ?? 'mint'])}
+      // lg:mb clears the card's -mb overhang below, plus breathing room (see comp).
+      className={cn('mt-2.5 lg:mb-20 dark:bg-background-subtle', HERO_TONE[block.heroTone ?? 'mint'])}
     >
       <div className="container-site grid items-start gap-10 py-12 lg:grid-cols-[minmax(0,1fr)_414px] lg:gap-16">
         <div className="pt-2">

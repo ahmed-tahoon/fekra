@@ -9,6 +9,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { Footer, type FooterData } from '@/components/layout/Footer'
 import { Header, type HeaderData } from '@/components/layout/Header'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
+import { ScrollReveal } from '@/components/ScrollReveal'
 import { TalkToFika } from '@/components/layout/TalkToFika'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { getDictionary } from '@/i18n/getDictionary'
@@ -156,7 +157,39 @@ export default async function SiteLayout({
         />
       </head>
       <body className="min-h-dvh antialiased">
+        {/*
+          Splash. Server-rendered so it covers the page before any JS runs; the
+          inline script below fades it out on `load`, caps the wait at 2.5s so a
+          slow image can never trap a visitor, and skips it on repeat views in
+          the same tab. Raw <img> + raw script on purpose — this must not wait
+          for hydration.
+        */}
+        <div id="fk-splash" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element -- pre-hydration splash */}
+          <img src="/images/fekra-logo.webp" alt="" className="fk-splash-logo dark:hidden" />
+          {/* eslint-disable-next-line @next/next/no-img-element -- pre-hydration splash */}
+          <img src="/images/fekra-logo-white.webp" alt="" className="fk-splash-logo hidden dark:block" />
+          <div className="fk-splash-bar">
+            <div />
+          </div>
+        </div>
+        <noscript>
+          <style>{'#fk-splash{display:none}'}</style>
+        </noscript>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var s=document.getElementById('fk-splash');if(!s)return;" +
+              "try{if(sessionStorage.getItem('fk-splash')){s.remove();return}sessionStorage.setItem('fk-splash','1')}catch(e){}" +
+              "var t=Date.now(),done=false;" +
+              "function hide(){if(done)return;done=true;var d=Math.max(0,700-(Date.now()-t));" +
+              "setTimeout(function(){s.classList.add('is-done');setTimeout(function(){s.remove()},500)},d)}" +
+              "if(document.readyState==='complete')hide();else window.addEventListener('load',hide);" +
+              'setTimeout(hide,2500)})();',
+          }}
+        />
         <SmoothScroll />
+        <ScrollReveal />
         <ThemeProvider>
           <Header data={header} locale={locale} dict={dict} siteName={siteName} servicesMenu={servicesMenu} />
 

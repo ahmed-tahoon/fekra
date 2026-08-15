@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse, userAgent, type NextRequest } from 'next/server'
 
 import { DEFAULT_LOCALE, LOCALES, isLocale, negotiateLocale } from '@/i18n/routing'
 import { isComingSoon } from '@/lib/site-mode'
@@ -32,6 +32,19 @@ export default function proxy(request: NextRequest) {
     const response = NextResponse.rewrite(new URL(SOON_PATH, request.url))
     response.headers.set('X-Robots-Tag', 'noindex, nofollow')
     return response
+  }
+
+  /*
+   * Desktop-only launch (see the width=1280 viewport note in the site layout):
+   * phones get the holding page until the responsive layout ships. Bots are
+   * exempt on purpose — Google indexes mobile-first, so serving Googlebot
+   * Smartphone a noindex holding page would deindex the whole site.
+   */
+  if (pathname !== SOON_PATH) {
+    const ua = userAgent(request)
+    if (!ua.isBot && ua.device.type === 'mobile') {
+      return NextResponse.rewrite(new URL(SOON_PATH, request.url))
+    }
   }
 
   // /en/about -> /about (301). Never leave two live URLs for the same content.

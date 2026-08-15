@@ -23,13 +23,13 @@ export type Step = { title: string; body: string }
 const DWELL_MS = 5000
 
 /*
- * Funnel geometry measured from Figma 1:11041: five centred bars shrinking
- * 288 -> 128 (one person icon fewer each row), a 56px row height on a 72px
- * pitch, then an 88px tip with the "Top 3%" pill hanging off its end. The
- * --fs var scales every measured width down on phones, where the full-size
- * funnel would overflow.
+ * Funnel geometry from Figma 1:11041, widened 40px per row on request: five
+ * centred bars shrinking 328 -> 168 (one person icon fewer each row), a 56px
+ * row height on a 72px pitch, then a 128px tip with the "Top 3%" pill hanging
+ * off its end. The --fs var scales every measured width down on phones, where
+ * the full-size funnel would overflow.
  */
-const BARS = [288, 248, 208, 168, 128] as const
+const BARS = [328, 288, 248, 208, 168] as const
 
 /**
  * The hiring process as a candidate funnel (Figma 1:11041): each numbered bar
@@ -161,7 +161,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
         {/* Funnel outlet: the short tip, with "Top 3%" flowing out of it as an
             arrow-pointed teal ribbon. Same RTL treatment as the number flag. */}
         <li aria-hidden className="flex h-14 justify-center">
-          <div className="relative h-full" style={{ width: 'calc(var(--fs) * 88px)' }}>
+          <div className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
             <span className="absolute inset-y-0 start-0 -end-4 bg-border [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] rtl:-scale-x-100 dark:bg-card" />
             <span
               className="absolute start-full top-0 flex h-full items-center justify-center gap-2 text-primary-foreground"

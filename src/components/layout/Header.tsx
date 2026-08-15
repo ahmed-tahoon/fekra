@@ -10,6 +10,7 @@ import { resolveLink, type PayloadLink } from '@/lib/resolveLink'
 
 import { HeaderShell } from './HeaderShell'
 import { MobileNav } from './MobileNav'
+import { NavItem } from './NavItem'
 import { NavLink } from './NavLink'
 
 export type HeaderData = {
@@ -80,7 +81,7 @@ export function Header({
             {items.map((item) => {
               const mega = item.children.length && servicesMenu?.length ? servicesMenu : null
               return (
-                <li key={item.link!.href} className="group relative">
+                <NavItem key={item.link!.href}>
                   <NavLink link={item.link!} hasChildren={item.children.length > 0} />
                   {mega ? (
                     <>
@@ -159,7 +160,7 @@ export function Header({
                       ))}
                     </ul>
                   ) : null}
-                </li>
+                </NavItem>
               )
             })}
           </ul>
