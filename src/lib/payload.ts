@@ -116,7 +116,13 @@ export async function staticSlugs(
   if (isComingSoon()) return []
 
   try {
-    const { docs } = await findDocs<{ slug: string }>({ collection, locale, limit, depth: 0 })
+    const { docs } = await findDocs<{ slug: string }>({
+      collection,
+      locale,
+      limit,
+      depth: 0,
+      select: { slug: true },
+    })
     return docs.map(({ slug }) => ({ slug }))
   } catch (error) {
     console.warn(`generateStaticParams: skipping prerender for "${collection}" —`, error)

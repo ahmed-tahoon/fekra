@@ -31,7 +31,24 @@ export default async function BlogIndexPage({ params }: { params: Promise<{ loca
     getDictionary(locale),
     // The whole list is server-rendered; search and topic filtering then run on
     // the client without a round trip (19.2).
-    findDocs<PostSummary>({ collection: 'posts', locale, limit: 200, sort: '-publishedAt' }),
+    findDocs<PostSummary>({
+      collection: 'posts',
+      locale,
+      limit: 200,
+      sort: '-publishedAt',
+      // Card fields only — pulling 200 full posts with their layout blocks is
+      // what pushed the index past the pooler's statement timeout at build.
+      select: {
+        slug: true,
+        title: true,
+        excerpt: true,
+        heroImage: true,
+        publishedAt: true,
+        featured: true,
+        tags: true,
+        category: true,
+      },
+    }),
     findDocs<{ title: string }>({ collection: 'categories', locale, limit: 40, depth: 0 }),
   ])
 

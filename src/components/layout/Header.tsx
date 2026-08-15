@@ -2,7 +2,6 @@ import Link from 'next/link'
 
 import { BrandLogo } from '@/components/layout/BrandLogo'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
-import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { LinkButton } from '@/components/ui/Button'
 import type { Dictionary } from '@/i18n/getDictionary'
 import type { Locale } from '@/i18n/routing'
@@ -171,7 +170,6 @@ export function Header({
             current={locale}
             labels={{ switch: dict.language.switch, unavailable: dict.language.unavailable }}
           />
-          <ThemeToggle label={dict.theme.toggle} />
 
           <div className="hidden lg:flex lg:items-center lg:gap-2 lg:ps-1">
             {ctas.map((cta) => (

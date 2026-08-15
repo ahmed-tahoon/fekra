@@ -158,7 +158,20 @@ export default buildConfig({
   }),
 
   db: postgresAdapter({
-    pool: { connectionString: process.env.DATABASE_URL || '' },
+    pool: {
+      connectionString: process.env.DATABASE_URL || '',
+      /*
+       * The Supabase pooler caps session-mode clients at 15 for the WHOLE
+       * project. pg's default max is 10 per process, so one dev server plus a
+       * build-time migration is already over budget — which is how deploys die
+       * with EMAXCONNSESSION. A small per-process cap leaves room for a local
+       * dev server, a seed run and a Vercel build to coexist. Raise via
+       * DATABASE_POOL_MAX if the pooler's limit is ever increased.
+       */
+      max: Number(process.env.DATABASE_POOL_MAX ?? 4),
+      // Give connections back to the pooler quickly once idle.
+      idleTimeoutMillis: 10_000,
+    },
     // Only ever auto-push against a local throwaway database (see isLocalDatabase).
     push: process.env.NODE_ENV !== 'production' && isLocalDatabase(),
   }),

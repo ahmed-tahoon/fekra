@@ -47,10 +47,7 @@ const notoArabic = Noto_Sans_Arabic({
 })
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0b1013' },
-  ],
+  themeColor: '#ffffff',
 }
 
 export const metadata: Metadata = {
@@ -133,6 +130,14 @@ export default async function SiteLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${notoArabic.variable}`}
     >
       <head>
+        {/*
+          Desktop-only for launch: a bare width (no initial-scale) makes phones
+          fit the 1280px layout zoomed out. Next's viewport export always adds
+          initial-scale=1, which would instead show a zoomed-in corner, so the
+          tag is written by hand. It renders after Next's generated viewport
+          meta, and the last one wins. Delete this to restore responsive.
+        */}
+        <meta name="viewport" content="width=1280" />
         {settings.searchConsoleVerification ? (
           <meta name="google-site-verification" content={settings.searchConsoleVerification} />
         ) : null}

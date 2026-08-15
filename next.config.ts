@@ -82,6 +82,13 @@ const nextConfig: NextConfig = {
    * That is a timeout, never a real error, but it fails the build all the same.
    */
   staticPageGenerationTimeout: 180,
+  /*
+   * Same pooler budget: it holds ~15 backend connections for the whole
+   * project, and each build worker opens its own Payload pool (max 4). Nine
+   * workers = 36 clients fighting for 15 slots → ECHECKOUTTIMEOUT after 60s.
+   * Three workers (12 clients) leave room for a dev server alongside.
+   */
+  experimental: { cpus: 3 },
   // Trailing-slash policy is a canonical signal — keep it fixed forever (18.1/18.3).
   trailingSlash: false,
 
