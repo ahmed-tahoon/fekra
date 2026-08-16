@@ -105,12 +105,27 @@ async function upsertMedia(
   const path = join(process.cwd(), 'public', 'images', folder, file)
   if (!existsSync(path)) return null
 
-  return (await payload.create({
-    collection: 'media',
-    data: { alt },
-    filePath: path,
-    context: { disableRevalidate: true },
-  })) as unknown as { id: number }
+  try {
+    return (await payload.create({
+      collection: 'media',
+      data: { alt },
+      filePath: path,
+      context: { disableRevalidate: true },
+    })) as unknown as { id: number }
+  } catch {
+    // Payload suffixes stored filenames (-1, -2…) when the upload dir already
+    // holds the name, so the exact-match lookup above can miss and the retry
+    // then trips the unique constraint. Fall back to the newest suffixed copy
+    // rather than killing the whole seed over one image.
+    const fallback = await payload.find({
+      collection: 'media',
+      where: { filename: { like: file.replace(/\.[a-z]+$/i, '') } },
+      sort: '-createdAt',
+      limit: 1,
+      depth: 0,
+    })
+    return (fallback.docs[0] as unknown as { id: number }) ?? null
+  }
 }
 
 const run = async () => {
