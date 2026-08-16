@@ -168,6 +168,26 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
           </aside>
 
           <article className="order-1 lg:order-2 lg:col-span-6">
+            {headings.length ? (
+              /* Phones lose the sticky sidebar, so the same TOC collapses in
+                 here instead. The nav's own title is hidden — the summary row
+                 already carries it. */
+              <details className="group mb-8 rounded-2xl border border-slate-200/70 bg-white p-5 lg:hidden dark:border-white/10 dark:bg-white/[0.03]">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-lg font-bold text-slate-900 [&::-webkit-details-marker]:hidden dark:text-white">
+                  <span className="flex items-center gap-2.5">
+                    <span className="inline-block h-5 w-1.5 rounded-full bg-blog-500" aria-hidden />
+                    {dict.blog.tableOfContents}
+                  </span>
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden className="h-4 w-4 shrink-0 text-blog-500 transition-transform duration-200 group-open:rotate-180">
+                    <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </summary>
+                <div className="mt-4 [&_nav>p]:hidden">
+                  <TableOfContents headings={headings} title={dict.blog.tableOfContents} />
+                </div>
+              </details>
+            ) : null}
+
             {post.excerpt ? (
               <div className="relative mt-3 mb-12 rounded-2xl border border-blog-500/25 bg-blog-500/[0.06] p-7 ps-8 sm:p-8">
                 <span className="absolute -top-5 start-6 flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-blog-400 to-blog-700 text-2xl leading-none font-bold text-white shadow-lg">

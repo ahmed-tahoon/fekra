@@ -887,8 +887,9 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
             />
           ) : null}
 
-          {/* The comp's wide solid pill — 340px, label only, no arrow. */}
-          <Ctas ctas={block.ctas} locale={locale} withArrow={false} className="min-w-[340px]" />
+          {/* The comp's wide solid pill — 340px, label only, no arrow. Capped
+              at 100% so it cannot overflow a narrow phone. */}
+          <Ctas ctas={block.ctas} locale={locale} withArrow={false} className="min-w-[min(340px,100%)]" />
         </div>
       </section>
     )

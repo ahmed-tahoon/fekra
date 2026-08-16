@@ -94,6 +94,9 @@
     "newsletterTitle": "Recibe el próximo en tu correo",
     "newsletterBody": "Notas prácticas sobre ingeniería, contratación y entrega. Sin ruido."
   },
+  "services": {
+    "subtitle": "Talento de ingeniería evaluado y equipos de entrega — elige el servicio que se adapta a tu forma de construir."
+  },
   "careers": {
     "title": "Empleo",
     "subtitle": "Únete a un equipo que entrega.",

@@ -94,6 +94,9 @@
     "newsletterTitle": "Den nächsten Beitrag ins Postfach",
     "newsletterBody": "Praktische Notizen zu Engineering, Recruiting und Delivery. Ohne Rauschen."
   },
+  "services": {
+    "subtitle": "Geprüfte Engineering-Talente und Delivery-Teams — wählen Sie den Service, der zu Ihrer Arbeitsweise passt."
+  },
   "careers": {
     "title": "Karriere",
     "subtitle": "Arbeiten Sie in einem Team, das liefert.",

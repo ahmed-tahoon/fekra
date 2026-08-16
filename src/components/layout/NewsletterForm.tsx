@@ -44,7 +44,9 @@ export function NewsletterForm({ dict, locale }: { dict: Dictionary; locale: Loc
         required
         autoComplete="email"
         placeholder={dict.form.emailPlaceholder}
-        className="h-13 flex-1 rounded-pill border border-input bg-card px-4 text-sm"
+        /* min-w-0: an input's intrinsic ~20ch floor otherwise pushes the row
+           past the viewport on narrow phones. */
+        className="h-13 min-w-0 flex-1 rounded-pill border border-input bg-card px-4 text-sm"
       />
       <Button type="submit" disabled={state === 'sending'} className="h-13 px-8">
         {state === 'sending' ? dict.form.submitting : dict.form.subscribe}

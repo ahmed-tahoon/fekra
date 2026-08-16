@@ -94,6 +94,9 @@
     "newsletterTitle": "Recevez le prochain article",
     "newsletterBody": "Des notes concrètes sur l'ingénierie, le recrutement et la livraison. Sans bruit."
   },
+  "services": {
+    "subtitle": "Des talents d'ingénierie évalués et des équipes de livraison — choisissez le service adapté à votre façon de construire."
+  },
   "careers": {
     "title": "Carrières",
     "subtitle": "Rejoignez une équipe qui livre.",

@@ -98,7 +98,9 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
       {/* The pause covers only the clickable bars — a cursor parked anywhere
           else (most cursors, after scrolling) must not stall the cycle. */}
       <ol
-        className="flex w-full max-w-[544px] flex-col gap-4 [--fs:0.72] sm:[--fs:1]"
+        /* ps reserves room for the number gutter that hangs off the bars'
+           start edge — without it the active ribbon clips at the viewport. */
+        className="flex w-full max-w-[544px] flex-col gap-4 ps-10 [--fs:0.72] sm:ps-0 sm:[--fs:1]"
         onMouseEnter={() => (held.current = true)}
         onMouseLeave={() => (held.current = false)}
       >
@@ -193,7 +195,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
 
       {/* Active step detail — a duplicate of list content, so hidden from AT.
           Text only: no card chrome. */}
-      <div aria-hidden className="w-full max-w-[460px] self-center p-10 sm:min-h-[304px] sm:p-16">
+      <div aria-hidden className="w-full max-w-[460px] self-center p-6 sm:min-h-[304px] sm:p-16">
         <div key={active} className="fk-enter">
           <h3 className="font-display text-[2rem] leading-[1.5] font-bold text-navy-800 dark:text-foreground">
             {step.title}

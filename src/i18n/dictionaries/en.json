@@ -94,6 +94,9 @@
     "newsletterTitle": "Get the next one in your inbox",
     "newsletterBody": "Practical notes on engineering, hiring and delivery. No noise."
   },
+  "services": {
+    "subtitle": "Vetted engineering talent and delivery teams — pick the service that fits how you want to build."
+  },
   "careers": {
     "title": "Careers",
     "subtitle": "Build with a team that ships.",

@@ -68,7 +68,8 @@ export function HiringModelsSection({ block, locale }: { block: BlockProps; loca
                     {(model.stats ?? []).map((stat) => (
                       <div
                         key={stat.label}
-                        className={cn('flex h-[125px] flex-col rounded-lg border-2 bg-white p-5 dark:bg-card', tone.card)}
+                        /* min-h, not h: two-line values ("400/200\n100/50") overflow a fixed box on phones. */
+                        className={cn('flex min-h-[125px] flex-col gap-2 rounded-lg border-2 bg-white p-5 dark:bg-card', tone.card)}
                       >
                         <span className={cn('font-display text-3xl/9 font-semibold whitespace-pre-line', tone.value)}>
                           {stat.value}
