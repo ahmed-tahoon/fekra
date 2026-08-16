@@ -20,7 +20,7 @@ const WINNER_PATHS = [
 
 export type Step = { title: string; body: string }
 
-const DWELL_MS = 5000
+const DWELL_MS = 4000
 
 /*
  * Funnel geometry from Figma 1:11041, widened 40px per row on request: five
@@ -92,12 +92,16 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
     <div
       ref={root}
       className="flex w-full flex-col items-center justify-center gap-12 lg:flex-row lg:items-stretch lg:gap-14"
-      onMouseEnter={() => (held.current = true)}
-      onMouseLeave={() => (held.current = false)}
       onFocusCapture={() => (held.current = true)}
       onBlurCapture={() => (held.current = false)}
     >
-      <ol className="flex w-full max-w-[544px] flex-col gap-4 [--fs:0.72] sm:[--fs:1]">
+      {/* The pause covers only the clickable bars — a cursor parked anywhere
+          else (most cursors, after scrolling) must not stall the cycle. */}
+      <ol
+        className="flex w-full max-w-[544px] flex-col gap-4 [--fs:0.72] sm:[--fs:1]"
+        onMouseEnter={() => (held.current = true)}
+        onMouseLeave={() => (held.current = false)}
+      >
         {steps.map((s, i) => {
           const on = i === active
           const width = BARS[i] ?? BARS[BARS.length - 1]!
@@ -127,7 +131,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                   type="button"
                   onClick={() => setActive(i)}
                   aria-current={on ? 'step' : undefined}
-                  className="group relative flex size-full items-center gap-4 ps-10 text-ink-500 dark:text-muted-foreground"
+                  className="group relative flex size-full items-center justify-center gap-4 text-ink-500 dark:text-muted-foreground"
                 >
                   {/*
                    * The shape lives on this span, not the button, so the focus

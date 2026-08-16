@@ -30,7 +30,7 @@ export function TalkToFika({ locale, dict }: { locale: Locale; dict: Dictionary 
   )
 
   const card =
-    'fixed bottom-6 end-6 z-40 rounded-2xl bg-white p-4 shadow-[0_0_20px_rgba(0,0,0,0.08)] dark:bg-card'
+    'fixed top-1/2 end-6 z-40 -translate-y-1/2 rounded-2xl bg-white p-4 shadow-[0_0_20px_rgba(0,0,0,0.08)] dark:bg-card'
 
   if (!open) {
     return (

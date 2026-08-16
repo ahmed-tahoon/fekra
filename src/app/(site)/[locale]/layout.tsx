@@ -158,34 +158,31 @@ export default async function SiteLayout({
       </head>
       <body className="min-h-dvh antialiased">
         {/*
-          Splash. Server-rendered so it covers the page before any JS runs; the
-          inline script below fades it out on `load`, caps the wait at 2.5s so a
-          slow image can never trap a visitor, and skips it on repeat views in
-          the same tab. Raw <img> + raw script on purpose — this must not wait
-          for hydration.
+          Splash. Emitted as raw HTML so React never hydrates its contents: the
+          inline script deletes the splash node, and a React-managed node that
+          vanishes mid-hydration gets resurrected by React's mismatch recovery
+          — a splash that then never disappears. The outer div stays; only its
+          (opaque to React) children are removed. The script fades the splash
+          out on `load`, caps the wait at 2.5s, and skips repeat views in the
+          same tab; <noscript> hides it when the script will never run.
         */}
-        <div id="fk-splash" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element -- pre-hydration splash */}
-          <img src="/images/fekra-logo.webp" alt="" className="fk-splash-logo dark:hidden" />
-          {/* eslint-disable-next-line @next/next/no-img-element -- pre-hydration splash */}
-          <img src="/images/fekra-logo-white.webp" alt="" className="fk-splash-logo hidden dark:block" />
-          <div className="fk-splash-bar">
-            <div />
-          </div>
-        </div>
-        <noscript>
-          <style>{'#fk-splash{display:none}'}</style>
-        </noscript>
-        <script
+        <div
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){var s=document.getElementById('fk-splash');if(!s)return;" +
+              '<div id="fk-splash" aria-hidden="true">' +
+              '<img src="/images/fekra-logo.webp" alt="" class="fk-splash-logo dark:hidden"/>' +
+              '<img src="/images/fekra-logo-white.webp" alt="" class="fk-splash-logo hidden dark:block"/>' +
+              '<div class="fk-splash-bar"><div></div></div>' +
+              '</div>' +
+              '<noscript><style>#fk-splash{display:none}</style></noscript>' +
+              "<script>(function(){var s=document.getElementById('fk-splash');if(!s)return;" +
               "try{if(sessionStorage.getItem('fk-splash')){s.remove();return}sessionStorage.setItem('fk-splash','1')}catch(e){}" +
-              "var t=Date.now(),done=false;" +
-              "function hide(){if(done)return;done=true;var d=Math.max(0,700-(Date.now()-t));" +
+              'var t=Date.now(),done=false;' +
+              'function hide(){if(done)return;done=true;var d=Math.max(0,700-(Date.now()-t));' +
               "setTimeout(function(){s.classList.add('is-done');setTimeout(function(){s.remove()},500)},d)}" +
               "if(document.readyState==='complete')hide();else window.addEventListener('load',hide);" +
-              'setTimeout(hide,2500)})();',
+              'setTimeout(hide,2500)})();</script>',
           }}
         />
         <SmoothScroll />
@@ -205,7 +202,8 @@ export default async function SiteLayout({
           />
 
           <TalkToFika locale={locale} dict={dict} />
-          <ConsentBanner dict={dict} enabled={(settings.consentMode ?? 'opt-in') === 'opt-in'} />
+          {/* Hidden for launch. Restore: enabled={(settings.consentMode ?? 'opt-in') === 'opt-in'} */}
+          <ConsentBanner dict={dict} enabled={false} />
           <Analytics
             gtmId={settings.gtmContainerId}
             ga4Id={settings.ga4MeasurementId}

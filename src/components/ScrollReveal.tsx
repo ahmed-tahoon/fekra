@@ -11,6 +11,13 @@ import { useEffect } from 'react'
 export function ScrollReveal() {
   const pathname = usePathname()
 
+  // Safety net for the splash (see layout): if its inline script never ran —
+  // a pure client-side render has no parse-time scripts — clear it here.
+  useEffect(() => {
+    const id = setTimeout(() => document.getElementById('fk-splash')?.remove(), 3000)
+    return () => clearTimeout(id)
+  }, [])
+
   useEffect(() => {
     const io = new IntersectionObserver(
       (entries) => {
