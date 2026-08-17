@@ -167,7 +167,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       // board on short windows, which is what broke the tiles' proportions.
       // Budgeted so copy + collage land the section bottom at ~982px on a
       // 1440x982 screen — the whole hero fits one screen by default there.
-      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.5rem,8.1vw,7.375rem))] pb-12 dark:bg-background"
+      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.5rem,8.1vw,7.375rem))] pb-8 md:pb-12 dark:bg-background"
     >
       {/*
         The tint is its own layer, stopping where the collage stops, so the
@@ -178,16 +178,16 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 bottom-12 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:hidden"
+        className="absolute inset-x-0 top-0 bottom-8 md:bottom-12 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:hidden"
       />
       <div className="relative z-10 container-wide shrink-0">
         {/* Uniform ~28px rhythm between pill, headline, body, bullets and CTA —
             measured off the comp at 1440. */}
-        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-4 text-center md:gap-7">
+        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-3 text-center md:gap-7">
           {block.trustLine ? (
             <p
               style={{ '--i': 0 } as React.CSSProperties}
-              className="fk-enter inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3.5 py-1.5 text-sm font-medium tracking-[0.35px] text-ink-500 dark:border-border dark:bg-card"
+              className="fk-enter inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3 py-1 text-xs font-medium sm:px-3.5 sm:py-1.5 sm:text-sm tracking-[0.35px] text-ink-500 dark:border-border dark:bg-card"
             >
               <span aria-hidden className="size-2 shrink-0 rounded-pill bg-primary" />
               {block.trustLine}
@@ -197,7 +197,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           <Title
             style={{ '--i': 1 } as React.CSSProperties}
             // 60px at the 1440 comp width, easing down with the viewport.
-            className="fk-enter font-display text-[clamp(2.25rem,4.6vw,3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground"
+            className="fk-enter font-display text-[clamp(1.875rem,4.6vw,3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground"
           >
             {block.heading}
             <br />
@@ -217,7 +217,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           {block.body ? (
             <p
               style={{ '--i': 2 } as React.CSSProperties}
-              className="fk-enter text-base/6 text-ink-500 md:text-lg/7 dark:text-muted-foreground"
+              className="fk-enter text-[15px]/6 text-ink-500 md:text-lg/7 dark:text-muted-foreground"
             >
               {block.body}
             </p>
@@ -233,7 +233,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
                 return (
                   <li
                     key={bullet.text}
-                    className="flex items-center gap-1 text-sm text-ink-500 dark:text-muted-foreground"
+                    className="flex items-center gap-1 text-xs text-ink-500 sm:text-sm dark:text-muted-foreground"
                   >
                     {icon?.url ? (
                       <Image
@@ -260,7 +260,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
             // the button can actually fill the row on phones.
             className="fk-enter flex w-full flex-wrap justify-center gap-4 [&>div]:w-full [&>div]:justify-center"
           >
-            <Ctas ctas={block.ctas} locale={locale} className="w-full sm:w-auto" />
+            <Ctas ctas={block.ctas} locale={locale} className="w-full py-3 text-sm sm:w-auto sm:py-4 sm:text-base" />
           </div>
         </div>
       </div>
@@ -308,7 +308,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 
           {/* Mobile: the collage would be unreadable at 390px, so the same
               tiles become a simple two-column board. */}
-          <ul className="mt-8 grid auto-rows-[118px] grid-cols-2 gap-2.5 px-4 md:hidden">
+          <ul className="mt-6 grid auto-rows-[104px] grid-cols-2 gap-2.5 px-4 md:hidden">
             {mosaic.map((item, index) => (
               <li key={index} className={cn(item.span === 'tall' && 'row-span-2', item.span === 'wide' && 'col-span-2')}>
                 {tile(item, index)}
