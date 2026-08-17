@@ -185,7 +185,9 @@ export function Footer({
               ) : null}
             </div>
           </div>
-          <div className="flex flex-col gap-3 lg:w-[420px] lg:justify-self-end">
+          {/* min-w-0: without it the grid track takes the form's max-content
+              width and the footer overflows narrow phones. */}
+          <div className="flex min-w-0 flex-col gap-3 lg:w-[420px] lg:justify-self-end">
             {/* Comp: the form carries its own line, separate from the promo body. */}
             <p className="ps-1 text-sm text-muted-foreground">{dict.form.newsletterHint}</p>
             <NewsletterForm dict={dict} locale={locale} />

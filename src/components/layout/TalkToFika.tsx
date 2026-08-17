@@ -17,20 +17,20 @@ export function TalkToFika({ locale, dict }: { locale: Locale; dict: Dictionary 
   const [open, setOpen] = useState(true)
 
   const avatar = (
-    <span className="relative inline-block size-12 shrink-0">
+    <span className="relative inline-block size-9 shrink-0 sm:size-12">
       <Image
         src="/images/fika-avatar.png"
         alt=""
         width={48}
         height={48}
-        className="size-12 rounded-full border-2 border-[#72a6b1] bg-white object-cover"
+        className="size-9 rounded-full border-2 border-[#72a6b1] bg-white object-cover sm:size-12"
       />
-      <span aria-hidden className="absolute end-0 bottom-0 size-3 rounded-full border-2 border-white bg-[#12b76a]" />
+      <span aria-hidden className="absolute end-0 bottom-0 size-2.5 rounded-full border-2 border-white bg-[#12b76a] sm:size-3" />
     </span>
   )
 
   const card =
-    'fixed top-1/2 end-6 z-40 -translate-y-1/2 rounded-2xl bg-white p-4 shadow-[0_0_20px_rgba(0,0,0,0.08)] dark:bg-card'
+    'fixed top-1/2 end-4 z-40 -translate-y-1/2 rounded-2xl bg-white p-2.5 shadow-[0_0_20px_rgba(0,0,0,0.08)] sm:end-6 sm:p-4 dark:bg-card'
 
   if (!open) {
     return (
@@ -55,9 +55,9 @@ export function TalkToFika({ locale, dict }: { locale: Locale; dict: Dictionary 
       >
         <X className="size-3.5" aria-hidden />
       </button>
-      <Link href={localeHref(locale, '/meeting')} className="flex items-center gap-[15px]">
+      <Link href={localeHref(locale, '/meeting')} className="flex items-center gap-2.5 sm:gap-[15px]">
         {avatar}
-        <span className="pe-1 font-display text-lg font-bold text-navy-800 dark:text-foreground">
+        <span className="pe-1 font-display text-sm font-bold text-navy-800 sm:text-lg dark:text-foreground">
           {dict.chat.talk}
         </span>
       </Link>

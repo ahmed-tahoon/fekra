@@ -63,7 +63,9 @@ export function HeaderShell({ children }: { children: ReactNode }) {
     >
       <div
         className={[
-          'pointer-events-auto mx-auto flex h-20 max-w-[1200px] items-center justify-between gap-6 rounded-[40px]',
+          // 84vw keeps the pill floating with clear side margins on windows
+          // narrower than the 1440 comp instead of nearly filling them.
+          'pointer-events-auto mx-auto flex h-16 max-w-[min(1200px,84vw)] items-center justify-between gap-6 rounded-[40px]',
           'border border-transparent bg-white/70 px-4 shadow-[0_1px_4px_0_rgba(25,33,61,0.06)] backdrop-blur-md sm:px-6 dark:bg-card/70',
           'transition-[max-width,border-radius,background-color,box-shadow,height,padding] duration-[600ms] ease-[var(--ease-morph)] motion-reduce:transition-none',
           // Scrolled: edge to edge, squared off, sitting on a hairline.

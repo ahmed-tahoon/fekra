@@ -131,11 +131,12 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 
     if (item.kind === 'stat') {
       return (
-        <div className={cn('flex size-full flex-col justify-end p-5', corner, STAT_TONE[item.tone ?? 'green'])}>
-          <span className="font-display text-lg leading-tight tracking-[-0.04em] md:text-2xl">{item.label}</span>
+        <div className={cn('flex size-full flex-col justify-end p-4 lg:p-5', corner, STAT_TONE[item.tone ?? 'green'])}>
+          {/* Fluid with the tile width — the comp's 24/40px pair is only safe at 1440. */}
+          <span className="font-display text-lg leading-tight tracking-[-0.04em] md:text-[clamp(1rem,1.75vw,1.5rem)]">{item.label}</span>
           <span
             dir="ltr"
-            className="mt-3 font-display text-2xl font-bold tracking-[-0.04em] md:text-[40px] md:leading-8"
+            className="mt-3 font-display text-2xl font-bold tracking-[-0.04em] md:text-[clamp(1.5rem,2.8vw,2.5rem)] lg:leading-8"
           >
             {item.value}
           </span>
@@ -162,7 +163,9 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   return (
     <section
       id={block.anchor ?? undefined}
-      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.5rem,5vh,3rem))] pb-7 md:h-dvh dark:bg-background"
+      // Natural height, not h-dvh: locking to one screen squashed the collage
+      // board on short windows, which is what broke the tiles' proportions.
+      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.5rem,8vw,7.25rem))] pb-7 dark:bg-background"
     >
       {/*
         The tint is its own layer, stopping where the collage stops, so the
@@ -176,7 +179,9 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
         className="absolute inset-x-0 top-0 bottom-7 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:hidden"
       />
       <div className="relative z-10 container-wide shrink-0">
-        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-[clamp(0.5rem,1.8vh,1.25rem)] text-center">
+        {/* Uniform ~28px rhythm between pill, headline, body, bullets and CTA —
+            measured off the comp at 1440. */}
+        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-4 text-center md:gap-7">
           {block.trustLine ? (
             <p
               style={{ '--i': 0 } as React.CSSProperties}
@@ -189,10 +194,8 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 
           <Title
             style={{ '--i': 1 } as React.CSSProperties}
-            // Sized off height as well as width. The hero is locked to one
-            // screen, so on a short window the headline has to give ground or
-            // it eats the collage's share of it.
-            className="fk-enter font-display text-[clamp(2rem,min(5.2vw,7.4vh),3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground"
+            // 60px at the 1440 comp width, easing down with the viewport.
+            className="fk-enter font-display text-[clamp(2.25rem,4.6vw,3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground"
           >
             {block.heading}
             <br />
@@ -251,7 +254,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 
           <div
             style={{ '--i': 4 } as React.CSSProperties}
-            className="fk-enter mt-2 flex flex-wrap justify-center gap-4"
+            className="fk-enter flex flex-wrap justify-center gap-4"
           >
             <Ctas ctas={block.ctas} locale={locale} />
           </div>
@@ -261,8 +264,13 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       {mosaic.length ? (
         <>
           {/* Desktop: the collage, positioned exactly as designed. Full-bleed —
-              it runs past the container to the viewport edges. */}
-          <div className="relative -mt-[clamp(2.5rem,6vh,4.5rem)] hidden min-h-0 w-full flex-1 md:block">
+              it runs past the container to the viewport edges. The fixed aspect
+              ratio is the comp's 1408x456 board, so tiles keep their designed
+              proportions at every viewport instead of squashing to fill. */}
+          {/* Comp: the board's top row starts level with the CTA button, so the
+              pull-up is one button height minus a hair. mx keeps the comp's
+              breathing room at the viewport edges — the board is 1408 on 1440. */}
+          <div className="relative mx-4 -mt-[clamp(2rem,2.9vw,2.75rem)] hidden aspect-[1408/456] md:block">
             {mosaic.map((item, index) => {
               const pos = MOSAIC_LAYOUT[index]
               if (!pos) return null
@@ -382,8 +390,8 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
     /* Figma 1:10296 — 120px gutters, 80px block padding, statement and logo
        board pushed to opposite edges. container-site is the 1440 frame's
        content width; container-wide would stretch the board out of proportion. */
-    <section id={block.anchor ?? undefined} className="py-16 md:py-20">
-      <div className="container-site flex flex-col items-center gap-10 lg:flex-row lg:justify-between lg:gap-16">
+    <section id={block.anchor ?? undefined} className="py-10 md:py-12">
+      <div className="container-site flex flex-col items-center gap-8 lg:flex-row lg:justify-between lg:gap-12">
         {hasStatement ? (
           /* 458px / 32px / 48px line-height, Space Grotesk Medium in the comp —
              not bold, which is what made it read heavier than the design. */
@@ -399,10 +407,9 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
         )}
 
         {logos.length ? (
-          /* A 600px flex-wrap board of 96px-tall cells, 24px apart across and
-             16px down — the comp's own structure. Four fit per row and the
+          /* A flex-wrap board of fixed cells. Four fit per row and the
              remainder stays left-aligned, which is what produces the 4/4/2. */
-          <ul className="flex max-w-[600px] flex-wrap items-center justify-center gap-x-6 gap-y-4 lg:justify-start">
+          <ul className="flex max-w-[540px] flex-wrap items-center justify-center gap-x-5 gap-y-3 lg:justify-start">
             {logos.map((logo) => {
               const image = logo.image as MediaDoc | undefined
               if (!image?.url) return null
@@ -410,7 +417,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                 /* Fixed cell, mark contained inside. The marks run from 3:2 to
                    2:3, so a shared max-height would shrink the tall ones to
                    nothing; a fixed cell keeps them optically even. */
-                <li key={logo.name} className="relative h-24 w-[104px] shrink-0 sm:w-[120px]">
+                <li key={logo.name} className="relative h-16 w-[92px] shrink-0 sm:h-20 sm:w-[108px]">
                   <Image
                     src={mediaUrl(image)}
                     alt={logo.name}

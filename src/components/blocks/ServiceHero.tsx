@@ -43,8 +43,7 @@ export function ServiceHeroSection({
   return (
     <section
       id={block.anchor ?? undefined}
-      // lg:mb clears the card's -mb overhang below, plus breathing room (see comp).
-      className={cn('mt-2.5 lg:mb-20 dark:bg-background-subtle', HERO_TONE[block.heroTone ?? 'mint'])}
+      className={cn('mt-2.5 lg:mb-10 dark:bg-background-subtle', HERO_TONE[block.heroTone ?? 'mint'])}
     >
       <div className="container-site grid items-start gap-10 py-12 lg:grid-cols-[minmax(0,1fr)_414px] lg:gap-16">
         <div className="pt-2">
@@ -86,8 +85,9 @@ export function ServiceHeroSection({
           ) : null}
         </div>
 
-        {/* -mb pulls the band's bottom edge up so the card overhangs it. */}
-        <div className="lg:-mb-[50px]">
+        {/* No overhang: the card's depth varies per service, so a fixed -mb
+            left some pages with the card flush against the band's bottom edge. */}
+        <div>
           <ConsultationForm
             title={block.formTitle ?? 'Get Free Consultation'}
             service={block.heading ?? 'our services'}

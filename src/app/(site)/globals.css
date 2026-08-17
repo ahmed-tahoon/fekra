@@ -147,12 +147,12 @@
  * fold — which is what sliced the bottom off the collage.
  */
 :root {
-  --header-block: 6rem; /* pt-4 (1rem) + h-20 (5rem) */
+  --header-block: 5rem; /* pt-4 (1rem) + h-16 (4rem) */
 }
 
 @media (min-width: 40rem) {
   :root {
-    --header-block: 6.5rem; /* sm:pt-6 (1.5rem) + h-20 (5rem) */
+    --header-block: 5.5rem; /* sm:pt-6 (1.5rem) + h-16 (4rem) */
   }
 }
 
@@ -625,22 +625,6 @@
   animation: fk-splash-pulse 1.8s ease-in-out infinite;
 }
 
-.fk-splash-bar {
-  width: 11rem;
-  height: 3px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--foreground) 12%, transparent);
-}
-
-.fk-splash-bar > div {
-  height: 100%;
-  width: 40%;
-  border-radius: inherit;
-  background: var(--primary);
-  animation: fk-splash-slide 1.1s var(--ease-morph) infinite;
-}
-
 @keyframes fk-splash-pulse {
   0%,
   100% {
@@ -648,16 +632,6 @@
   }
   50% {
     opacity: 0.55;
-  }
-}
-
-/* The bar is 40% of its track, so -120% → 270% carries it edge to edge. */
-@keyframes fk-splash-slide {
-  from {
-    transform: translateX(-120%);
-  }
-  to {
-    transform: translateX(270%);
   }
 }
 

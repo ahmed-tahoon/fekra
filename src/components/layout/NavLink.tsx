@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import { splitLocale } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
 import type { ResolvedLink } from '@/lib/resolveLink'
 
@@ -13,7 +14,12 @@ import type { ResolvedLink } from '@/lib/resolveLink'
  */
 export function NavLink({ link, hasChildren }: { link: ResolvedLink; hasChildren?: boolean }) {
   const pathname = usePathname() ?? '/'
-  const isActive = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href)
+  // A home link is a locale root ("/", "/ar"): exact match only, otherwise it
+  // prefix-matches every page of that locale. Other links match their subtree.
+  const isHome = splitLocale(link.href).rest === '/'
+  const isActive = isHome
+    ? pathname === link.href
+    : pathname === link.href || pathname.startsWith(`${link.href}/`)
 
   return (
     <Link

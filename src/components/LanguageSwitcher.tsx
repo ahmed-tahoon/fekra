@@ -86,7 +86,12 @@ export function LanguageSwitcher({
                 role="menuitem"
                 href={localeHref(locale, rest)}
                 hrefLang={LOCALE_META[locale].hreflang}
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  // Explicit choice must beat the remembered locale, or the "/"
+                  // redirect in proxy.ts bounces English home back to the old one.
+                  document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; samesite=lax`
+                  setOpen(false)
+                }}
                 className={cn(
                   'flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-background-subtle',
                   locale === current && 'font-semibold text-primary',

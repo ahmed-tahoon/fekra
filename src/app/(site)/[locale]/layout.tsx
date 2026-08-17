@@ -165,7 +165,6 @@ export default async function SiteLayout({
               '<div id="fk-splash" aria-hidden="true">' +
               '<img src="/images/fekra-logo.webp" alt="" class="fk-splash-logo dark:hidden"/>' +
               '<img src="/images/fekra-logo-white.webp" alt="" class="fk-splash-logo hidden dark:block"/>' +
-              '<div class="fk-splash-bar"><div></div></div>' +
               '</div>' +
               '<noscript><style>#fk-splash{display:none}</style></noscript>' +
               "<script>(function(){var s=document.getElementById('fk-splash');if(!s)return;" +

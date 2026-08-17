@@ -100,7 +100,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
       <ol
         /* ps reserves room for the number gutter that hangs off the bars'
            start edge — without it the active ribbon clips at the viewport. */
-        className="flex w-full max-w-[544px] flex-col gap-4 ps-10 [--fs:0.72] sm:ps-0 sm:[--fs:1]"
+        className="flex w-full max-w-[544px] flex-col gap-4 ps-10 [--fs:0.58] min-[400px]:[--fs:0.72] sm:ps-0 sm:[--fs:1]"
         onMouseEnter={() => (held.current = true)}
         onMouseLeave={() => (held.current = false)}
       >
@@ -108,7 +108,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
           const on = i === active
           const width = BARS[i] ?? BARS[BARS.length - 1]!
           return (
-            <li key={s.title} className="flex h-14 justify-center">
+            <li key={s.title} className="flex h-10 justify-center sm:h-14">
               <div className="relative h-full" style={{ width: `calc(var(--fs) * ${width}px)` }}>
                 {/*
                  * Step number in the 96px zone butted against the bar. The
@@ -119,7 +119,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                 <span
                   aria-hidden
                   className={cn(
-                    'absolute end-full flex h-full w-12 items-center justify-center text-2xl font-bold transition-colors duration-500 sm:w-24',
+                    'absolute end-full flex h-full w-12 items-center justify-center text-xl font-bold transition-colors duration-500 sm:w-24 sm:text-2xl',
                     on ? 'text-primary-foreground' : 'text-primary',
                   )}
                 >
@@ -133,7 +133,9 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                   type="button"
                   onClick={() => setActive(i)}
                   aria-current={on ? 'step' : undefined}
-                  className="group relative flex size-full items-center justify-center gap-4 text-ink-500 dark:text-muted-foreground"
+                  /* Icon size and gap ride --fs with the bar widths, so the row
+                     can never outgrow its bar at any scale. */
+                  className="group relative flex size-full items-center justify-center gap-[calc(var(--fs)*16px)] text-ink-500 dark:text-muted-foreground"
                 >
                   {/*
                    * The shape lives on this span, not the button, so the focus
@@ -153,7 +155,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                   </span>
                   {/* One person fewer each row — the funnel narrows. */}
                   {Array.from({ length: BARS.length + 1 - i }, (_, k) => (
-                    <svg key={k} viewBox="0 0 24 24" fill="currentColor" aria-hidden className="relative size-6 shrink-0">
+                    <svg key={k} viewBox="0 0 24 24" fill="currentColor" aria-hidden className="relative size-[calc(var(--fs)*24px)] shrink-0">
                       <path d={PERSON_PATH} />
                     </svg>
                   ))}
@@ -166,7 +168,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
 
         {/* Funnel outlet: the short tip, with "Top 3%" flowing out of it as an
             arrow-pointed teal ribbon. Same RTL treatment as the number flag. */}
-        <li aria-hidden className="flex h-14 justify-center">
+        <li aria-hidden className="flex h-10 justify-center sm:h-14">
           <div className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
             <span className="absolute inset-y-0 start-0 -end-4 bg-border [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] rtl:-scale-x-100 dark:bg-card" />
             <span
@@ -181,13 +183,13 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                 strokeWidth="0.5"
                 strokeLinejoin="round"
                 aria-hidden
-                className="relative h-6 w-auto shrink-0"
+                className="relative h-5 w-auto shrink-0 sm:h-6"
               >
                 {WINNER_PATHS.map((d) => (
                   <path key={d.slice(0, 16)} d={d} />
                 ))}
               </svg>
-              <span className="relative pe-2 text-lg font-bold whitespace-nowrap">Top 3%</span>
+              <span className="relative pe-2 text-base font-bold whitespace-nowrap sm:text-lg">Top 3%</span>
             </span>
           </div>
         </li>
