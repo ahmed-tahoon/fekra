@@ -215,7 +215,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           {block.body ? (
             <p
               style={{ '--i': 2 } as React.CSSProperties}
-              className="fk-enter text-lg/7 text-ink-500 dark:text-muted-foreground"
+              className="fk-enter text-base/6 text-ink-500 md:text-lg/7 dark:text-muted-foreground"
             >
               {block.body}
             </p>
@@ -224,7 +224,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           {block.bullets?.length ? (
             <ul
               style={{ '--i': 3 } as React.CSSProperties}
-              className="fk-enter flex flex-wrap items-center justify-center gap-x-8 gap-y-3"
+              className="fk-enter flex flex-wrap items-center justify-center gap-x-6 gap-y-2 md:gap-x-8 md:gap-y-3"
             >
               {block.bullets.map((bullet) => {
                 const icon = bullet.icon as MediaDoc | undefined
@@ -254,9 +254,11 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 
           <div
             style={{ '--i': 4 } as React.CSSProperties}
-            className="fk-enter flex flex-wrap justify-center gap-4"
+            // The arbitrary variants stretch Ctas' shrink-to-fit container so
+            // the button can actually fill the row on phones.
+            className="fk-enter flex w-full flex-wrap justify-center gap-4 [&>div]:w-full [&>div]:justify-center"
           >
-            <Ctas ctas={block.ctas} locale={locale} />
+            <Ctas ctas={block.ctas} locale={locale} className="w-full sm:w-auto" />
           </div>
         </div>
       </div>
@@ -304,7 +306,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 
           {/* Mobile: the collage would be unreadable at 390px, so the same
               tiles become a simple two-column board. */}
-          <ul className="mt-10 grid auto-rows-[120px] grid-cols-2 gap-3 px-4 md:hidden">
+          <ul className="mt-8 grid auto-rows-[118px] grid-cols-2 gap-2.5 px-4 md:hidden">
             {mosaic.map((item, index) => (
               <li key={index} className={cn(item.span === 'tall' && 'row-span-2', item.span === 'wide' && 'col-span-2')}>
                 {tile(item, index)}
