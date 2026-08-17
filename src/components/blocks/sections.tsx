@@ -125,6 +125,20 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   const mosaic = block.mosaic ?? []
   const Title = isFirst ? 'h1' : 'h2'
 
+  /*
+   * Phones get a curated board, not the whole collage: every stat (they carry
+   * the message) alternating with photos, capped at eight. Stacking all
+   * thirteen tiles two-up ran ~790px — a wall of images to scroll past before
+   * anything else on the page.
+   */
+  const mobileTiles: typeof mosaic = []
+  const photos = mosaic.filter((item) => item.kind !== 'stat')
+  const stats = mosaic.filter((item) => item.kind === 'stat')
+  for (let i = 0; mobileTiles.length < 8 && (photos[i] || stats[i]); i++) {
+    if (photos[i]) mobileTiles.push(photos[i]!)
+    if (stats[i] && mobileTiles.length < 8) mobileTiles.push(stats[i]!)
+  }
+
   const tile = (item: (typeof mosaic)[number], index: number) => {
     const image = item.image as MediaDoc | undefined
     const corner = TILE_CORNER[item.corner ?? 'tl']
@@ -306,13 +320,12 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
             })}
           </div>
 
-          {/* Mobile: the collage would be unreadable at 390px, so the same
-              tiles become a simple two-column board. */}
-          <ul className="mt-6 grid auto-rows-[104px] grid-cols-2 gap-2.5 px-4 md:hidden">
-            {mosaic.map((item, index) => (
-              <li key={index} className={cn(item.span === 'tall' && 'row-span-2', item.span === 'wide' && 'col-span-2')}>
-                {tile(item, index)}
-              </li>
+          {/* Mobile: the collage would be unreadable at 390px, so the curated
+              tiles become a two-column board. Uniform cells — each tile's own
+              rounded corner is what keeps it reading as the collage. */}
+          <ul className="mt-6 grid auto-rows-[112px] grid-cols-2 gap-2.5 px-4 md:hidden">
+            {mobileTiles.map((item, index) => (
+              <li key={index}>{tile(item, index)}</li>
             ))}
           </ul>
         </>
