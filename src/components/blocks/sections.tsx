@@ -165,7 +165,9 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       id={block.anchor ?? undefined}
       // Natural height, not h-dvh: locking to one screen squashed the collage
       // board on short windows, which is what broke the tiles' proportions.
-      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.5rem,8vw,7.25rem))] pb-7 dark:bg-background"
+      // Budgeted so copy + collage land the section bottom at ~982px on a
+      // 1440x982 screen — the whole hero fits one screen by default there.
+      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.5rem,8.1vw,7.375rem))] pb-12 dark:bg-background"
     >
       {/*
         The tint is its own layer, stopping where the collage stops, so the
@@ -176,7 +178,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 bottom-7 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:hidden"
+        className="absolute inset-x-0 top-0 bottom-12 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:hidden"
       />
       <div className="relative z-10 container-wide shrink-0">
         {/* Uniform ~28px rhythm between pill, headline, body, bullets and CTA —
@@ -272,7 +274,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           {/* Comp: the board's top row starts level with the CTA button, so the
               pull-up is one button height minus a hair. mx keeps the comp's
               breathing room at the viewport edges — the board is 1408 on 1440. */}
-          <div className="relative mx-4 -mt-[clamp(2rem,2.9vw,2.75rem)] hidden aspect-[1408/456] md:block">
+          <div className="relative mx-4 -mt-[clamp(2rem,3.2vw,3rem)] hidden aspect-[1408/456] md:block">
             {mosaic.map((item, index) => {
               const pos = MOSAIC_LAYOUT[index]
               if (!pos) return null
@@ -392,7 +394,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
     /* Figma 1:10296 — 120px gutters, 80px block padding, statement and logo
        board pushed to opposite edges. container-site is the 1440 frame's
        content width; container-wide would stretch the board out of proportion. */
-    <section id={block.anchor ?? undefined} className="py-10 md:py-12">
+    <section id={block.anchor ?? undefined} className="py-12 md:py-15">
       <div className="container-site flex flex-col items-center gap-8 lg:flex-row lg:justify-between lg:gap-12">
         {hasStatement ? (
           /* 458px / 32px / 48px line-height, Space Grotesk Medium in the comp —
@@ -409,9 +411,10 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
         )}
 
         {logos.length ? (
-          /* A flex-wrap board of fixed cells. Four fit per row and the
-             remainder stays left-aligned, which is what produces the 4/4/2. */
-          <ul className="flex max-w-[540px] flex-wrap items-center justify-center gap-x-5 gap-y-3 lg:justify-start">
+          /* A flex-wrap board of fixed cells — large marks on tight 10px gaps
+             so the logos, not the whitespace, carry the board. Four per row,
+             remainder left-aligned: the 4/4/2 rhythm. */
+          <ul className="flex max-w-[542px] flex-wrap items-center justify-center gap-2.5 lg:justify-start">
             {logos.map((logo) => {
               const image = logo.image as MediaDoc | undefined
               if (!image?.url) return null
@@ -419,7 +422,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                 /* Fixed cell, mark contained inside. The marks run from 3:2 to
                    2:3, so a shared max-height would shrink the tall ones to
                    nothing; a fixed cell keeps them optically even. */
-                <li key={logo.name} className="relative h-16 w-[92px] shrink-0 sm:h-20 sm:w-[108px]">
+                <li key={logo.name} className="relative h-18 w-[100px] shrink-0 sm:h-25 sm:w-32">
                   <Image
                     src={mediaUrl(image)}
                     alt={logo.name}
