@@ -31,8 +31,9 @@ export function TalkToFika({ locale, dict }: { locale: Locale; dict: Dictionary 
 
   const card =
     // Bottom corner on phones — parked mid-viewport it sat on top of the hero
-    // CTA. Desktop keeps the comp's centred-right position.
-    'fixed end-4 bottom-4 z-40 rounded-2xl bg-white p-2.5 shadow-[0_0_20px_rgba(0,0,0,0.08)] sm:top-1/2 sm:bottom-auto sm:end-6 sm:-translate-y-1/2 sm:p-4 dark:bg-card'
+    // CTA. Desktop sits 50px above centre, which is what clears the hero
+    // collage instead of crowding the tile directly beneath it.
+    'fixed end-4 bottom-4 z-40 rounded-2xl bg-white p-2.5 shadow-[0_0_20px_rgba(0,0,0,0.08)] sm:top-1/2 sm:bottom-auto sm:end-6 sm:translate-y-[calc(-50%-50px)] sm:p-4 dark:bg-card'
 
   if (!open) {
     return (
