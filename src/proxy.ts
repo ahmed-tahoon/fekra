@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-import { DEFAULT_LOCALE, LOCALES, isLocale, negotiateLocale } from '@/i18n/routing'
+import { DEFAULT_LOCALE, LOCALES, isLocale, isPublicLocale, negotiateLocale } from '@/i18n/routing'
 import { isComingSoon } from '@/lib/site-mode'
 
 const LOCALE_COOKIE = 'NEXT_LOCALE'
@@ -42,6 +42,13 @@ export default function proxy(request: NextRequest) {
 
   const segment = pathname.split('/')[1]
 
+  // A locale we no longer serve (see PUBLIC_LOCALES) folds back to the English
+  // URL. 307, not 308: this is a policy that can be lifted, and a permanent
+  // redirect would sit in browser caches long after it was.
+  if (isLocale(segment) && !isPublicLocale(segment)) {
+    return withGuards(NextResponse.redirect(new URL((pathname.slice(segment.length + 1) || '/') + search, request.url), 307), request)
+  }
+
   // Already a prefixed locale (/ar/..., /de/...) — render as-is.
   if (isLocale(segment) && segment !== DEFAULT_LOCALE) {
     const response = NextResponse.next()
@@ -55,7 +62,7 @@ export default function proxy(request: NextRequest) {
     const preferred = isLocale(remembered)
       ? remembered
       : negotiateLocale(request.headers.get('accept-language'))
-    if (preferred !== DEFAULT_LOCALE) {
+    if (preferred !== DEFAULT_LOCALE && isPublicLocale(preferred)) {
       return withGuards(NextResponse.redirect(new URL(`/${preferred}${search}`, request.url), 307), request)
     }
   }

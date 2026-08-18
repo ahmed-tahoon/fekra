@@ -35,7 +35,7 @@ export function RotatingWords({ words, intervalMs = 2600 }: { words: string[]; i
   const current = words[enabled ? index : 0] ?? ''
 
   return (
-    <span className="relative inline-block text-primary">
+    <span className="relative inline-block text-center text-primary">
       {/* Reserves the width of the longest word so the headline never reflows
           as it cycles — that would be a CLS hit on the largest element (2.6). */}
       <span aria-hidden className="invisible block h-0 overflow-hidden">

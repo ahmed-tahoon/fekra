@@ -94,6 +94,14 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ['image/avif', 'image/webp'],
+    /*
+     * Next 16 defaults this to 4 hours, so every optimised image is
+     * re-requested several times a day — that is the bulk of Lighthouse's
+     * "use efficient cache lifetimes". A /_next/image URL is keyed on its
+     * source URL plus width and quality, so it only goes stale when the
+     * source does, and CMS uploads get a fresh filename when re-uploaded.
+     */
+    minimumCacheTTL: 2678400, // 31 days
     // Setting localPatterns at all makes it an allow-list: anything not listed
     // is a 400 from /_next/image. Both CMS uploads and static brand assets.
     localPatterns: [{ pathname: '/cms-api/media/file/**' }, { pathname: '/images/**' }],
@@ -118,6 +126,16 @@ const nextConfig: NextConfig = {
       // Immutable, fingerprinted assets (17.10).
       {
         source: '/fonts/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
+      /*
+       * Static brand assets. Next serves /public with `max-age=0`, so the
+       * logos, icons and decor were revalidated on every navigation.
+       * ponytail: these filenames are not content-hashed — rename the file
+       * when you replace one, or a year-old copy stays in browser caches.
+       */
+      {
+        source: '/images/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
     ]

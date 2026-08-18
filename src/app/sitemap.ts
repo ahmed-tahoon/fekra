@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-import { DEFAULT_LOCALE, LOCALES, type Locale } from '@/i18n/routing'
+import { DEFAULT_LOCALE, PUBLIC_LOCALES, type Locale } from '@/i18n/routing'
 import { payloadClient } from '@/lib/payload'
 import { isComingSoon } from '@/lib/site-mode'
 import { absoluteUrl, documentPath, type LinkableCollection } from '@/lib/urls'
@@ -30,7 +30,7 @@ function entry(path: string, locales: Locale[], lastModified?: string, priority 
 
 const localesOf = (doc: Indexable): Locale[] => {
   const declared = (doc.availableLocales ?? [DEFAULT_LOCALE]).filter((l): l is Locale =>
-    (LOCALES as readonly string[]).includes(l),
+    (PUBLIC_LOCALES as readonly string[]).includes(l),
   )
   return declared.length ? declared : [DEFAULT_LOCALE]
 }
@@ -72,11 +72,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const listings: MetadataRoute.Sitemap = [
-    entry('/blog', [...LOCALES], undefined, 0.8),
-    entry('/services', [...LOCALES], undefined, 0.9),
-    entry('/careers', [...LOCALES], undefined, 0.8),
-    entry('/contact', [...LOCALES], undefined, 0.8),
-    entry('/meeting', [...LOCALES], undefined, 0.7),
+    entry('/blog', [...PUBLIC_LOCALES], undefined, 0.8),
+    entry('/services', [...PUBLIC_LOCALES], undefined, 0.9),
+    entry('/careers', [...PUBLIC_LOCALES], undefined, 0.8),
+    entry('/contact', [...PUBLIC_LOCALES], undefined, 0.8),
+    entry('/meeting', [...PUBLIC_LOCALES], undefined, 0.7),
   ]
 
   const fromCollection = (docs: Indexable[], collection: LinkableCollection, priority: number) =>
@@ -87,7 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .map((doc) => entry(documentPath(collection, doc.slug), localesOf(doc), doc.updatedAt, priority))
 
   return [
-    entry('/', [...LOCALES], undefined, 1),
+    entry('/', [...PUBLIC_LOCALES], undefined, 1),
     ...listings,
     ...fromCollection(
       pages.filter((p) => p.slug !== 'home'),

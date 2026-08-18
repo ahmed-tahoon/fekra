@@ -263,7 +263,8 @@ export interface HeroBlock {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -546,7 +547,8 @@ export interface HiringModelsBlock {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -776,7 +778,8 @@ export interface TalentShowcaseBlock {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -933,7 +936,8 @@ export interface CardGridBlock {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -970,7 +974,8 @@ export interface CardGridBlock {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -1147,7 +1152,8 @@ export interface FaqBlock {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -1206,7 +1212,8 @@ export interface PostsTeaserBlock {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -1311,7 +1318,8 @@ export interface CtaBlock {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -2590,7 +2598,8 @@ export interface Header {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -2623,7 +2632,9 @@ export interface Header {
                       relationTo: 'jobs';
                       value: number | Job;
                     } | null);
-                route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+                route?:
+                  | ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai')
+                  | null;
                 url?: string | null;
                 newTab?: boolean | null;
                 /**
@@ -2664,7 +2675,8 @@ export interface Header {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**
@@ -2701,7 +2713,7 @@ export interface Header {
             relationTo: 'jobs';
             value: number | Job;
           } | null);
-      route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+      route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
       url?: string | null;
       newTab?: boolean | null;
       /**
@@ -2749,7 +2761,9 @@ export interface Footer {
                       relationTo: 'jobs';
                       value: number | Job;
                     } | null);
-                route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+                route?:
+                  | ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai')
+                  | null;
                 url?: string | null;
                 newTab?: boolean | null;
                 /**
@@ -2796,7 +2810,8 @@ export interface Footer {
                 relationTo: 'jobs';
                 value: number | Job;
               } | null);
-          route?: ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting') | null;
+          route?:
+            ('/' | '/blog' | '/services' | '/careers' | '/contact' | '/meeting' | '/about' | '/meet-fika-ai') | null;
           url?: string | null;
           newTab?: boolean | null;
           /**

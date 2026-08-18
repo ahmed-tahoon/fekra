@@ -1,6 +1,6 @@
 'use client'
 
-import Lenis from 'lenis'
+import type Lenis from 'lenis'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
@@ -13,10 +13,24 @@ export function SmoothScroll() {
   useEffect(() => {
     // 17.8 / 23.5 — someone who asked for less motion gets untouched scrolling.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const lenis = new Lenis({ autoRaf: true, anchors: true, allowNestedScroll: true })
-    lenisRef.current = lenis
+    // Imported here, not at module scope: nothing needs the library until after
+    // hydration, and reduced-motion visitors never need it at all.
+    let cancelled = false
+    void import('lenis').then(({ default: LenisCtor }) => {
+      if (cancelled) return
+      lenisRef.current = new LenisCtor({
+        autoRaf: true,
+        anchors: true,
+        allowNestedScroll: true,
+        // Calmer than the 0.1 default: the page keeps gliding a beat after the
+        // wheel stops. Much below this and it reads as lag, not smoothness.
+        lerp: 0.075,
+        wheelMultiplier: 0.9,
+      })
+    })
     return () => {
-      lenis.destroy()
+      cancelled = true
+      lenisRef.current?.destroy()
       lenisRef.current = null
     }
   }, [])

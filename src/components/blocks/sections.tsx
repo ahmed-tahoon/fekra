@@ -30,6 +30,15 @@ const TILE_CORNER = {
   br: 'rounded-br-tile',
 } as const
 
+/* Phone grid cells are ~174x124, so --radius-tile's 28px floor takes a quarter
+   of the tile. Same signature corner, sized for the cell it is actually on. */
+const TILE_CORNER_SM = {
+  tl: 'rounded-tl-[1.25rem]',
+  tr: 'rounded-tr-[1.25rem]',
+  bl: 'rounded-bl-[1.25rem]',
+  br: 'rounded-br-[1.25rem]',
+} as const
+
 /*
  * The collage from the Figma frame, as percentages of its 1408x456 box.
  * Absolute px would not survive a resize, so each tile keeps its exact
@@ -134,23 +143,42 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   const mobileTiles: typeof mosaic = []
   const photos = mosaic.filter((item) => item.kind !== 'stat')
   const stats = mosaic.filter((item) => item.kind === 'stat')
-  for (let i = 0; mobileTiles.length < 8 && (photos[i] || stats[i]); i++) {
+  for (let i = 0; mobileTiles.length < 6 && (photos[i] || stats[i]); i++) {
     if (photos[i]) mobileTiles.push(photos[i]!)
-    if (stats[i] && mobileTiles.length < 8) mobileTiles.push(stats[i]!)
+    if (stats[i] && mobileTiles.length < 6) mobileTiles.push(stats[i]!)
   }
 
-  const tile = (item: (typeof mosaic)[number], index: number) => {
+  const tile = (item: (typeof mosaic)[number], index: number, compact = false) => {
     const image = item.image as MediaDoc | undefined
-    const corner = TILE_CORNER[item.corner ?? 'tl']
+    const corner = (compact ? TILE_CORNER_SM : TILE_CORNER)[item.corner ?? 'tl']
 
     if (item.kind === 'stat') {
       return (
-        <div className={cn('flex size-full flex-col justify-end p-4 lg:p-5', corner, STAT_TONE[item.tone ?? 'green'])}>
-          {/* Fluid with the tile width — the comp's 24/40px pair is only safe at 1440. */}
-          <span className="font-display text-lg leading-tight tracking-[-0.04em] md:text-[clamp(1rem,1.75vw,1.5rem)]">{item.label}</span>
+        <div
+          className={cn(
+            'flex size-full flex-col justify-end',
+            compact ? 'p-3.5' : 'p-4 lg:p-5',
+            corner,
+            STAT_TONE[item.tone ?? 'green'],
+          )}
+        >
+          {/* Fluid with the tile width — the comp's 24/40px pair is only safe at 1440.
+              Compact flips the ratio: on a 174px cell the number has to lead, so the
+              label drops to 13px and the value grows. */}
+          <span
+            className={cn(
+              'font-display leading-tight tracking-[-0.04em]',
+              compact ? 'text-[0.8125rem]' : 'text-lg md:text-[clamp(1rem,1.75vw,1.5rem)]',
+            )}
+          >
+            {item.label}
+          </span>
           <span
             dir="ltr"
-            className="mt-3 font-display text-2xl font-bold tracking-[-0.04em] md:text-[clamp(1.5rem,2.8vw,2.5rem)] lg:leading-8"
+            className={cn(
+              'font-display font-bold tracking-[-0.04em]',
+              compact ? 'mt-1.5 text-[1.75rem] leading-none' : 'mt-3 text-2xl md:text-[clamp(1.5rem,2.8vw,2.5rem)] lg:leading-8',
+            )}
           >
             {item.value}
           </span>
@@ -181,7 +209,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       // board on short windows, which is what broke the tiles' proportions.
       // Budgeted so copy + collage land the section bottom at ~982px on a
       // 1440x982 screen — the whole hero fits one screen by default there.
-      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.5rem,8.1vw,7.375rem))] pb-8 md:pb-12 dark:bg-background"
+      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.25rem,5.2vw,4.75rem))] pb-8 md:pb-12 dark:bg-background"
     >
       {/*
         The tint is its own layer, stopping where the collage stops, so the
@@ -197,7 +225,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       <div className="relative z-10 container-wide shrink-0">
         {/* Uniform ~28px rhythm between pill, headline, body, bullets and CTA —
             measured off the comp at 1440. */}
-        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-3 text-center md:gap-7">
+        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-5 text-center md:gap-7">
           {block.trustLine ? (
             <p
               style={{ '--i': 0 } as React.CSSProperties}
@@ -211,7 +239,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           <Title
             style={{ '--i': 1 } as React.CSSProperties}
             // 60px at the 1440 comp width, easing down with the viewport.
-            className="fk-enter font-display text-[clamp(1.875rem,4.6vw,3.75rem)] leading-[1.05] font-bold tracking-[-1.5px] text-navy-800 dark:text-foreground"
+            className="fk-enter font-display text-[clamp(1.75rem,4.6vw,3.75rem)] leading-[1.08] font-bold tracking-[-0.5px] text-balance md:leading-[1.05] md:tracking-[-1.5px] text-navy-800 dark:text-foreground"
           >
             {block.heading}
             <br />
@@ -323,9 +351,9 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           {/* Mobile: the collage would be unreadable at 390px, so the curated
               tiles become a two-column board. Uniform cells — each tile's own
               rounded corner is what keeps it reading as the collage. */}
-          <ul className="mt-6 grid auto-rows-[112px] grid-cols-2 gap-2.5 px-4 md:hidden">
+          <ul className="mt-8 grid auto-rows-[124px] grid-cols-2 gap-3 px-4 md:hidden">
             {mobileTiles.map((item, index) => (
-              <li key={index}>{tile(item, index)}</li>
+              <li key={index}>{tile(item, index, true)}</li>
             ))}
           </ul>
         </>
@@ -407,7 +435,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
     /* Figma 1:10296 — 120px gutters, 80px block padding, statement and logo
        board pushed to opposite edges. container-site is the 1440 frame's
        content width; container-wide would stretch the board out of proportion. */
-    <section id={block.anchor ?? undefined} className="py-12 md:py-15">
+    <section id={block.anchor ?? undefined} className="py-[var(--section-y)]">
       <div className="container-site flex flex-col items-center gap-8 lg:flex-row lg:justify-between lg:gap-12">
         {hasStatement ? (
           /* 458px / 32px / 48px line-height, Space Grotesk Medium in the comp —
@@ -512,7 +540,17 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                   <div className="flex flex-col gap-3">
                     {icon?.url ? (
                       <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-card">
-                        <Image src={mediaUrl(icon)} alt="" width={24} height={24} className="size-6" aria-hidden />
+                        {/* Eager: a lazy 24px icon leaves the white chip empty
+                            until it arrives, which reads as a missing icon. */}
+                        <Image
+                          src={mediaUrl(icon)}
+                          alt=""
+                          width={24}
+                          height={24}
+                          loading="eager"
+                          className="size-6"
+                          aria-hidden
+                        />
                       </span>
                     ) : null}
                     <h3 className="pt-2 font-display text-xl leading-7 font-bold text-navy-800 dark:text-foreground">
@@ -931,7 +969,7 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
           aria-hidden
           className="absolute inset-y-0 right-0 -z-10 hidden w-[288px] bg-[radial-gradient(circle,rgba(146,221,236,0.9)_4px,transparent_4px)] [background-size:36px_36px] lg:block"
         />
-        <div className="container-site flex flex-col items-start gap-6 py-16 md:py-20">
+        <div className="container-site flex flex-col items-start gap-6 py-[var(--section-y)]">
           <h2 className="max-w-[860px] font-display text-[clamp(1.75rem,3.4vw,2.5rem)] leading-tight font-bold text-white">
             {block.heading}
           </h2>

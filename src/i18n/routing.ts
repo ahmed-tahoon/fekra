@@ -28,6 +28,21 @@ export const LOCALE_META: Record<Locale, { label: string; english: string; hrefl
 export const isLocale = (value: string | undefined): value is Locale =>
   !!value && (LOCALES as readonly string[]).includes(value)
 
+/**
+ * The locales the public site actually serves. LOCALES is what the CMS stores
+ * content in; this is the subset that gets routed, linked, advertised in
+ * hreflang/sitemap, and offered in the switcher.
+ *
+ * English only for now. Widen this one array to bring the others back — the
+ * switcher hides itself while there is nothing to switch to.
+ */
+export const PUBLIC_LOCALES: readonly Locale[] = ['en']
+
+/* Plain boolean, not a type predicate: PUBLIC_LOCALES is a runtime subset of
+   the same type, so narrowing on it would collapse the negated branch to never. */
+export const isPublicLocale = (value: string | undefined): boolean =>
+  !!value && (PUBLIC_LOCALES as readonly string[]).includes(value)
+
 export const dir = (locale: Locale): 'rtl' | 'ltr' => (RTL_LOCALES.has(locale) ? 'rtl' : 'ltr')
 
 /** Build a public href for a locale. `/about` for en, `/ar/about` for the rest. */

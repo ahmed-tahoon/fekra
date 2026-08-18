@@ -29,6 +29,7 @@
     "check:storage": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/check-storage.mjs",
     "sync:uploads": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/sync-uploads.mjs"
   },
+  "browserslist": ["chrome >= 111", "edge >= 111", "firefox >= 128", "safari >= 16.4"],
   "dependencies": {
     "@payloadcms/db-postgres": "3.87.1",
     "@payloadcms/email-resend": "3.87.1",

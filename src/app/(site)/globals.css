@@ -148,6 +148,15 @@
  */
 :root {
   --header-block: 5rem; /* pt-4 (1rem) + h-16 (4rem) */
+
+  /*
+   * The one section rhythm — 56px desktop, 40px phones. Applied top and bottom,
+   * so neighbours sit 112px apart. Every section reads it, including the few
+   * that cannot use the `.section` class (the logo band, the navy CTA band and
+   * the hiring-models block, which pad asymmetrically), so the page has a
+   * single spacing knob rather than five that drift apart.
+   */
+  --section-y: clamp(2.5rem, 4vw, 3.5rem);
 }
 
 @media (min-width: 40rem) {
@@ -342,13 +351,8 @@
     }
   }
 
-  /*
-   * 140px at the 1440 comp width and above, easing down to 64px on phones.
-   * 9.72vw is what puts the upper clamp exactly on 140 at 1440, so the design
-   * width gets the designed rhythm rather than an approximation of it.
-   */
   .section {
-    padding-block: clamp(4rem, 9.72vw, 8.75rem);
+    padding-block: var(--section-y);
   }
 
   /* Slim brand scrollbar for the sticky table of contents. */
@@ -474,8 +478,8 @@
     .fk-reveal section > *,
     .fk-reveal section > * > * {
       transition:
-        opacity 0.65s var(--ease-out-soft),
-        transform 0.65s var(--ease-out-soft);
+        opacity 0.85s var(--ease-out-soft),
+        transform 0.85s var(--ease-out-soft);
     }
 
     .fk-reveal:not(.is-in) section > * {
@@ -489,19 +493,19 @@
     }
 
     .fk-reveal.is-in section > * > *:nth-child(2) {
-      transition-delay: 80ms;
+      transition-delay: 110ms;
     }
 
     .fk-reveal.is-in section > * > *:nth-child(3) {
-      transition-delay: 160ms;
+      transition-delay: 220ms;
     }
 
     .fk-reveal.is-in section > * > *:nth-child(4) {
-      transition-delay: 240ms;
+      transition-delay: 330ms;
     }
 
     .fk-reveal.is-in section > * > *:nth-child(n + 5) {
-      transition-delay: 320ms;
+      transition-delay: 440ms;
     }
   }
 

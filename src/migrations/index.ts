@@ -13,6 +13,7 @@ import * as migration_20260813_171156_cta_band_tone from './20260813_171156_cta_
 import * as migration_20260814_004459_social_whatsapp from './20260814_004459_social_whatsapp';
 import * as migration_20260814_124609_service_pages_blocks from './20260814_124609_service_pages_blocks';
 import * as migration_20260814_135055_services_menu_roles_and_hero_tones from './20260814_135055_services_menu_roles_and_hero_tones';
+import * as migration_20260818_114905_link_route_about_fika from './20260818_114905_link_route_about_fika';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20260814_135055_services_menu_roles_and_hero_tones.up,
     down: migration_20260814_135055_services_menu_roles_and_hero_tones.down,
-    name: '20260814_135055_services_menu_roles_and_hero_tones'
+    name: '20260814_135055_services_menu_roles_and_hero_tones',
+  },
+  {
+    up: migration_20260818_114905_link_route_about_fika.up,
+    down: migration_20260818_114905_link_route_about_fika.down,
+    name: '20260818_114905_link_route_about_fika'
   },
 ];

@@ -13,7 +13,7 @@ import { ScrollReveal } from '@/components/ScrollReveal'
 import { TalkToFika } from '@/components/layout/TalkToFika'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { getDictionary } from '@/i18n/getDictionary'
-import { LOCALES, dir, isLocale } from '@/i18n/routing'
+import { PUBLIC_LOCALES, dir, isLocale } from '@/i18n/routing'
 import { organizationSchema, websiteSchema } from '@/lib/jsonld'
 import { findDocs, getGlobal } from '@/lib/payload'
 import { isComingSoon } from '@/lib/site-mode'
@@ -62,7 +62,7 @@ export function generateStaticParams() {
   // renders, so prerendering them only means the build needs a database it
   // will never read. Returning [] lets the holding page deploy on its own.
   if (isComingSoon()) return []
-  return LOCALES.map((locale) => ({ locale }))
+  return PUBLIC_LOCALES.map((locale) => ({ locale }))
 }
 
 type SiteSettings = {
@@ -163,8 +163,11 @@ export default async function SiteLayout({
           dangerouslySetInnerHTML={{
             __html:
               '<div id="fk-splash" aria-hidden="true">' +
-              '<img src="/images/fekra-logo.webp" alt="" class="fk-splash-logo dark:hidden"/>' +
-              '<img src="/images/fekra-logo-white.webp" alt="" class="fk-splash-logo hidden dark:block"/>' +
+              // width/height so the pulse has a box before the bytes land, and
+              // the dark logo is lazy: display:none never triggers the loader, so
+              // light-mode visitors stop paying 23 KiB for a logo they never see.
+              '<img src="/images/fekra-logo.webp" alt="" width="663" height="198" fetchpriority="high" class="fk-splash-logo dark:hidden"/>' +
+              '<img src="/images/fekra-logo-white.webp" alt="" width="680" height="199" loading="lazy" class="fk-splash-logo hidden dark:block"/>' +
               '</div>' +
               '<noscript><style>#fk-splash{display:none}</style></noscript>' +
               "<script>(function(){var s=document.getElementById('fk-splash');if(!s)return;" +

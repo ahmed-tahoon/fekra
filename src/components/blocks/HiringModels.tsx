@@ -27,7 +27,7 @@ export function HiringModelsSection({ block, locale }: { block: BlockProps; loca
   const ctas = (block.ctas ?? []).map((c) => ({ variant: c.variant, link: resolveLink(c.link, locale) }))
 
   return (
-    <section id={block.anchor ?? undefined} className="pt-10">
+    <section id={block.anchor ?? undefined} className="pt-[var(--section-y)]">
       <div className="container-site">
         {block.eyebrow ? (
           <p className="flex items-center gap-3 text-xs text-ink-500 dark:text-muted-foreground">

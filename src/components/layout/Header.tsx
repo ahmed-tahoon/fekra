@@ -77,7 +77,7 @@ export function Header({
         </Link>
 
         <nav aria-label="Main" className="hidden lg:block">
-          <ul className="flex items-center gap-2">
+          <ul className="flex items-center gap-4">
             {items.map((item) => {
               const mega = item.children.length && servicesMenu?.length ? servicesMenu : null
               return (
@@ -174,7 +174,13 @@ export function Header({
 
           <div className="hidden lg:flex lg:items-center lg:gap-2 lg:ps-1">
             {ctas.map((cta) => (
-              <LinkButton key={cta.link!.href} link={cta.link!} variant={cta.variant} size="md" />
+              <LinkButton
+                key={cta.link!.href}
+                link={cta.link!}
+                variant={cta.variant}
+                size="md"
+                className="h-12 px-4"
+              />
             ))}
           </div>
 

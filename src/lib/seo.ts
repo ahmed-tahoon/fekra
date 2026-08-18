@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { DEFAULT_LOCALE, LOCALE_META, LOCALES, type Locale } from '@/i18n/routing'
+import { DEFAULT_LOCALE, LOCALE_META, PUBLIC_LOCALES, type Locale } from '@/i18n/routing'
 import { absoluteUrl, siteUrl } from './urls'
 
 type SeoInput = {
@@ -41,7 +41,7 @@ export function buildMetadata({
 }: SeoInput): Metadata {
   const base = siteUrl()
   const published = (availableLocales?.length ? availableLocales : [DEFAULT_LOCALE]).filter((l): l is Locale =>
-    (LOCALES as readonly string[]).includes(l),
+    (PUBLIC_LOCALES as readonly string[]).includes(l),
   )
 
   const languages: Record<string, string> = {}

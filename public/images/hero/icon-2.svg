@@ -1,5 +1,5 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16.68" height="16.0096" viewBox="0 0 16.68 16.0096" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="16.68" height="16.0096" viewBox="0 0 16.68 16.0096" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Icon">
-<path id="Vector" d="M8.09515 3.83858L8.34026 3.9753L8.5844 3.83858L12.3461 1.72823L11.5053 5.95967L11.4506 6.23409L11.6567 6.42452L14.8207 9.34346L10.5356 9.85616L10.2573 9.88936L10.1401 10.1433L8.33929 14.0534L6.53948 10.1433L6.42229 9.88936L6.14495 9.85616L1.85784 9.34346L5.02386 6.42452L5.22991 6.23409L5.17522 5.95967L4.33245 1.72725L8.09515 3.83858Z" stroke="#E2697B"/>
+<path id="Star" d="M8.34 1.7L10.05 5.95L14.62 6.26L11.1 9.2L12.22 13.64L8.34 11.2L4.46 13.64L5.58 9.2L2.06 6.26L6.64 5.95Z" stroke="#E2697B" stroke-linejoin="round"/>
 </g>
 </svg>

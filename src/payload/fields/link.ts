@@ -55,6 +55,13 @@ export const linkField = (overrides: { name?: string; label?: string } = {}): Fi
         { label: 'Careers', value: '/careers' },
         { label: 'Contact', value: '/contact' },
         { label: 'Book a meeting', value: '/meeting' },
+        /*
+         * Requested for the header nav ahead of the pages themselves. Both 404
+         * until a `pages` document with the matching slug is published — the
+         * [slug] route resolves them from the CMS, not from code.
+         */
+        { label: 'About (page not created yet)', value: '/about' },
+        { label: 'Meet Fika AI (page not created yet)', value: '/meet-fika-ai' },
       ],
       admin: { condition: (_, sibling) => sibling?.type === 'route' },
     },
