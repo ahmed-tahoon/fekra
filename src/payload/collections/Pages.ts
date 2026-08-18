@@ -24,13 +24,15 @@ export const Pages: CollectionConfig = {
   },
   // 4.8 — editors review unpublished content before it goes public.
   /*
-   * 2s, not Payload's 350ms sample value. Every autosave is a full version
-   * write into the _v table plus its block/locale children, then a prune to
-   * maxPerDoc — hundreds of ms against a pooled remote Postgres. Fired every
-   * 350ms it queues faster than it drains, the pool (2 connections on Vercel)
-   * starves, and the admin sits on "Saving..." forever with Publish disabled.
+   * Autosave interval must exceed how long a save actually takes, or the admin
+   * queues saves faster than they drain: the pool (2 connections on Vercel)
+   * starves, requests never return, and the editor sits on "Saving..." with
+   * Publish disabled. Measured against the production database:
+   *   pages ~9000ms (a version touches 94 tables), posts ~3400ms, services ~1800ms.
    */
-  versions: { drafts: { autosave: { interval: 2000 } }, maxPerDoc: 25 },
+  // A 9s write cannot be put on a timer at all — no interval is safe when the
+  // editor can keep typing through it. Drafts stay; saving is explicit.
+  versions: { drafts: true, maxPerDoc: 25 },
   hooks: {
     afterChange: [revalidateDocument('pages')],
     afterDelete: [revalidateOnDelete('pages')],

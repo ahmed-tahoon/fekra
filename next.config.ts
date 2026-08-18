@@ -58,7 +58,11 @@ const CSP = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-  'upgrade-insecure-requests',
+  /*
+   * Only when enforcing: browsers ignore upgrade-insecure-requests in a
+   * report-only policy and log a console warning for it on every page load.
+   */
+  ...(process.env.CSP_ENFORCE === 'true' ? ['upgrade-insecure-requests'] : []),
 ].join('; ')
 
 const securityHeaders = [

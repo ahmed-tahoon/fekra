@@ -281,10 +281,18 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
                       <Image
                         src={mediaUrl(icon)}
                         alt=""
-                        width={17}
-                        height={16}
+                        width={21}
+                        height={20}
                         aria-hidden
-                        className="h-4 w-[17px] shrink-0"
+                        /*
+                         * 20px box, not the comp's 17 — these SVGs carry their
+                         * own padding (the star only draws across ~74% of its
+                         * 16-unit viewBox), so a 16px frame renders a ~12px
+                         * glyph against 14px text and reads as undersized.
+                         * Sized so the drawn glyph matches the text, and kept
+                         * on the source's 16.67:16 ratio rather than squared.
+                         */
+                        className="h-5 w-[21px] shrink-0"
                       />
                     ) : (
                       <span aria-hidden className="size-1.5 shrink-0 rounded-pill bg-primary" />
