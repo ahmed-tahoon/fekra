@@ -239,6 +239,15 @@ export default buildConfig({
       : []),
   ],
 
+  /*
+   * Payload replaces every server error with "Something went wrong." in
+   * production, which makes an upload failure impossible to diagnose from the
+   * browser. Off by default — set PAYLOAD_DEBUG=true on the environment to get
+   * the real message back in the API response, then turn it off again.
+   * (The full stack is always written to the server log regardless.)
+   */
+  debug: process.env.PAYLOAD_DEBUG === 'true',
+
   secret: process.env.PAYLOAD_SECRET || '',
   sharp,
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
