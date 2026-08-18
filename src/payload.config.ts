@@ -173,6 +173,12 @@ export default buildConfig({
       max: Number(process.env.DATABASE_POOL_MAX ?? (process.env.VERCEL ? 2 : 4)),
       // Give connections back to the pooler quickly once idle.
       idleTimeoutMillis: 10_000,
+      /*
+       * Without this pg waits FOREVER for a free connection, so a saturated
+       * pool reads as a request that never returns — the admin spinning on
+       * "Saving..." with no error anywhere. Fail loudly instead.
+       */
+      connectionTimeoutMillis: 15_000,
     },
     // Only ever auto-push against a local throwaway database (see isLocalDatabase).
     push: process.env.NODE_ENV !== 'production' && isLocalDatabase(),

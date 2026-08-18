@@ -26,8 +26,27 @@ export function allLocaleHrefs(path: string): Record<Locale, string> {
   return Object.fromEntries(LOCALES.map((l) => [l, localeHref(l, path)])) as Record<Locale, string>
 }
 
-export const siteUrl = (): string =>
-  (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
+/**
+ * Origin only — scheme, host and port, never a path.
+ *
+ * Everything downstream concatenates onto this: canonicals, sitemap entries,
+ * OG urls, the preview link and the CORS/CSRF allow-list. A path segment left
+ * on the variable (`https://site.com/ar`, easy to paste from the address bar)
+ * therefore prefixes every one of them at once — `/ar/api/preview` 404s, every
+ * canonical points at the wrong URL, and the CORS entry stops being a valid
+ * origin so it can never match. Normalising here costs one URL parse and makes
+ * that whole class of misconfiguration impossible.
+ */
+export const siteUrl = (): string => {
+  const raw = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').trim()
+  try {
+    return new URL(raw).origin
+  } catch {
+    // Not parseable (missing scheme, say) — fall back to the old behaviour
+    // rather than throwing at import time and taking the whole build down.
+    return raw.replace(/\/$/, '')
+  }
+}
 
 /**
  * Absolute URL for canonical tags, sitemaps, OG and JSON-LD (18.3).

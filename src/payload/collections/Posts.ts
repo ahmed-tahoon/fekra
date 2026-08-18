@@ -22,7 +22,14 @@ export const Posts: CollectionConfig = {
     update: authenticated,
     delete: authenticated,
   },
-  versions: { drafts: { autosave: { interval: 350 } }, maxPerDoc: 25 },
+  /*
+   * 2s, not Payload's 350ms sample value. Every autosave is a full version
+   * write into the _v table plus its block/locale children, then a prune to
+   * maxPerDoc — hundreds of ms against a pooled remote Postgres. Fired every
+   * 350ms it queues faster than it drains, the pool (2 connections on Vercel)
+   * starves, and the admin sits on "Saving..." forever with Publish disabled.
+   */
+  versions: { drafts: { autosave: { interval: 2000 } }, maxPerDoc: 25 },
   hooks: {
     afterChange: [revalidateDocument('posts', '/blog')],
     afterDelete: [revalidateOnDelete('posts', '/blog')],
