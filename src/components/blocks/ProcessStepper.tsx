@@ -20,7 +20,7 @@ const WINNER_PATHS = [
 
 export type Step = { title: string; body: string }
 
-const DWELL_MS = 4000
+const DWELL_MS = 2000
 
 /*
  * Funnel geometry from Figma 1:11041, widened 40px per row on request: five
@@ -119,7 +119,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                 <span
                   aria-hidden
                   className={cn(
-                    'absolute end-full flex h-full w-12 items-center justify-center text-xl font-bold transition-colors duration-500 sm:w-24 sm:text-2xl',
+                    'absolute end-full flex h-full w-12 items-center justify-center text-xl font-bold transition-colors duration-200 sm:w-24 sm:text-2xl',
                     on ? 'text-primary-foreground' : 'text-primary',
                   )}
                 >
@@ -148,7 +148,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                    */}
                   <span
                     aria-hidden
-                    className="absolute inset-y-0 start-0 -end-4 bg-border transition-colors duration-500 [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] group-hover:bg-canvas-2 rtl:-scale-x-100 dark:bg-card dark:group-hover:bg-border"
+                    className="absolute inset-y-0 start-0 -end-4 bg-border transition-colors duration-200 [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] group-hover:bg-canvas-2 rtl:-scale-x-100 dark:bg-card dark:group-hover:bg-border"
                   />
                   <span className="sr-only">
                     Step {i + 1} — {s.title}
@@ -198,7 +198,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
       {/* Active step detail — a duplicate of list content, so hidden from AT.
           Text only: no card chrome. */}
       <div aria-hidden className="w-full max-w-[460px] self-center p-6 sm:min-h-[304px] sm:p-16">
-        <div key={active} className="fk-enter">
+        <div key={active} className="fk-enter [animation-duration:0.35s]">
           <h3 className="font-display text-[2rem] leading-[1.5] font-bold text-navy-800 dark:text-foreground">
             {step.title}
           </h3>

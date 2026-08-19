@@ -167,10 +167,19 @@ export default buildConfig({
        * with EMAXCONNSESSION. A small per-process cap leaves room for a local
        * dev server, a seed run and a Vercel build to coexist. Raise via
        * DATABASE_POOL_MAX if the pooler's limit is ever increased.
+       *
+       * Build only: next build prerenders with several worker processes, each
+       * booting its own pool against that shared cap, so squeeze to 2 there.
+       * At RUNTIME 2 is a deadlock: Fluid Compute runs many requests per
+       * instance and every Payload write holds a connection for the length of
+       * its transaction, so two concurrent saves park both connections and any
+       * third query stalls out the 15s connect timeout — the "Something went
+       * wrong." 500 on /cms-api. Runtime needs real headroom.
        */
-      // Tighter still on Vercel: next build prerenders with several worker
-      // processes, and each one boots its own pool against the same cap.
-      max: Number(process.env.DATABASE_POOL_MAX ?? (process.env.VERCEL ? 2 : 4)),
+      max: Number(
+        process.env.DATABASE_POOL_MAX ??
+          (process.env.NEXT_PHASE === 'phase-production-build' ? 2 : process.env.VERCEL ? 10 : 4),
+      ),
       // Give connections back to the pooler quickly once idle.
       idleTimeoutMillis: 10_000,
       /*
