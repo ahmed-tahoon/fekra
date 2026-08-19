@@ -21,6 +21,7 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "seed": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" node --env-file-if-exists=.env.local --env-file-if-exists=.env src/seed/index.ts",
+    "seed:jobs": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/seed-jobs.ts",
     "check:i18n": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/check-i18n.ts",
     "check:links": "node scripts/check-links.mjs",
     "test:api": "newman run postman/FEKRA.postman_collection.json -e postman/FEKRA.local.postman_environment.json --working-dir postman",
@@ -29,7 +30,12 @@
     "check:storage": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/check-storage.mjs",
     "sync:uploads": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/sync-uploads.mjs"
   },
-  "browserslist": ["chrome >= 111", "edge >= 111", "firefox >= 128", "safari >= 16.4"],
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 128",
+    "safari >= 16.4"
+  ],
   "dependencies": {
     "@payloadcms/db-postgres": "3.87.1",
     "@payloadcms/email-resend": "3.87.1",

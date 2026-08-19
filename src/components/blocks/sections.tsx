@@ -9,6 +9,7 @@ import { cn } from '@/lib/cn'
 import { faqSchema } from '@/lib/jsonld'
 import { resolveLink } from '@/lib/resolveLink'
 
+import { CountUp } from './CountUp'
 import { ProcessStepper } from './ProcessStepper'
 import { RotatingWords } from './RotatingWords'
 import { TechTabs } from './TechTabs'
@@ -144,8 +145,15 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   const photos = mosaic.filter((item) => item.kind !== 'stat')
   const stats = mosaic.filter((item) => item.kind === 'stat')
   for (let i = 0; mobileTiles.length < 6 && (photos[i] || stats[i]); i++) {
-    if (photos[i]) mobileTiles.push(photos[i]!)
-    if (stats[i] && mobileTiles.length < 6) mobileTiles.push(stats[i]!)
+    /*
+     * Zig-zag the pair. Pushing photo-then-stat every time puts every photo in
+     * the left grid column and every stat in the right one — two stacked
+     * columns, not a collage. Flipping odd rows makes the stats alternate
+     * sides, which is what the desktop board does.
+     */
+    const pair = [photos[i], stats[i]].filter((item) => item != null)
+    if (i % 2) pair.reverse()
+    mobileTiles.push(...pair.slice(0, 6 - mobileTiles.length))
   }
 
   const tile = (item: (typeof mosaic)[number], index: number, compact = false) => {
@@ -173,15 +181,14 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           >
             {item.label}
           </span>
-          <span
+          <CountUp
+            value={item.value ?? ''}
             dir="ltr"
             className={cn(
               'font-display font-bold tracking-[-0.04em]',
-              compact ? 'mt-1.5 text-[1.75rem] leading-none' : 'mt-3 text-2xl md:text-[clamp(1.5rem,2.8vw,2.5rem)] lg:leading-8',
+              compact ? 'mt-1.5 block text-[1.75rem] leading-none' : 'mt-3 block text-2xl md:text-[clamp(1.5rem,2.8vw,2.5rem)] lg:leading-8',
             )}
-          >
-            {item.value}
-          </span>
+          />
         </div>
       )
     }
@@ -268,14 +275,23 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           {block.bullets?.length ? (
             <ul
               style={{ '--i': 3 } as React.CSSProperties}
-              className="fk-enter flex flex-wrap items-center justify-center gap-x-6 gap-y-2 md:gap-x-8 md:gap-y-3"
+              /* One row at every size, and it must fit — the three labels run
+                 ~85 characters, so a nowrap row scrolled the third bullet off a
+                 390px screen. Equal thirds instead, icon stacked over centred
+                 text: left-aligned wrapping left three ragged blocks of
+                 different heights, which is what read as broken. items-stretch
+                 runs the dividers the full height of the tallest column.
+                 Back to a wrapped inline row at md, where they fit on a line. */
+              className="fk-enter mx-auto grid w-full grid-cols-3 items-stretch md:flex md:w-auto md:flex-wrap md:items-center md:justify-center md:gap-x-8 md:gap-y-3"
             >
               {block.bullets.map((bullet) => {
                 const icon = bullet.icon as MediaDoc | undefined
                 return (
                   <li
                     key={bullet.text}
-                    className="flex items-center gap-1 text-xs text-ink-500 sm:text-sm dark:text-muted-foreground"
+                    /* Vertical hairline between columns, dropped at md where
+                       gap-x-8 already separates them. */
+                    className="flex flex-col items-center justify-start gap-1.5 border-s border-border px-2 text-center text-[11px] leading-tight text-ink-500 first:border-0 sm:text-sm md:flex-row md:gap-1 md:border-0 md:px-0 md:text-start md:leading-normal dark:text-muted-foreground"
                   >
                     {icon?.url ? (
                       <Image
@@ -292,7 +308,7 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
                          * Sized so the drawn glyph matches the text, and kept
                          * on the source's 16.67:16 ratio rather than squared.
                          */
-                        className="h-5 w-[21px] shrink-0"
+                        className="h-4 w-[17px] shrink-0 sm:h-5 sm:w-[21px]"
                       />
                     ) : (
                       <span aria-hidden className="size-1.5 shrink-0 rounded-pill bg-primary" />
@@ -373,7 +389,9 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
             {block.stats.map((stat) => (
               <div key={stat.label}>
                 <dt className="text-sm text-muted-foreground">{stat.label}</dt>
-                <dd dir="ltr" className="font-display text-3xl font-bold text-primary">{stat.value}</dd>
+                <dd className="font-display text-3xl font-bold text-primary">
+                <CountUp value={stat.value ?? ''} dir="ltr" />
+              </dd>
               </div>
             ))}
           </dl>
@@ -702,7 +720,9 @@ export function StatsSection({ block }: { block: BlockProps }) {
         <dl className="mt-10 grid grid-cols-2 gap-8 text-center md:grid-cols-4">
           {(block.items ?? []).map((item, i) => (
             <div key={i} className="rounded-card border border-border bg-card p-6">
-              <dd dir="ltr" className="font-display text-4xl font-bold text-primary">{item.value}</dd>
+              <dd className="font-display text-4xl font-bold text-primary">
+                <CountUp value={item.value ?? ''} dir="ltr" />
+              </dd>
               <dt className="mt-2 text-sm text-muted-foreground">{item.label}</dt>
             </div>
           ))}
@@ -831,9 +851,11 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
                       className="size-6"
                     />
                   ) : null}
-                  <span dir="ltr" className="font-display text-3xl font-bold text-navy-800 dark:text-foreground">
-                    {stat.value}
-                  </span>
+                  <CountUp
+                    value={stat.value ?? ''}
+                    dir="ltr"
+                    className="font-display text-3xl font-bold text-navy-800 dark:text-foreground"
+                  />
                 </span>
                 <span className="text-xs text-ink-500 dark:text-muted-foreground">{stat.label}</span>
               </li>

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 import { JsonLd } from '@/components/JsonLd'
 import { RichText } from '@/components/RichText'
@@ -7,10 +8,11 @@ import { ApplicationForm } from '@/components/forms/ApplicationForm'
 import { getDictionary } from '@/i18n/getDictionary'
 import { DEFAULT_LOCALE, isLocale, localeHref } from '@/i18n/routing'
 import { breadcrumbSchema, jobPostingSchema } from '@/lib/jsonld'
-import { findDoc, getGlobal, staticSlugs } from '@/lib/payload'
+import { findDoc, findDocs, getGlobal, staticSlugs } from '@/lib/payload'
 import { buildMetadata, notFoundMetadata } from '@/lib/seo'
 
 import type { JobDoc, SettingsLite } from '../../page-types'
+import { HiringProcess, JobMeta, RoleRow, SectionLabel } from '../parts'
 
 export const revalidate = 900
 
@@ -50,69 +52,119 @@ export default async function JobPage({ params }: { params: Promise<{ locale: st
 
   const isOpen = job.roleStatus !== 'closed'
 
+  // Other open roles, this one dropped. Fetched one over the display count so a
+  // full row survives removing the current role from the results.
+  const { docs: siblings } = await findDocs<JobDoc>({
+    collection: 'jobs',
+    locale,
+    limit: 4,
+    sort: '-publishedAt',
+    where: { roleStatus: { equals: 'open' } },
+  })
+  const related = siblings.filter((other) => other.slug !== job.slug).slice(0, 3)
+
   return (
-    <div className="section">
-      <div className="container-site grid gap-12 lg:grid-cols-[2fr_1fr]">
-        <div>
-          <nav aria-label={dict.common.breadcrumb} className="text-sm text-muted-foreground">
-            <ol className="flex flex-wrap items-center gap-2">
-              <li>
-                <Link href={localeHref(locale, '/')}>{dict.nav.home}</Link>
-              </li>
-              <li aria-hidden>/</li>
-              <li>
-                <Link href={localeHref(locale, '/careers')}>{dict.careers.title}</Link>
-              </li>
-            </ol>
+    <>
+      {/* Hero band — the gradient wash and type scale the home page opens with. */}
+      <section className="relative isolate mt-[calc(var(--header-block)*-1)] overflow-hidden pt-[calc(var(--header-block)+clamp(1.5rem,4.5vw,3.5rem))] pb-10 md:pb-14">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.55)_3.72%,rgba(220,239,247,0.55)_103.6%)] dark:hidden"
+        />
+        <div className="container-site">
+          <nav aria-label={dict.common.breadcrumb}>
+            <Link
+              href={localeHref(locale, '/careers')}
+              className="inline-flex items-center gap-2 text-sm text-ink-500 transition-colors hover:text-primary dark:text-muted-foreground"
+            >
+              <ArrowLeft className="icon-flip size-4" aria-hidden />
+              {dict.careers.backToRoles}
+            </Link>
           </nav>
 
-          <h1 className="mt-6 text-4xl md:text-5xl">{job.title}</h1>
-
-          <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+          <div className="mt-6 max-w-[760px]">
             {job.department ? (
-              <div>
-                <dt className="text-muted-foreground">{dict.careers.department}</dt>
-                <dd className="font-medium">{job.department}</dd>
-              </div>
+              <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{job.department}</p>
             ) : null}
-            <div>
-              <dt className="text-muted-foreground">{dict.careers.location}</dt>
-              <dd className="font-medium">{job.location}</dd>
-            </div>
-            {job.workModel ? (
-              <div>
-                <dt className="text-muted-foreground">{dict.careers.workModel}</dt>
-                <dd className="font-medium capitalize">{job.workModel}</dd>
-              </div>
+            <h1 className="mt-3 font-display text-[clamp(1.875rem,4.4vw,3.25rem)] leading-[1.08] font-bold tracking-[-0.5px] text-balance text-navy-800 md:tracking-[-1px] dark:text-foreground">
+              {job.title}
+            </h1>
+            {job.summary ? (
+              <p className="mt-4 text-[15px]/6 text-ink-500 md:text-lg/7 dark:text-muted-foreground">{job.summary}</p>
             ) : null}
-            {job.employmentType ? (
-              <div>
-                <dt className="text-muted-foreground">{dict.careers.employmentType}</dt>
-                <dd className="font-medium lowercase">{job.employmentType.replace('_', ' ')}</dd>
-              </div>
-            ) : null}
-          </dl>
+            <JobMeta job={job} dict={dict} className="mt-6" />
 
-          <div className="mt-10 flex flex-col gap-10">
-            <RichText data={job.description} />
-            {job.requirements ? <RichText data={job.requirements} /> : null}
-            {job.benefits ? <RichText data={job.benefits} /> : null}
+            {isOpen ? (
+              <a
+                href="#apply"
+                className="mt-8 inline-flex items-center gap-2 rounded-pill bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
+              >
+                {dict.careers.applyNow}
+                <ArrowRight className="icon-flip size-4" aria-hidden />
+              </a>
+            ) : (
+              <p className="mt-8 text-sm text-ink-500 dark:text-muted-foreground">
+                {dict.careers.closed}
+              </p>
+            )}
           </div>
         </div>
+      </section>
 
-        <aside id="apply" className="h-fit rounded-panel border border-border bg-card p-6 lg:sticky lg:top-28">
-          <h2 className="text-2xl">{dict.careers.applyNow}</h2>
-          <div className="mt-6">
-            <ApplicationForm
-              jobId={job.id}
-              jobTitle={job.title}
-              dict={dict}
-              locale={locale}
-              disabled={!isOpen}
-            />
+      <div className="section pt-10 md:pt-14">
+        <div className="container-site grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">
+          <div className="min-w-0">
+            <div className="flex flex-col gap-10 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-navy-800 dark:[&_h2]:text-foreground [&_h3]:font-display [&_h3]:text-lg [&_h3]:font-bold">
+              <RichText data={job.description} />
+              {job.requirements ? <RichText data={job.requirements} /> : null}
+              {job.benefits ? <RichText data={job.benefits} /> : null}
+            </div>
+
+            {/* What happens next — the same four steps as the index, compact.
+                Answers the question every candidate has before they upload. */}
+            <div className="mt-14 border-t border-border pt-8">
+              <h2 className="font-display text-lg font-bold text-navy-800 dark:text-foreground">
+                {dict.careers.whatNextTitle}
+              </h2>
+              <div className="mt-6">
+                <HiringProcess dict={dict} compact />
+              </div>
+            </div>
           </div>
-        </aside>
+
+          <aside
+            id="apply"
+            className="h-fit scroll-mt-28 rounded-panel border border-border bg-card p-6 lg:sticky lg:top-28"
+          >
+            <h2 className="font-display text-2xl font-bold text-navy-800 dark:text-foreground">
+              {dict.careers.applyNow}
+            </h2>
+            <p className="mt-2 text-sm/6 text-ink-500 dark:text-muted-foreground">{dict.careers.applyAside}</p>
+            <div className="mt-6">
+              <ApplicationForm
+                jobId={job.id}
+                jobTitle={job.title}
+                dict={dict}
+                locale={locale}
+                disabled={!isOpen}
+              />
+            </div>
+          </aside>
+        </div>
       </div>
+
+      {related.length ? (
+        <section className="section pt-0">
+          <div className="container-site">
+            <SectionLabel eyebrow={dict.careers.title} heading={dict.careers.relatedTitle} />
+            <ul className="mt-6 divide-y divide-border border-y border-border">
+              {related.map((other) => (
+                <RoleRow key={other.id} job={other} locale={locale} dict={dict} />
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <JsonLd
         data={[
@@ -143,6 +195,6 @@ export default async function JobPage({ params }: { params: Promise<{ locale: st
           ),
         ]}
       />
-    </div>
+    </>
   )
 }

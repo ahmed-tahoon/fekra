@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { seedJobs } from './jobs'
 
 import { getPayload } from 'payload'
 import config from '../payload.config'
@@ -506,25 +507,7 @@ const run = async () => {
     ),
   )
 
-  if (WITH_DEMO_CONTENT)
-    await upsert(payload, 'jobs', 'senior-full-stack-engineer', {
-    title: 'Senior Full-Stack Engineer',
-    summary: 'Build and ship production systems with a team that owns delivery end to end.',
-    description: rich(
-      'You will work directly with client engineering teams on production systems, from architecture through release.',
-    ),
-    requirements: rich('5+ years building web applications, strong TypeScript, and clear written English.'),
-    department: 'Engineering',
-    location: 'Cairo, Egypt',
-    workModel: 'hybrid',
-    employmentType: 'FULL_TIME',
-    countryCode: 'EG',
-    city: 'Cairo',
-    roleStatus: 'open',
-    availableLocales: ['en'],
-    publishedAt: new Date().toISOString(),
-    _status: 'published',
-  })
+  if (WITH_DEMO_CONTENT) await seedJobs(payload, article, now)
 
   // Hero assets, exported from the Figma frame.
   const icons = await Promise.all(
