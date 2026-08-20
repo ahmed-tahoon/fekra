@@ -22,6 +22,9 @@ export type HeaderData = {
 
 export type ServicesMenu = { title: string; slug: string; roles: string[] }[]
 
+/** Role links shown per service before the column collapses to a "+N more". */
+const MEGA_ROLES_PER_SERVICE = 5
+
 export function Header({
   data,
   locale,
@@ -97,27 +100,33 @@ export function Header({
                        * group (Figma "Services" menu).
                        */}
                       <div className="invisible fixed inset-x-0 top-full z-50 pt-2 opacity-0 transition-[opacity,visibility] group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-                        <div className="max-h-[calc(100dvh-var(--header-block)-1rem)] overflow-y-auto rounded-card border border-border bg-card p-8 shadow-lift">
-                          <div className="grid grid-cols-5 gap-x-8 gap-y-10">
+                        {/*
+                         * MM-1 — this used to be a full-bleed panel up to
+                         * 100dvh tall with its own scrollbar, so opening it put
+                         * the visitor inside a second page. Three changes bring
+                         * it back to being a dropdown: a centred max-width so
+                         * the page still frames it, a hard height cap so the
+                         * page stays visible underneath, and a per-service cap
+                         * on role links (61 of them were what forced the
+                         * height in the first place).
+                         */}
+                        <div className="mx-auto w-full max-w-[1080px] px-4">
+                          <div className="max-h-[min(58vh,26rem)] overflow-y-auto overscroll-contain rounded-card border border-border bg-card p-6 shadow-lift">
+                            <div className="grid grid-cols-5 gap-x-6 gap-y-7">
                             {mega.map((svc) => {
-                              const wide = svc.roles.length > 9
+                              const roles = svc.roles.slice(0, MEGA_ROLES_PER_SERVICE)
+                              const more = svc.roles.length - roles.length
                               const href = localeHref(locale, `/services/${svc.slug}`)
                               return (
-                                <div key={svc.slug} className={wide ? 'col-span-2' : undefined}>
+                                <div key={svc.slug}>
                                   <Link
                                     href={href}
                                     className="text-sm font-bold text-navy-800 transition-colors hover:text-primary dark:text-foreground"
                                   >
                                     {svc.title}
                                   </Link>
-                                  <ul
-                                    className={
-                                      wide
-                                        ? 'mt-3 grid grid-cols-2 gap-x-6 gap-y-2 border-s border-border ps-3'
-                                        : 'mt-3 flex flex-col gap-2 border-s border-border ps-3'
-                                    }
-                                  >
-                                    {svc.roles.map((role) => (
+                                  <ul className="mt-2.5 flex flex-col gap-1.5 border-s border-border ps-3">
+                                    {roles.map((role) => (
                                       <li key={role}>
                                         <Link
                                           href={href}
@@ -127,6 +136,13 @@ export function Header({
                                         </Link>
                                       </li>
                                     ))}
+                                    {more > 0 ? (
+                                      <li>
+                                        <Link href={href} className="block text-sm font-medium text-primary hover:underline">
+                                          +{more} more
+                                        </Link>
+                                      </li>
+                                    ) : null}
                                   </ul>
                                 </div>
                               )
@@ -139,6 +155,7 @@ export function Header({
                               >
                                 {dict.nav.hireNow}
                               </Link>
+                            </div>
                             </div>
                           </div>
                         </div>
