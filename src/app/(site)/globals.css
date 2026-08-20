@@ -131,6 +131,8 @@
   --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.06), 0 16px 40px rgb(0 0 0 / 0.1);
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Gentler than ease-out-soft — eases in as well as out, so nothing snaps. */
+  --ease-calm: cubic-bezier(0.33, 0, 0.15, 1);
   /* Symmetric curve for the header morph — eases in AND out, so
      collapsing back to the pill is as calm as expanding. */
   --ease-morph: cubic-bezier(0.45, 0, 0.15, 1);
@@ -425,9 +427,17 @@
     }
   }
 
-  /* Hero headline word swap. */
+  /*
+   * Hero headline word swap.
+   *
+   * Slow and settled rather than snappy: 0.9s on a gentle curve, rising only
+   * 0.2em. The old word unmounts the instant the new one mounts, so opacity is
+   * brought to full by 45% of the timeline while the transform keeps easing —
+   * the word is legible almost immediately and then drifts to rest, instead of
+   * leaving a blank beat in the middle of the headline.
+   */
   .fk-rotate-in {
-    animation: fk-rotate-in 0.5s var(--ease-out-soft) both;
+    animation: fk-rotate-in 0.9s var(--ease-calm) both;
   }
 
   @keyframes fk-rotate-in {
@@ -436,7 +446,10 @@
        glyphs in Chrome. */
     from {
       opacity: 0;
-      transform: translateY(0.35em);
+      transform: translateY(0.2em);
+    }
+    45% {
+      opacity: 1;
     }
     to {
       opacity: 1;

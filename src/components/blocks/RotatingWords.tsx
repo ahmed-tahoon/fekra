@@ -12,8 +12,12 @@ import { useEffect, useState } from 'react'
  * Honours prefers-reduced-motion by not rotating at all: a word changing under
  * you every few seconds is exactly the kind of motion that setting exists for
  * (17.8 / 23.5).
+ *
+ * Paced to be read, not noticed: 4.2s per word against a 0.9s entry leaves
+ * ~3.3s of stillness between swaps. The old 2.6s hold against a 0.5s entry gave
+ * barely 2s, which is what made the headline feel restless.
  */
-export function RotatingWords({ words, intervalMs = 2600 }: { words: string[]; intervalMs?: number }) {
+export function RotatingWords({ words, intervalMs = 4200 }: { words: string[]; intervalMs?: number }) {
   const [index, setIndex] = useState(0)
   const [enabled, setEnabled] = useState(false)
 
