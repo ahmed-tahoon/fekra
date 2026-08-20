@@ -23,18 +23,19 @@ const DIR = path.resolve(process.cwd(), 'public/images/team')
 
 /**
  * Photo tiles in mosaic order, with the alt text that ships with them.
- * `null` leaves that tile untouched — there are nine photo slots and eight
- * photos, so the last one keeps whatever it has until a ninth arrives.
+ * `null` would leave a tile untouched; all nine now have a photo. The ninth
+ * slot previously kept `tile-07.webp`, an AI circuit-board stock image — the
+ * exact abstract visual IM-1 asked to remove.
  */
 const ASSIGNMENT: ({ file: string; alt: string } | null)[] = [
   { file: 'developer-workspace-side.webp', alt: 'A FEKRA engineer at work in the Cairo office' },
   { file: 'developer-desk-bright.webp', alt: 'A FEKRA developer at a dual-monitor desk' },
-  { file: 'team-lounge-pair.webp', alt: 'Two FEKRA engineers working together in the office lounge' },
+  { file: 'team-standup-review.webp', alt: 'FEKRA engineers reviewing work at a standing desk' },
   { file: 'team-review-huddle.webp', alt: 'A FEKRA team reviewing work together at a screen' },
   { file: 'developer-coding-window.webp', alt: 'A FEKRA developer writing code by the window' },
   { file: 'team-pairing-session.webp', alt: 'Three FEKRA colleagues pairing over a laptop' },
-  { file: 'team-standup-review.webp', alt: 'FEKRA engineers reviewing work at a standing desk' },
-  null,
+  { file: 'team-lounge-pair.webp', alt: 'Two FEKRA engineers working together in the office lounge' },
+  { file: 'developer-desk-portrait.webp', alt: 'A FEKRA engineer at his desk in the Cairo office' },
   { file: 'team-focus-coworking.webp', alt: 'A FEKRA engineer focused at her laptop' },
 ]
 
