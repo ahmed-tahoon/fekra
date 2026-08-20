@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FEKRA — Client Feedback Tasks</title>
+<style>
+:root{
+  --navy:#273969; --teal:#20a2bc; --ink:#17212b; --muted:#5b6978; --line:#e2e9ef;
+  --bg:#f6f9fb; --white:#fff; --soft:#f0f6f9;
+  --todo:#94a3b8; --prog:#c17d10; --done:#167d54; --block:#b3413a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+a{color:var(--teal)}
+.top{background:linear-gradient(135deg,#1d2b4f,var(--navy));color:#fff;padding:30px 24px 26px;border-bottom:4px solid var(--teal)}
+.wrap{max-width:1180px;margin:0 auto}
+.brand{font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#8fd4e4}
+h1{font-size:27px;font-weight:800;margin:8px 0 6px}
+.sub{color:#cfe2ef;max-width:760px;font-size:14px;margin:0}
+.bar-wrap{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line)}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:11px 24px}
+button{border:1px solid #cfdae3;background:#fff;color:var(--navy);padding:7px 12px;border-radius:8px;
+  font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}
+button:hover{background:var(--soft)}
+button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.prog{margin-left:auto;display:flex;align-items:center;gap:10px;min-width:260px}
+.track{height:8px;background:#e5edf2;border-radius:99px;overflow:hidden;flex:1}
+.track>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),#2f9ddc);transition:width .3s}
+.pct{font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap}
+main{max-width:1180px;margin:0 auto;padding:24px}
+.epic{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:18px;overflow:hidden}
+.epic-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--soft)}
+.epic-head h2{font-size:16px;margin:0;font-weight:800;color:var(--navy)}
+.epic-head .hint{font-size:12px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.epic-head .count{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted)}
+.task{display:grid;grid-template-columns:64px 1fr 150px;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.task.done{background:#f6fbf8}
+.task.done .title{text-decoration:line-through;color:var(--muted)}
+.task.blocked{background:#fdf7f6}
+.id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:700;color:var(--teal)}
+.title{font-weight:700;font-size:14.5px;margin:0 0 4px}
+.detail{font-size:13.5px;color:#3c4a5a;margin:0}
+.meta{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.where{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--muted);
+  background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:2px 7px}
+.ref{font-size:11.5px;font-weight:600}
+select{width:100%;padding:7px 8px;border:1px solid #cfdae3;border-radius:8px;font-family:inherit;
+  font-size:13px;font-weight:600;background:#fff;cursor:pointer}
+select.s-todo{color:var(--todo)} select.s-prog{color:var(--prog)}
+select.s-done{color:var(--done)} select.s-blocked{color:var(--block)}
+.note{width:100%;margin-top:7px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;
+  font-family:inherit;font-size:12.5px}
+.hidden{display:none}
+.foot{color:var(--muted);font-size:12.5px;text-align:center;padding:8px 24px 40px}
+@media(max-width:720px){.task{grid-template-columns:1fr;gap:8px}.prog{min-width:100%;margin-left:0}}
+@media print{.bar-wrap{position:static}button{display:none}.epic{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="brand">FEKRA Website</div>
+  <h1>Client Feedback — Task Board</h1>
+  <p class="sub">Every change request from the client feedback document (<em>Fekra.docx</em>, 20 Aug 2026), broken into trackable tasks and mapped to where each one lives in the codebase or the CMS. Progress saves automatically in this browser.</p>
+</div></header>
+
+<div class="bar-wrap"><div class="bar wrap">
+  <button data-f="all" class="on">All</button>
+  <button data-f="todo">To do</button>
+  <button data-f="prog">In progress</button>
+  <button data-f="blocked">Blocked</button>
+  <button data-f="done">Done</button>
+  <button onclick="exportCSV()">Export CSV</button>
+  <button onclick="resetAll()">Reset</button>
+  <div class="prog"><div class="track"><span id="bar"></span></div><div class="pct" id="pct">0 / 0</div></div>
+</div></div>
+
+<main id="root"></main>
+<div class="foot">30 tasks across 11 sections &middot; generated from the client feedback document</div>
+
+<script>
+const DATA = [["Client Logos Section","logoCloud block — src/components/blocks/sections.tsx:404 (LogoCloudSection)",[["CL-1","Normalise client logo sizes","Logos render at noticeably different sizes — some too large, some too small. Equalise the rendered height and optical weight while keeping each logo's own proportions.","src/components/blocks/sections.tsx — LogoCloudSection","",""],["CL-2","Tighten the gap between the statement text and the logos","Too much empty space between the left-side text and the logo grid; the section reads as two disconnected halves. Make the composition more compact.","src/components/blocks/sections.tsx — LogoCloudSection","",""],["CL-3","Rebalance the headline size","The headline is oversized relative to the logos and the section. Reduce the type size and reposition so it sits in proportion with the logo area.","src/components/blocks/sections.tsx — LogoCloudSection","",""],["CL-4","Even out logo spacing and alignment","Gaps between logos are inconsistent and some are not aligned on a shared baseline/centre. The whole logo area should look evenly spaced and organised.","src/components/blocks/sections.tsx — LogoCloudSection","",""],["CL-5","Reorder client logos to the agreed priority","Required order: 1 ADNOC · 2 NEOM · 3 Ooredoo · 4 Al Rajhi Bank · 5 STC · 6 Kuwait Finance House · 7 Allianz · 8 QNB · 9 Pitman · 10 Codewave · 11 Datafusion · 12 Smart Management Systems.","CMS — Home page logoCloud block (logo array order)","",""],["CL-6","Replace low-quality client logos with SVG","Some logos are visibly lower quality or inconsistent with the rest. Source high-quality SVG versions wherever available and re-upload to Media.","CMS — Media collection","",""]]],["Header / Navigation Bar","src/components/layout/Header.tsx · NavItem.tsx · ThemeProvider.tsx",[["HD-1","Match navigation item order to the approved Figma","Current header item sequence does not match the approved design. Reorder to the Figma menu structure.","CMS — Header global (nav array order)","",""],["HD-2","Add the “Meet Fika AI” navigation item","Present in the approved design, missing from the live header. NOTE: /fika currently returns 404 — the Fika page has to exist before the nav item can point anywhere.","CMS — Header global + a Fika page","","blocked"],["HD-3","Restore the Day / Night mode toggle","Dark mode is fully built (203 dark: utilities, full token set) but switched off: ThemeProvider sets forcedTheme=\"light\", and ThemeToggle.tsx exists but is not rendered anywhere. Restore by setting defaultTheme=\"system\" enableSystem and putting the toggle back in the header.","src/components/theme/ThemeProvider.tsx · ThemeToggle.tsx · Header.tsx","",""],["HD-4","Restore the language menu (5 languages)","The full 5-locale architecture is built and green under `pnpm check:i18n` (155 keys x 5), but PUBLIC_LOCALES is set to ['en'], so /ar /de /fr /es 307-redirect to English and the switcher hides itself. Widen PUBLIC_LOCALES once the translations are approved.","src/i18n/routing.ts — PUBLIC_LOCALES","",""]]],["Services Mega Menu","src/components/layout/NavItem.tsx",[["MM-1","Stop the mega menu taking over the whole screen","The open Services menu fills almost the entire viewport and has its own inner scrollbar, so it reads as a separate page rather than a dropdown. Cap its height, keep the page visible behind/below it, make it easy to dismiss, and keep the content scannable without the inner scroll. Primary reference BairesDev, secondary CMARIX — same UX principle, FEKRA's own design and content.","src/components/layout/NavItem.tsx","https://www.bairesdev.com/",""]]],["Image Mosaic / Stats Section","src/components/blocks/sections.tsx:133 (HeroSection mosaic)",[["IM-1","Replace mosaic visuals with real developer photos","Current set is generic — devices, abstract visuals and robot/AI imagery that do not support the human, team-based message. Replace with photos of actual developers / tech team members.","CMS — Home hero mosaic + Media collection","",""],["IM-2","Use locally relevant people in the photos","Photos should show real developers with an Egyptian / local appearance so the section feels relatable to FEKRA's identity and audience.","CMS — Media collection","",""],["IM-3","Vary the scenes naturally","Include a realistic mix: developers working in the office, team collaboration moments, work-related environments, and some indoor / some more open or outdoor settings. The collage should feel lively, not repetitive.","CMS — Home hero mosaic","",""],["IM-4","Rebalance the collage composition","The arrangement is not as balanced as it should be. Aim for a more symmetric, organised, harmonious structure. Use Vivasoft as the arrangement reference — similar idea, not a copy: balanced composition, cleaner symmetry, human-centred visuals.","src/components/blocks/sections.tsx — MOSAIC_LAYOUT","https://vivasoftltd.com/",""],["IM-5","Unify photo quality and tone","All images should read as one system — consistent quality, tone and treatment — so the section feels curated and premium rather than a mix of unrelated visuals.","CMS — Media collection","",""]]],["Build Your Team Faster — Candidate Cards","src/components/blocks/sections.tsx:1114 (TalentShowcaseSection) · seeded at src/seed/index.ts:326",[["CC-1","Replace candidate photos and names with Egyptian talent","Cards currently use generic international profiles — Emma Williams (UX Designer), Priya Sharma (Data Scientist), James Chen (DevOps Engineer). Replace with Egyptian names and photos of Egyptian technology professionals, a realistic mix of men and women, in roles matching the services FEKRA actually provides. Photos must stay visually consistent in quality, framing and professionalism. Keep the existing concept fields — years of experience, match percentage, role, “Technically Evaluated”.","src/seed/index.ts:326 + CMS talentShowcase block","",""]]],["Technologies Section","src/components/blocks/TechTabs.tsx",[["TS-1","Reorder the tabs to the approved Figma sequence","Required order: 1 AI / ML · 2 Frontend · 3 Backend · 4 Mobile · 5 Cloud & DevOps · 6 Databases · 7 QA & Testing · 8 CMS & E-commerce · 9 Low-Code & Automation.","CMS — techStack block (group order)","",""],["TS-2","Source technology names and logos from CMARIX","Populate each category with the technologies CMARIX lists, presented in the approved FEKRA / Figma tab order. NOTE: several categories are currently empty in the CMS.","CMS — techStack block","https://www.cmarix.com/",""],["TS-3","Normalise technology logo sizes","Logos render at inconsistent sizes. Give every logo a consistent optical size so the grid reads as one system.","src/components/blocks/TechTabs.tsx","",""],["TS-4","Put every technology logo on a white background","Logo presentation is visually inconsistent. All logos should sit on a clean white tile.","src/components/blocks/TechTabs.tsx","",""],["TS-5","Overall consistency pass on the section","Categories, logo sizing, logo backgrounds and presentation style should all feel part of one consistent system rather than a mixed layout.","src/components/blocks/TechTabs.tsx","",""]]],["Our Process — Funnel Section","src/components/blocks/ProcessStepper.tsx",[["PF-1","Tighten the section's spacing and balance","Layout is too spread out — too much empty space between heading/subheading and the funnel, between the funnel and the right-hand copy, and around individual stages. Make it more compact and connected.","src/components/blocks/ProcessStepper.tsx","https://www.bairesdev.com/top-1-percent/",""],["PF-2","Refine the typography hierarchy","Heading, supporting text, stage numbers and the right-side description should feel proportional to the funnel and to each other.","src/components/blocks/ProcessStepper.tsx","https://www.bairesdev.com/top-1-percent/",""],["PF-3","Make the stages read as one continuous funnel","Stages currently look like separate blocks. They should flow as a single filtering process from Step 1 through Step 5, with smoother visual transitions.","src/components/blocks/ProcessStepper.tsx — BARS geometry","https://www.bairesdev.com/top-1-percent/",""],["PF-4","Fold “Top 3%” into the final funnel stage","Top 3% currently hangs off the bottom as a separate blue arrow, detached from the process. At the final stage the last funnel box itself should turn FEKRA blue with “Top 3%” inside it — so the process visibly ends inside the funnel, not as a label beside it. Strong final-state impact: after all screening stages, only the Top 3% remain. Review the live BairesDev page, not only the screenshot, for the interaction, transitions and stage progression.","src/components/blocks/ProcessStepper.tsx — outlet <li>","https://www.bairesdev.com/top-1-percent/",""]]],["Industry Expertise Section","src/components/blocks/sections.tsx:667 (IndustriesSection)",[["IE-1","Re-lay out the industry cards as 3 balanced rows","Current implementation is crowded — too many cards per row — and does not match the approved design, which arranges them across 3 balanced rows. Review card arrangement, spacing, alignment and composition for visual balance, breathing space, symmetry and a clear 3-row structure. Goal is comfort and intent, not just fitting every industry on the page.","src/components/blocks/sections.tsx — IndustriesSection","",""]]],["Industry Leaders / Testimonials","src/components/blocks/sections.tsx:765 (TestimonialsSection)",[["TL-1","Hold as placeholder — await final testimonial content","Keep this section as a placeholder. Do NOT finalise or replace with permanent dummy content. Once the rest of the site is complete, notify the client; they will then supply 10 real photos, 10 names, job titles/positions and the testimonial text for each person.","src/components/blocks/sections.tsx — TestimonialsSection","","blocked"]]],["Frequently Asked Questions","src/components/blocks/sections.tsx:870 (FaqSection)",[["FQ-1","Migrate the FAQ questions and answers from the old FEKRA site","Replace the current placeholder FAQ content with the real questions and answers from the old FEKRA website. Include all relevant Q&A accurately, keeping the new site's approved design and accordion style.","CMS — faq block","",""]]],["Facebook Social Icon","src/components/layout/Footer.tsx + anywhere social icons render",[["FB-1","Fix the clipped Facebook icon","The Facebook icon renders partially broken/cut compared with the LinkedIn, YouTube and WhatsApp icons. Replace or correct it so the official logo appears complete and consistent. Check every location the icon appears, not only the footer.","src/components/layout/Footer.tsx · Media collection","",""]]]];
+const STORE = 'fekra-feedback-tasks-v1';
+const LABEL = {todo:'To do', prog:'In progress', done:'Done', blocked:'Blocked'};
+
+let state = {};
+try { state = JSON.parse(localStorage.getItem(STORE) || '{}') } catch(e) { state = {} }
+// Seed the two client-blocked items the first time the page is opened.
+if (!Object.keys(state).length) {
+  DATA.forEach(([,,tasks]) => tasks.forEach(t => { if (t[5]) state[t[0]] = {status:t[5]} }));
+}
+const save = () => localStorage.setItem(STORE, JSON.stringify(state));
+const statusOf = id => (state[id] && state[id].status) || 'todo';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function render() {
+  const root = document.getElementById('root');
+  root.innerHTML = DATA.map(([name, hint, tasks]) => `
+    <section class="epic" data-epic>
+      <div class="epic-head">
+        <h2>${esc(name)}</h2>
+        <span class="hint">${esc(hint)}</span>
+        <span class="count">${tasks.filter(t => statusOf(t[0]) === 'done').length} / ${tasks.length} done</span>
+      </div>
+      ${tasks.map(t => {
+        const st = statusOf(t[0]);
+        const note = (state[t[0]] && state[t[0]].note) || '';
+        return `<div class="task ${st}" data-status="${st}" data-id="${t[0]}">
+          <div class="id">${esc(t[0])}</div>
+          <div>
+            <p class="title">${esc(t[1])}</p>
+            <p class="detail">${esc(t[2])}</p>
+            <div class="meta">
+              ${t[3] ? `<span class="where">${esc(t[3])}</span>` : ''}
+              ${t[4] ? `<a class="ref" href="${esc(t[4])}" target="_blank" rel="noopener">Reference &#8599;</a>` : ''}
+            </div>
+          </div>
+          <div>
+            <select class="s-${st}" data-sel="${t[0]}">
+              ${['todo','prog','done','blocked'].map(v =>
+                `<option value="${v}"${v === st ? ' selected' : ''}>${LABEL[v]}</option>`).join('')}
+            </select>
+            <input class="note" data-note="${t[0]}" value="${esc(note)}" placeholder="Notes / owner" />
+          </div>
+        </div>`;
+      }).join('')}
+    </section>`).join('');
+
+  root.querySelectorAll('[data-sel]').forEach(el => el.onchange = e => {
+    const id = e.target.dataset.sel;
+    state[id] = Object.assign({}, state[id], {status: e.target.value});
+    save(); render(); applyFilter();
+  });
+  root.querySelectorAll('[data-note]').forEach(el => el.oninput = e => {
+    const id = e.target.dataset.note;
+    state[id] = Object.assign({}, state[id], {note: e.target.value});
+    save();
+  });
+  updateBar();
+}
+
+function updateBar() {
+  const all = DATA.flatMap(([,,t]) => t);
+  const done = all.filter(t => statusOf(t[0]) === 'done').length;
+  document.getElementById('pct').textContent = done + ' / ' + all.length + ' done';
+  document.getElementById('bar').style.width = (all.length ? done / all.length * 100 : 0) + '%';
+}
+
+let filter = 'all';
+function applyFilter() {
+  document.querySelectorAll('.task').forEach(el =>
+    el.classList.toggle('hidden', filter !== 'all' && el.dataset.status !== filter));
+  document.querySelectorAll('[data-epic]').forEach(sec =>
+    sec.classList.toggle('hidden', !sec.querySelector('.task:not(.hidden)')));
+}
+document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => {
+  filter = b.dataset.f;
+  document.querySelectorAll('[data-f]').forEach(x => x.classList.toggle('on', x === b));
+  applyFilter();
+});
+
+function exportCSV() {
+  const rows = [['ID','Section','Task','Detail','Where','Reference','Status','Notes']];
+  DATA.forEach(([name,,tasks]) => tasks.forEach(t =>
+    rows.push([t[0], name, t[1], t[2], t[3], t[4], LABEL[statusOf(t[0])], (state[t[0]]||{}).note || ''])));
+  const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+  a.download = 'FEKRA_Feedback_Tasks.csv';
+  a.click();
+}
+
+function resetAll() {
+  if (!confirm('Reset every status and note?')) return;
+  state = {};
+  DATA.forEach(([,,tasks]) => tasks.forEach(t => { if (t[5]) state[t[0]] = {status:t[5]} }));
+  save(); render(); applyFilter();
+}
+
+render();
+</script>
+</body>
+</html>

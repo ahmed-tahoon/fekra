@@ -142,6 +142,18 @@ const nextConfig: NextConfig = {
         source: '/images/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
+      /*
+       * Internal working documents served from /public. They are readable by
+       * anyone with the link — that is the point — but they are not part of the
+       * marketing site, so keep them out of every index. robots.txt only covers
+       * /admin, /cms-api and /api, and the proxy matcher skips anything with a
+       * file extension, so this header is the only thing standing between an
+       * internal board and a Google result.
+       */
+      {
+        source: '/feedback-tasks.html',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' }],
+      },
     ]
   },
 
