@@ -16,13 +16,27 @@ import { resolveLink, type PayloadLink } from '@/lib/resolveLink'
 const SOCIAL_PATH: Record<string, string> = {
   linkedin:
     'M6.94 5a2 2 0 1 1-4-.002 2 2 0 0 1 4 .002zM7 8.48H3V21h4V8.48zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-4 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.72-2.91l.04-1.68z',
+  /*
+   * FB-1 — the previous path had `h2.78L15.9 22`, an absolute lineto that cut a
+   * visible notch out of the bottom-right of the circle, and it never closed
+   * the descender of the "f". This is the official mark.
+   *
+   * It spans the full 0-24 box where the others are inset to 2-22, so it
+   * carries its own viewBox to land at the same optical size (see SOCIAL_VIEWBOX).
+   */
   facebook:
-    'M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7H7.9v-2.94h2.54V9.85c0-2.52 1.49-3.91 3.77-3.91 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78L15.9 22c4.34-.79 8-4.94 8-9.94z',
+    'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
   youtube:
     'M21.58 7.19a2.51 2.51 0 0 0-1.77-1.78C18.25 5 12 5 12 5s-6.25 0-7.81.41a2.51 2.51 0 0 0-1.77 1.78A26.2 26.2 0 0 0 2 12a26.2 26.2 0 0 0 .42 4.81 2.51 2.51 0 0 0 1.77 1.78C5.75 19 12 19 12 19s6.25 0 7.81-.41a2.51 2.51 0 0 0 1.77-1.78A26.2 26.2 0 0 0 22 12a26.2 26.2 0 0 0-.42-4.81zM10 15.02V8.98L15.2 12 10 15.02z',
   whatsapp:
     'M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.34 5L2 22l5.2-1.36a9.9 9.9 0 0 0 4.84 1.24h.01c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm5.83 14.24c-.24.68-1.42 1.31-1.95 1.36-.52.05-1 .24-3.38-.71-2.85-1.13-4.66-4.05-4.8-4.24-.14-.19-1.15-1.53-1.15-2.92s.73-2.07 1-2.36c.26-.28.57-.35.76-.35h.55c.17 0 .42-.07.65.5.24.58.81 2 .88 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.3.37-.42.5-.14.14-.29.29-.12.57.17.28.74 1.22 1.59 1.98 1.09.97 2.01 1.27 2.29 1.41.28.14.45.12.62-.07.17-.19.71-.83.9-1.12.19-.28.38-.24.64-.14.26.09 1.66.78 1.94.93.28.14.47.21.54.33.07.12.07.68-.17 1.36z',
 }
+
+/** Icons drawn to a different box than 2-22 need their own, or they render oversized. */
+const SOCIAL_VIEWBOX: Record<string, string> = {
+  facebook: '-2.4 -2.4 28.8 28.8',
+}
+const viewBoxFor = (platform: string) => SOCIAL_VIEWBOX[platform.toLowerCase()] ?? '0 0 24 24'
 
 import { NewsletterForm } from './NewsletterForm'
 
@@ -89,7 +103,7 @@ export function Footer({
                       className="inline-grid size-9 place-items-center rounded-lg bg-card text-navy-800 shadow-card transition-colors hover:text-primary dark:text-foreground"
                     >
                       {path ? (
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="size-[18px]" aria-hidden>
+                        <svg viewBox={viewBoxFor(s.platform)} fill="currentColor" className="size-[18px]" aria-hidden>
                           <path d={path} />
                         </svg>
                       ) : (
@@ -223,7 +237,7 @@ export function Footer({
                         aria-label={s.platform}
                         className="transition-colors hover:text-foreground"
                       >
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="size-4" aria-hidden>
+                        <svg viewBox={viewBoxFor(s.platform)} fill="currentColor" className="size-4" aria-hidden>
                           <path d={path} />
                         </svg>
                       </a>

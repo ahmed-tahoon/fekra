@@ -100,7 +100,10 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
       <ol
         /* ps reserves room for the number gutter that hangs off the bars'
            start edge — without it the active ribbon clips at the viewport. */
-        className="flex w-full max-w-[544px] flex-col gap-4 ps-10 [--fs:0.58] min-[400px]:[--fs:0.72] sm:ps-0 sm:[--fs:1]"
+        /* PF-3 — was gap-4. At 16px the five bars read as separate blocks
+           stacked up; at 4px they read as one narrowing funnel, which is the
+           whole point of the graphic. */
+        className="flex w-full max-w-[544px] flex-col gap-1 ps-10 [--fs:0.58] min-[400px]:[--fs:0.72] sm:ps-0 sm:[--fs:1]"
         onMouseEnter={() => (held.current = true)}
         onMouseLeave={() => (held.current = false)}
       >
@@ -166,16 +169,20 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
           )
         })}
 
-        {/* Funnel outlet: the short tip, with "Top 3%" flowing out of it as an
-            arrow-pointed teal ribbon. Same RTL treatment as the number flag. */}
-        <li aria-hidden className="flex h-10 justify-center sm:h-14">
-          <div className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
-            <span className="absolute inset-y-0 start-0 -end-4 bg-border [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] rtl:-scale-x-100 dark:bg-card" />
-            <span
-              className="absolute start-full top-0 flex h-full items-center justify-center gap-2 text-primary-foreground"
-              style={{ width: 'calc(var(--fs) * 160px)' }}
-            >
-              <span className="absolute inset-y-0 start-0 -end-6 bg-primary [clip-path:polygon(16px_0,calc(100%-24px)_0,100%_50%,calc(100%-24px)_100%,0_100%,0_20px,16px_4px)] rtl:-scale-x-100" />
+        {/*
+         * PF-4 — the funnel's final stage IS the result.
+         *
+         * "Top 3%" used to hang off the tip as a separate arrow-pointed ribbon,
+         * which read as a label sitting beside the process rather than its
+         * outcome. Now the last box is the brand colour with the result inside
+         * it, so the eye finishes the narrowing and lands on the answer. The
+         * box keeps the same bevelled clip-path as every bar above it, so it
+         * still belongs to the funnel rather than being a new shape.
+         */}
+        <li aria-hidden className="flex h-11 justify-center sm:h-16">
+          <div className="relative h-full" style={{ width: 'calc(var(--fs) * 232px)' }}>
+            <span className="absolute inset-y-0 start-0 -end-4 bg-primary [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] rtl:-scale-x-100" />
+            <span className="relative flex h-full items-center justify-center gap-2 text-primary-foreground">
               <svg
                 viewBox="0 0 17.45 21.04"
                 fill="currentColor"
@@ -183,13 +190,13 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                 strokeWidth="0.5"
                 strokeLinejoin="round"
                 aria-hidden
-                className="relative h-5 w-auto shrink-0 sm:h-6"
+                className="h-5 w-auto shrink-0 sm:h-6"
               >
                 {WINNER_PATHS.map((d) => (
                   <path key={d.slice(0, 16)} d={d} />
                 ))}
               </svg>
-              <span className="relative pe-2 text-base font-bold whitespace-nowrap sm:text-lg">Top 3%</span>
+              <span className="text-base font-bold whitespace-nowrap sm:text-lg">Top 3%</span>
             </span>
           </div>
         </li>

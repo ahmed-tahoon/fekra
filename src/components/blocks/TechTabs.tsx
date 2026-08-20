@@ -1,13 +1,15 @@
 'use client'
 
 import Image from 'next/image'
+
+import { logoMarkSize } from '@/lib/logo-size'
 import { useId, useRef, useState } from 'react'
 
 import { cn } from '@/lib/cn'
 
 export type TechGroup = {
   name: string
-  items: { name: string; src?: string | null }[]
+  items: { name: string; src?: string | null; width?: number | null; height?: number | null }[]
 }
 
 /**
@@ -89,19 +91,35 @@ export function TechTabs({ groups }: { groups: TechGroup[] }) {
           <ul className="grid grid-cols-2 gap-x-10 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
             {group.items.map((item) => (
               <li key={item.name} className="flex flex-col items-center gap-4 text-center">
-                <span className="flex h-[88px] items-center justify-center">
-                  {item.src ? (
-                    <Image
-                      src={item.src}
-                      alt=""
-                      width={88}
-                      height={88}
-                      aria-hidden
-                      className="max-h-[88px] w-auto object-contain"
-                    />
-                  ) : null}
-                </span>
-                <span className="text-lg/7 text-ink-700 dark:text-muted-foreground">{item.name}</span>
+                {/*
+                 * TS-3 / TS-4 — a white square tile with generous inner padding,
+                 * and every mark sized to equal AREA (see lib/logo-size).
+                 *
+                 * `max-h-[88px] w-auto` sized each logo by its own height, so a
+                 * square icon filled 88x88 while a wide wordmark rendered 88
+                 * wide and barely 30 tall — an 8x spread in ink. Equal-area
+                 * sizing in a fixed square brings that to ~1x.
+                 *
+                 * No logo yet? Render the name as a chip rather than an empty
+                 * white square, which reads as a broken image.
+                 */}
+                {item.src ? (
+                  <span className="flex size-[104px] items-center justify-center rounded-2xl bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06)] ring-1 ring-black/[0.04]">
+                    <span
+                      className="relative block"
+                      style={logoMarkSize(item.width, item.height, 1) ?? { width: '100%', height: '100%' }}
+                    >
+                      <Image src={item.src} alt="" fill sizes="104px" aria-hidden className="object-contain" />
+                    </span>
+                  </span>
+                ) : (
+                  <span className="flex size-[104px] items-center justify-center rounded-2xl bg-white px-3 text-center text-sm font-semibold text-navy-800 shadow-[0_1px_3px_rgba(15,23,42,0.06)] ring-1 ring-black/[0.04]">
+                    {item.name}
+                  </span>
+                )}
+                {item.src ? (
+                  <span className="text-lg/7 text-ink-700 dark:text-muted-foreground">{item.name}</span>
+                ) : null}
               </li>
             ))}
           </ul>

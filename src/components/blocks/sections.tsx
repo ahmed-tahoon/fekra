@@ -6,6 +6,7 @@ import { RichText } from '@/components/RichText'
 import { LinkButton } from '@/components/ui/Button'
 import type { Locale } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
+import { logoMarkSize } from '@/lib/logo-size'
 import { faqSchema } from '@/lib/jsonld'
 import { resolveLink } from '@/lib/resolveLink'
 
@@ -405,37 +406,6 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 }
 
 
-/* Client-logo board sizing (CL-1). */
-const LOGO_CELL_ASPECT = 4 / 3
-/** Share of each cell's area a mark covers. Raise it and the board gets denser. */
-const LOGO_AREA_FILL = 0.52
-
-/**
- * Width and height, as percentages of the cell, chosen so every mark covers the
- * SAME AREA regardless of its proportions.
- *
- * `object-contain` alone does not do this: it fits each mark to the cell's
- * bounding box, which rewards square marks and starves portrait ones. Measured
- * against the real uploads, contain left a 1.70x spread between the largest and
- * smallest rendered mark — Al Rajhi (738x738) filled its box while ADNOC
- * (198x288) covered barely half of it. Equal-area sizing brings that to 1.09x.
- *
- * Returns undefined when the upload has no intrinsic dimensions; the caller
- * then falls back to plain contain-with-padding.
- */
-function logoMarkSize(width?: number | null, height?: number | null) {
-  if (!width || !height) return undefined
-  const aspect = width / height
-  const cellRatio = 1 / LOGO_CELL_ASPECT
-  let w = Math.sqrt(LOGO_AREA_FILL * cellRatio * aspect)
-  let h = Math.sqrt(LOGO_AREA_FILL / (cellRatio * aspect))
-  // A very wide or very tall mark would spill past the cell — pull both back.
-  const clamp = Math.min(1, 1 / w, 1 / h)
-  w *= clamp
-  h *= clamp
-  return { width: `${(w * 100).toFixed(1)}%`, height: `${(h * 100).toFixed(1)}%` }
-}
-
 export function LogoCloudSection({ block }: { block: BlockProps }) {
   /* Figma 1:11600 — the same logo array, presented as a centred badge row
      under a gradient heading instead of beside a statement. */
@@ -745,9 +715,16 @@ export function IndustriesSection({ block }: { block: BlockProps }) {
           {block.body ? <p className="max-w-3xl text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p> : null}
         </div>
 
-        {/* Centred wrap rather than fixed rows: the comp is 7/6/7 at 1440, and
-            a wrap keeps that shape while still reflowing on narrower screens. */}
-        <ul className="flex flex-wrap justify-center gap-6">
+        {/*
+         * IE-1 — the comp is three rows at 1440, but an unconstrained wrap fits
+         * six per row and lands 6/6/6/2: four rows with a stranded pair on the
+         * end, which is what reads as crowded and unfinished.
+         *
+         * Capping the list at seven cards' width (7x160 + 6x24 = 1264) forces
+         * exactly seven per row, so twenty items land 7/7/6 — three balanced
+         * rows with no orphan. Still a wrap, so it reflows normally below lg.
+         */}
+        <ul className="flex flex-wrap justify-center gap-6 lg:max-w-[1264px]">
           {items.map((item) => {
             const icon = item.icon as MediaDoc | undefined
             return (
@@ -798,22 +775,29 @@ export function ProcessSection({ block }: { block: BlockProps }) {
 
   return (
     <section id={block.anchor ?? undefined} className="section">
-      {/* Figma 1:11041 — 100px between the heading block and the funnel. */}
-      <div className="container-site flex flex-col items-center gap-10 lg:gap-[100px]">
-        <div className="flex flex-col items-center gap-2 text-center">
+      {/*
+       * PF-1 — the comp's 100px gap between the heading and the funnel is what
+       * reads as "too spread out" once the funnel and its description sit side
+       * by side. Pulled to 56px, and the heading block gets its own tighter
+       * internal rhythm so eyebrow/heading/body read as one unit.
+       */}
+      <div className="container-site flex flex-col items-center gap-8 lg:gap-14">
+        <div className="flex max-w-3xl flex-col items-center gap-3 text-center">
           {block.eyebrow ? (
             <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
               {block.eyebrow}
             </p>
           ) : null}
-          <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+          {/* PF-2 — was clamp(2rem,4vw,3rem). At 48px it dwarfed the funnel's
+              own 20-24px type; the hierarchy now steps down more gently. */}
+          <h2 className="font-display text-[clamp(1.75rem,3.2vw,2.5rem)] leading-[1.1] font-bold">
             <span className="bg-[linear-gradient(142deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
               {block.heading}
               {block.headingAccent ? ` ${block.headingAccent}` : null}
             </span>
           </h2>
           {block.body ? (
-            <p className="max-w-3xl text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p>
+            <p className="max-w-2xl text-base/7 text-ink-500 dark:text-muted-foreground">{block.body}</p>
           ) : null}
         </div>
 
@@ -1104,7 +1088,14 @@ export function TechStackSection({ block }: { block: BlockProps }) {
     name: group.name,
     items: (group.items ?? []).map((item) => {
       const logo = item.logo as MediaDoc | undefined
-      return { name: item.name, src: logo?.url ? mediaUrl(logo) : null }
+      // width/height ride along so the grid can size every mark to equal area
+      // (TS-3) rather than letting a wide wordmark dwarf a square icon.
+      return {
+        name: item.name,
+        src: logo?.url ? mediaUrl(logo) : null,
+        width: logo?.width ?? null,
+        height: logo?.height ?? null,
+      }
     }),
   }))
 
