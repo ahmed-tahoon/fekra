@@ -227,7 +227,10 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 bottom-8 md:bottom-12 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:hidden"
+        /* Dark gets its own wash rather than `dark:hidden`, which left the hero
+           flat black while every other theme surface carried a tint. Same angle,
+           brand teal into navy at low alpha over the dark background. */
+        className="absolute inset-x-0 top-0 bottom-8 md:bottom-12 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]"
       />
       <div className="relative z-10 container-wide shrink-0">
         {/* Uniform ~28px rhythm between pill, headline, body, bullets and CTA —
@@ -531,7 +534,19 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                  * two thirds the area. A 4:3 cell plus inner padding evens the
                  * optical weight without touching any logo's proportions.
                  */
-                <li key={logo.name} className="flex aspect-[4/3] w-full items-center justify-center">
+                /*
+                 * Dark mode puts the marks on a light tile rather than
+                 * inverting them. `dark:invert` only works for a logo with a
+                 * transparent background: adnoc, kuwait-finance-house and
+                 * smart-management-systems ship an opaque white one, so
+                 * inverting turned each into a solid white rectangle. A tile
+                 * handles both kinds, and matches how the tech-stack logos are
+                 * meant to sit on white too.
+                 */
+                <li
+                  key={logo.name}
+                  className="flex aspect-[4/3] w-full items-center justify-center rounded-lg dark:bg-white/92"
+                >
                   {/* Inner box carries the computed equal-area size; the image
                       contains inside it, so no logo is ever distorted. */}
                   <span className="relative" style={logoMarkSize(image.width, image.height) ?? { width: '82%', height: '72%' }}>
@@ -540,7 +555,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                       alt={logo.name}
                       fill
                       sizes="128px"
-                      className="object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:brightness-0 dark:invert dark:hover:brightness-100 dark:hover:invert-0"
+                      className="object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0"
                     />
                   </span>
                 </li>

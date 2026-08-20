@@ -176,6 +176,9 @@
   --muted-foreground: var(--color-ink-500);
   --card: #ffffff;
   --card-foreground: var(--color-ink-900);
+  /* Surfaces stacked above a card (menus, popovers, mobile nav). In light mode
+     white-on-white needs a shadow to separate; dark mode steps the luminance. */
+  --elevated: #ffffff;
   --border: #d9dcdf;
   --input: #d9dcdf;
   --primary: var(--color-brand-500);
@@ -187,15 +190,38 @@
   --overlay: rgb(0 0 0 / 0.45);
 }
 
+/*
+ * Dark theme (15.1/15.5).
+ *
+ * One neutral ramp, all tinted to ~212deg — between the brand teal (190deg) and
+ * the FEKRA navy (225deg), so the darks read as part of the brand rather than
+ * as generic grey. The previous set drifted across 171-233deg: the border was
+ * visibly green while the foreground was blue-violet, which is what made dark
+ * mode feel muddy and unrelated to the light theme.
+ *
+ * Four surface levels instead of three, each a deliberate luminance step
+ * (0.0046 -> 0.0077 -> 0.0117 -> 0.0178), so nested panels separate without
+ * anyone reaching for a border or a shadow.
+ *
+ * Every pairing is measured, not eyeballed:
+ *   body on background    16.3:1      muted on card        6.7:1
+ *   body on card          14.4:1      primary on card      6.7:1
+ *   muted on background    7.6:1      label on primary     7.1:1
+ * Border is 1.66:1 against card — the old #24312f sat at 1.28:1, below the
+ * point where an edge reads at all, so cards looked like they had none.
+ */
 .dark {
-  --background: #0b1013;
-  --background-subtle: #101819;
-  --foreground: #f1f2f9;
-  --muted-foreground: #9aa5a4;
-  --card: #131c1f;
-  --card-foreground: #f1f2f9;
-  --border: #24312f;
-  --input: #24312f;
+  --background: #0a0f15;
+  --background-subtle: #0f161e;
+  --foreground: #e6edf5;
+  --muted-foreground: #94a4b8;
+  --card: #141d27;
+  --card-foreground: #e6edf5;
+  /* Menus, popovers and the mobile nav sit above cards. */
+  --elevated: #1b2531;
+  --border: #354252;
+  /* A field's edge has to out-read a divider, or inputs vanish. */
+  --input: #41505f;
   --primary: var(--color-brand-400);
   --primary-hover: var(--color-brand-300);
   /* Brand-400 on dark needs a dark label to stay above 4.5:1 (15.5). */
@@ -203,7 +229,8 @@
   --accent: var(--color-brand-100);
   --accent-foreground: #04181d;
   --ring: var(--color-brand-300);
-  --overlay: rgb(0 0 0 / 0.7);
+  /* Deeper than light mode: a dim overlay over a dark page reads as a bug. */
+  --overlay: rgb(0 0 0 / 0.72);
 }
 
 @theme inline {
@@ -213,6 +240,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-elevated: var(--elevated);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-primary: var(--primary);
