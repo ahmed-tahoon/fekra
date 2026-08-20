@@ -11,6 +11,13 @@
  * aspect (MOSAIC_LAYOUT x the 1408:456 board), and dropping a portrait photo
  * into a 2:1 slot crops the subject's head off. The three portrait slots get
  * the three portrait photos; the wide slots get the wide ones.
+ *
+ * Orientation alone is not always enough. object-cover crops from the CENTRE,
+ * so a subject sitting off to one side gets sliced even when the aspect is
+ * close: the 1.48-wide desk portrait lost 32% of its frame in the 1.01 slot and
+ * cut the person in half. That one was re-cropped square with sharp's
+ * saliency-aware `position: 'attention'` before upload, which brings the loss
+ * to 1%. Check any photo whose subject is not central.
  */
 import { existsSync } from 'node:fs'
 import path from 'node:path'
