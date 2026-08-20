@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
-import { PUBLIC_LOCALES, LOCALE_META, type Locale, localeHref, splitLocale } from '@/i18n/routing'
+import { LOCALES, PUBLIC_LOCALES, LOCALE_META, type Locale, localeHref, splitLocale } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
 
 /**
@@ -41,11 +41,21 @@ export function LanguageSwitcher({
     }
   }, [open])
 
-  // Nothing to switch to — render nothing rather than a one-item menu. Comes
-  // back on its own the moment PUBLIC_LOCALES grows.
-  if (PUBLIC_LOCALES.length < 2) return null
+  if (LOCALES.length < 2) return null
 
-  const enabled = new Set<Locale>(available?.length ? available : [...PUBLIC_LOCALES])
+  /*
+   * The menu lists ALL five languages; only the ones we can actually serve are
+   * clickable. Two separate gates decide that:
+   *
+   *   PUBLIC_LOCALES  - the locales the router serves at all
+   *   available       - the locales THIS document has an approved translation in
+   *
+   * Listing every language answers "where is the language menu?" while an
+   * unserved locale stays visibly disabled rather than silently handing the
+   * visitor translated chrome wrapped around English content (14.9).
+   */
+  const approved = new Set<Locale>(available?.length ? (available as Locale[]) : [...PUBLIC_LOCALES])
+  const enabled = new Set<Locale>([...PUBLIC_LOCALES].filter((l) => approved.has(l)))
 
   return (
     <div ref={ref} className="relative">
@@ -66,7 +76,7 @@ export function LanguageSwitcher({
           role="menu"
           className="absolute end-0 z-50 mt-2 min-w-44 rounded-card border border-border bg-card p-1 shadow-lift"
         >
-          {PUBLIC_LOCALES.map((locale) => {
+          {LOCALES.map((locale) => {
             const isAvailable = enabled.has(locale)
             const label = LOCALE_META[locale].label
 

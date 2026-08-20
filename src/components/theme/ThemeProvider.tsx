@@ -4,13 +4,15 @@ import { ThemeProvider as NextThemes } from 'next-themes'
 import type { ReactNode } from 'react'
 
 /**
- * Light only for launch: `forcedTheme` pins the class regardless of OS setting
- * or any stored choice. The dark styles stay in the codebase — restoring the
- * toggle is `defaultTheme="system" enableSystem` plus the header button back.
+ * System theme on first visit, manual choice remembered after that (15.2/15.4).
+ *
+ * next-themes writes the class before first paint, so there is no theme flash
+ * (15.2/2.6). `disableTransitionOnChange` suppresses the colour transitions
+ * mid-switch, which otherwise animate every token on the page at once.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
   return (
-    <NextThemes attribute="class" forcedTheme="light" disableTransitionOnChange>
+    <NextThemes attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       {children}
     </NextThemes>
   )
