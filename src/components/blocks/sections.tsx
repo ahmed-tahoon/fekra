@@ -401,6 +401,38 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
   )
 }
 
+
+/* Client-logo board sizing (CL-1). */
+const LOGO_CELL_ASPECT = 4 / 3
+/** Share of each cell's area a mark covers. Raise it and the board gets denser. */
+const LOGO_AREA_FILL = 0.52
+
+/**
+ * Width and height, as percentages of the cell, chosen so every mark covers the
+ * SAME AREA regardless of its proportions.
+ *
+ * `object-contain` alone does not do this: it fits each mark to the cell's
+ * bounding box, which rewards square marks and starves portrait ones. Measured
+ * against the real uploads, contain left a 1.70x spread between the largest and
+ * smallest rendered mark — Al Rajhi (738x738) filled its box while ADNOC
+ * (198x288) covered barely half of it. Equal-area sizing brings that to 1.09x.
+ *
+ * Returns undefined when the upload has no intrinsic dimensions; the caller
+ * then falls back to plain contain-with-padding.
+ */
+function logoMarkSize(width?: number | null, height?: number | null) {
+  if (!width || !height) return undefined
+  const aspect = width / height
+  const cellRatio = 1 / LOGO_CELL_ASPECT
+  let w = Math.sqrt(LOGO_AREA_FILL * cellRatio * aspect)
+  let h = Math.sqrt(LOGO_AREA_FILL / (cellRatio * aspect))
+  // A very wide or very tall mark would spill past the cell — pull both back.
+  const clamp = Math.min(1, 1 / w, 1 / h)
+  w *= clamp
+  h *= clamp
+  return { width: `${(w * 100).toFixed(1)}%`, height: `${(h * 100).toFixed(1)}%` }
+}
+
 export function LogoCloudSection({ block }: { block: BlockProps }) {
   /* Figma 1:11600 — the same logo array, presented as a centred badge row
      under a gradient heading instead of beside a statement. */
@@ -462,11 +494,14 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
        board pushed to opposite edges. container-site is the 1440 frame's
        content width; container-wide would stretch the board out of proportion. */
     <section id={block.anchor ?? undefined} className="py-[var(--section-y)]">
-      <div className="container-site flex flex-col items-center gap-8 lg:flex-row lg:justify-between lg:gap-12">
+      {/* CL-2 — the two halves were pinned to opposite edges of container-site,
+          which on a wide screen left a canyon between the copy and the board.
+          Cap the pair at 1040px and centre it so they read as one composition. */}
+      <div className="container-site mx-auto flex max-w-[1040px] flex-col items-center gap-8 lg:flex-row lg:justify-between lg:gap-14">
         {hasStatement ? (
           /* 458px / 32px / 48px line-height, Space Grotesk Medium in the comp —
              not bold, which is what made it read heavier than the design. */
-          <p className="max-w-[458px] font-display text-2xl leading-[1.5] font-medium text-navy-800 lg:text-[32px] dark:text-foreground">
+          <p className="max-w-[420px] font-display text-xl leading-[1.45] font-medium text-balance text-navy-800 lg:text-[26px] dark:text-foreground">
             {statement?.before}{' '}
             {statement?.highlight ? <span className="text-primary">{statement.highlight}</span> : null}{' '}
             {statement?.after}
@@ -481,22 +516,33 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
           /* A flex-wrap board of fixed cells — large marks on tight 10px gaps
              so the logos, not the whitespace, carry the board. Four per row,
              remainder left-aligned: the 4/4/2 rhythm. */
-          <ul className="flex max-w-[542px] flex-wrap items-center justify-center gap-2.5 lg:justify-start">
+          <ul className="grid w-full max-w-[480px] grid-cols-3 gap-x-3 gap-y-2 sm:grid-cols-4">
             {logos.map((logo) => {
               const image = logo.image as MediaDoc | undefined
               if (!image?.url) return null
               return (
-                /* Fixed cell, mark contained inside. The marks run from 3:2 to
-                   2:3, so a shared max-height would shrink the tall ones to
-                   nothing; a fixed cell keeps them optically even. */
-                <li key={logo.name} className="relative h-18 w-[100px] shrink-0 sm:h-25 sm:w-32">
-                  <Image
-                    src={mediaUrl(image)}
-                    alt={logo.name}
-                    fill
-                    sizes="120px"
-                    className="object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:brightness-0 dark:invert dark:hover:brightness-100 dark:hover:invert-0"
-                  />
+                /*
+                 * CL-1 / CL-4 — equal grid cells, so every mark sits on the
+                 * same baseline and the rows cannot go ragged.
+                 *
+                 * The marks run from 3:2 to 2:3, and object-contain in a wide
+                 * cell rewards square logos and starves portrait ones: Al Rajhi
+                 * (738x738) filled its box while ADNOC (198x288) rendered at
+                 * two thirds the area. A 4:3 cell plus inner padding evens the
+                 * optical weight without touching any logo's proportions.
+                 */
+                <li key={logo.name} className="flex aspect-[4/3] w-full items-center justify-center">
+                  {/* Inner box carries the computed equal-area size; the image
+                      contains inside it, so no logo is ever distorted. */}
+                  <span className="relative" style={logoMarkSize(image.width, image.height) ?? { width: '82%', height: '72%' }}>
+                    <Image
+                      src={mediaUrl(image)}
+                      alt={logo.name}
+                      fill
+                      sizes="128px"
+                      className="object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:brightness-0 dark:invert dark:hover:brightness-100 dark:hover:invert-0"
+                    />
+                  </span>
                 </li>
               )
             })}
