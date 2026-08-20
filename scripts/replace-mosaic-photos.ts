@@ -38,12 +38,12 @@ const ASSIGNMENT: ({ file: string; alt: string } | null)[] = [
   { file: 'developer-workspace-side.webp', alt: 'A FEKRA engineer at work in the Cairo office' },
   { file: 'developer-desk-bright.webp', alt: 'A FEKRA developer at a dual-monitor desk' },
   { file: 'team-standup-review.webp', alt: 'FEKRA engineers reviewing work at a standing desk' },
-  { file: 'team-review-huddle.webp', alt: 'A FEKRA team reviewing work together at a screen' },
+  { file: 'team-focus-coworking.webp', alt: 'A FEKRA engineer focused at her laptop' },
   { file: 'developer-coding-window.webp', alt: 'A FEKRA developer writing code by the window' },
   { file: 'team-pairing-session.webp', alt: 'Three FEKRA colleagues pairing over a laptop' },
   { file: 'team-lounge-pair.webp', alt: 'Two FEKRA engineers working together in the office lounge' },
   { file: 'developer-desk-portrait.webp', alt: 'A FEKRA engineer at his desk in the Cairo office' },
-  { file: 'team-focus-coworking.webp', alt: 'A FEKRA engineer focused at her laptop' },
+  { file: 'team-review-huddle.webp', alt: 'A FEKRA team reviewing work together at a screen' },
 ]
 
 const run = async () => {
@@ -80,7 +80,20 @@ const run = async () => {
   const uploaded = new Map<string, number>()
   for (const a of ASSIGNMENT) {
     if (!a) continue
-    const found = await payload.find({ collection: 'media', where: { filename: { equals: a.file } }, limit: 1, depth: 0 })
+    /*
+     * Match the stem, not the exact filename. Payload renames on re-upload —
+     * updating a doc's file turns foo.webp into foo-1.webp — so an `equals`
+     * lookup misses it and this script cheerfully uploads a second copy. That
+     * is how media 162/163 ended up as duplicates of the same photo.
+     */
+    const stem = a.file.replace(/\.webp$/, '')
+    const found = await payload.find({
+      collection: 'media',
+      where: { filename: { like: stem } },
+      limit: 1,
+      sort: 'id',
+      depth: 0,
+    })
     if (found.docs[0]) {
       uploaded.set(a.file, found.docs[0].id as number)
       console.log(`  reuse  ${a.file}`)
