@@ -71,8 +71,22 @@ const run = async () => {
   }
 
   layout[index] = { ...block, logos: ordered }
-  await payload.update({ collection: 'pages', id: home.id, data: { layout } as never })
-  console.log(`\nApplied — ${ordered.length} logos in agreed order.`)
+  /*
+   * `_status` MUST be carried through. Pages has drafts enabled, so an update
+   * that omits it saves a draft and silently UNPUBLISHES the page — the public
+   * /cms-api starts 404ing while the live site keeps serving a stale static
+   * copy, so nothing looks wrong until the next revalidation. Learned the hard
+   * way on 20 Aug 2026.
+   */
+  await payload.update({
+    collection: 'pages',
+    id: home.id,
+    data: { layout, _status: home._status ?? 'published' } as never,
+  })
+
+  const after = await payload.findByID({ collection: 'pages', id: home.id, depth: 0 })
+  if (after._status !== 'published') throw new Error(`Page left as "${after._status}" — republish it in /admin.`)
+  console.log(`\nApplied — ${ordered.length} logos in agreed order, page still published.`)
   process.exit(0)
 }
 
