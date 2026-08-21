@@ -240,7 +240,11 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           {block.trustLine ? (
             <p
               style={{ '--i': 0 } as React.CSSProperties}
-              className="fk-enter inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3 py-1 text-xs font-medium sm:px-3.5 sm:py-1.5 sm:text-sm tracking-[0.35px] text-ink-500 dark:border-border dark:bg-card"
+              /* text-ink-500 is a LIGHT-mode grey and had no dark override, so
+                 in dark it sat at 3.39:1 on the card — under the 4.5:1 floor.
+                 The pill also used bg-card, only 1.13:1 against the page, so it
+                 barely read as a pill at all. Elevated + foreground fixes both. */
+              className="fk-enter inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3 py-1 text-xs font-medium sm:px-3.5 sm:py-1.5 sm:text-sm tracking-[0.35px] text-ink-500 dark:border-border dark:bg-elevated dark:text-foreground"
             >
               <span aria-hidden className="size-2 shrink-0 rounded-pill bg-primary" />
               {block.trustLine}
@@ -947,7 +951,7 @@ export function FaqSection({ block, locale }: { block: BlockProps; locale: Local
                 </span>
                 <span
                   aria-hidden
-                  className="grid size-[34px] shrink-0 place-items-center rounded-pill bg-[linear-gradient(135deg,rgba(72,155,194,0.4)_0%,rgba(142,142,142,0.1)_100%)] text-navy-800 transition-transform duration-300 group-open:rotate-90 group-open:bg-primary group-open:bg-none group-open:text-white"
+                  className="grid size-[34px] shrink-0 place-items-center rounded-pill bg-[linear-gradient(135deg,rgba(72,155,194,0.4)_0%,rgba(142,142,142,0.1)_100%)] text-navy-800 transition-transform duration-300 group-open:rotate-90 group-open:bg-primary group-open:bg-none group-open:text-white dark:text-foreground"
                 >
                   <svg viewBox="0 0 24 24" fill="none" className="size-4" strokeWidth="2.5" stroke="currentColor">
                     <path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
