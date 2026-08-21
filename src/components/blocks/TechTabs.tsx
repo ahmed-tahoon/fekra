@@ -92,19 +92,24 @@ export function TechTabs({ groups }: { groups: TechGroup[] }) {
             {group.items.map((item) => (
               <li key={item.name} className="flex flex-col items-center gap-4 text-center">
                 {/*
-                 * TS-3 / TS-4 — a white square tile with generous inner padding,
-                 * and every mark sized to equal AREA (see lib/logo-size).
+                 * TS-3 — a fixed square cell with every mark sized to equal AREA
+                 * (see lib/logo-size).
                  *
                  * `max-h-[88px] w-auto` sized each logo by its own height, so a
                  * square icon filled 88x88 while a wide wordmark rendered 88
                  * wide and barely 30 tall — an 8x spread in ink. Equal-area
                  * sizing in a fixed square brings that to ~1x.
                  *
-                 * No logo yet? Render the name as a chip rather than an empty
-                 * white square, which reads as a broken image.
+                 * The cell is transparent: the white tiles TS-4 asked for read
+                 * as heavy cards floating on the tinted panel, so they were
+                 * dropped on request. The panel supplies the ground instead.
+                 * Keeping the fixed square is what still holds the grid even.
+                 *
+                 * No logo yet? Render the name in the same square with a soft
+                 * outline, so the cell is not simply empty.
                  */}
                 {item.src ? (
-                  <span className="flex size-[104px] items-center justify-center rounded-2xl bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06)] ring-1 ring-black/[0.04]">
+                  <span className="flex size-[104px] items-center justify-center p-2">
                     <span
                       className="relative block"
                       style={logoMarkSize(item.width, item.height, 1) ?? { width: '100%', height: '100%' }}
@@ -113,7 +118,7 @@ export function TechTabs({ groups }: { groups: TechGroup[] }) {
                     </span>
                   </span>
                 ) : (
-                  <span className="flex size-[104px] items-center justify-center rounded-2xl bg-white px-3 text-center text-sm font-semibold text-navy-800 shadow-[0_1px_3px_rgba(15,23,42,0.06)] ring-1 ring-black/[0.04]">
+                  <span className="flex size-[104px] items-center justify-center rounded-2xl px-3 text-center text-sm font-semibold text-navy-800 ring-1 ring-navy-800/10 dark:text-foreground dark:ring-white/15">
                     {item.name}
                   </span>
                 )}
