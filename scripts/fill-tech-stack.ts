@@ -22,7 +22,7 @@
  *
  * AI / ML already has 11 items with logos and is left untouched.
  */
-import { existsSync, readdirSync } from 'node:fs'
+import { readdirSync } from 'node:fs'
 import path from 'node:path'
 
 import { getPayload } from 'payload'
