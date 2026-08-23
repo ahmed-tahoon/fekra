@@ -77,16 +77,26 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
     return () => observer.disconnect()
   }, [])
 
+  /*
+   * The cycle runs one beat PAST the last step: index === steps.length is the
+   * result state, where every stage reads as passed and the Top 3% outlet
+   * lights up. The reference's process ends inside the final funnel state
+   * rather than looping straight from step 5 back to step 1 — without this
+   * beat the outcome is never part of the journey.
+   */
   useEffect(() => {
     if (!auto || !started || steps.length < 2) return
     const id = setInterval(() => {
-      if (!held.current) setActive((i) => (i + 1) % steps.length)
+      if (!held.current) setActive((i) => (i + 1) % (steps.length + 1))
     }, DWELL_MS)
     return () => clearInterval(id)
   }, [auto, started, steps.length])
 
   if (!steps.length) return null
-  const step = steps[active] ?? steps[0]!
+  const resultActive = active === steps.length
+  // The card holds the last step's copy through the result beat — there is no
+  // CMS copy for "you made it", and a blank card would rock the layout.
+  const step = steps[Math.min(active, steps.length - 1)] ?? steps[0]!
 
   return (
     <div
@@ -109,6 +119,10 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
       >
         {steps.map((s, i) => {
           const on = i === active
+          // A stage the process has already passed stays lightly filled, so
+          // progress accumulates down the funnel instead of a lone ribbon
+          // hopping between grey blocks.
+          const passed = i < active
           const width = BARS[i] ?? BARS[BARS.length - 1]!
           return (
             <li key={s.title} className="flex h-10 justify-center sm:h-14">
@@ -138,7 +152,10 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                   aria-current={on ? 'step' : undefined}
                   /* Icon size and gap ride --fs with the bar widths, so the row
                      can never outgrow its bar at any scale. */
-                  className="group relative flex size-full items-center justify-center gap-[calc(var(--fs)*16px)] text-ink-500 dark:text-muted-foreground"
+                  className={cn(
+                    'group relative flex size-full items-center justify-center gap-[calc(var(--fs)*16px)] transition-colors duration-500',
+                    on || passed ? 'text-primary' : 'text-ink-500 dark:text-muted-foreground',
+                  )}
                 >
                   {/*
                    * The shape lives on this span, not the button, so the focus
@@ -151,7 +168,14 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                    */}
                   <span
                     aria-hidden
-                    className="absolute inset-y-0 start-0 -end-4 bg-border transition-colors duration-200 [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] group-hover:bg-canvas-2 rtl:-scale-x-100 dark:bg-card dark:group-hover:bg-border"
+                    className={cn(
+                      'absolute inset-y-0 start-0 -end-4 transition-colors duration-500 [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] rtl:-scale-x-100',
+                      on
+                        ? 'bg-brand-100 dark:bg-brand-900/60'
+                        : passed
+                          ? 'bg-brand-50 dark:bg-brand-900/30'
+                          : 'bg-border group-hover:bg-canvas-2 dark:bg-card dark:group-hover:bg-border',
+                    )}
                   />
                   <span className="sr-only">
                     Step {i + 1} — {s.title}
@@ -180,8 +204,19 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
          * still belongs to the funnel rather than being a new shape.
          */}
         <li aria-hidden className="flex h-11 justify-center sm:h-16">
-          <div className="relative h-full" style={{ width: 'calc(var(--fs) * 232px)' }}>
-            <span className="absolute inset-y-0 start-0 -end-4 bg-primary [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] rtl:-scale-x-100" />
+          <div
+            className={cn(
+              'relative h-full transition-transform duration-500',
+              resultActive && 'scale-[1.04]',
+            )}
+            style={{ width: 'calc(var(--fs) * 232px)' }}
+          >
+            <span
+              className={cn(
+                'absolute inset-y-0 start-0 -end-4 bg-primary transition-shadow duration-500 [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] rtl:-scale-x-100',
+                resultActive && 'shadow-[0_12px_32px_-8px_rgba(32,162,188,0.55)]',
+              )}
+            />
             <span className="relative flex h-full items-center justify-center gap-2 text-primary-foreground">
               <svg
                 viewBox="0 0 17.45 21.04"
@@ -209,7 +244,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
           hero. min-h stays so the card cannot change height between steps and
           rock the funnel beside it. */}
       <div aria-hidden className="w-full max-w-[420px] self-center p-6 sm:min-h-[220px] lg:p-8">
-        <div key={active} className="fk-enter [animation-duration:0.35s]">
+        <div key={Math.min(active, steps.length - 1)} className="fk-enter [animation-duration:0.35s]">
           <h3 className="font-display text-2xl leading-tight font-bold text-navy-800 dark:text-foreground">
             {step.title}
           </h3>
