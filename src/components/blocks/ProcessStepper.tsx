@@ -91,7 +91,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
   return (
     <div
       ref={root}
-      className="flex w-full flex-col items-center justify-center gap-12 lg:flex-row lg:items-stretch lg:gap-14"
+      className="flex w-full flex-col items-center justify-center gap-8 lg:flex-row lg:items-center lg:gap-10"
       onFocusCapture={() => (held.current = true)}
       onBlurCapture={() => (held.current = false)}
     >
@@ -204,12 +204,16 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
 
       {/* Active step detail — a duplicate of list content, so hidden from AT.
           Text only: no card chrome. */}
-      <div aria-hidden className="w-full max-w-[460px] self-center p-6 sm:min-h-[304px] sm:p-16">
+      {/* Card scale matched to the funnel's own type: a 32px title against
+          the bars' 14px labels is what made the right side feel like a second
+          hero. min-h stays so the card cannot change height between steps and
+          rock the funnel beside it. */}
+      <div aria-hidden className="w-full max-w-[420px] self-center p-6 sm:min-h-[220px] lg:p-8">
         <div key={active} className="fk-enter [animation-duration:0.35s]">
-          <h3 className="font-display text-[2rem] leading-[1.5] font-bold text-navy-800 dark:text-foreground">
+          <h3 className="font-display text-2xl leading-tight font-bold text-navy-800 dark:text-foreground">
             {step.title}
           </h3>
-          <p className="mt-6 text-xl/[1.3] text-ink-500 dark:text-muted-foreground">{step.body}</p>
+          <p className="mt-3 text-base/7 text-ink-500 dark:text-muted-foreground">{step.body}</p>
         </div>
       </div>
     </div>

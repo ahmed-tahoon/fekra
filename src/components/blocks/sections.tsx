@@ -477,11 +477,19 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
        * capped at 5xl then 6xl. `basis` rather than justify-between is what
        * stops the two halves drifting apart on a wide screen.
        */}
-      <div className="container-site mx-auto flex flex-col items-center gap-12 lg:max-w-5xl lg:flex-row lg:items-start xl:max-w-6xl">
+      {/*
+       * justify-center + fixed gap, NOT flex-1/basis: container-site sits in
+       * the same utilities layer as Tailwind's max-w-* and is declared later,
+       * so the lg:max-w-5xl cap lost and the row ran ~1800px wide. With the
+       * copy on flex-1 it absorbed all of that, its text capped at 28rem —
+       * which put ~700px of dead air between the text and the grid. Centring
+       * the pair with a fixed gap cannot stretch, whatever the row width.
+       */}
+      <div className="container-site mx-auto flex flex-col items-center gap-12 lg:flex-row lg:items-start lg:justify-center lg:gap-16 xl:gap-20">
         {hasStatement ? (
           /* 458px / 32px / 48px line-height, Space Grotesk Medium in the comp —
              not bold, which is what made it read heavier than the design. */
-          <p className="mx-auto max-w-md flex-1 text-center font-display text-2xl leading-[1.3] font-semibold text-balance text-navy-800 lg:mx-0 lg:my-auto lg:max-w-[24rem] lg:basis-[25rem] lg:pb-10 lg:text-start lg:text-[30px] xl:max-w-[28rem] dark:text-foreground">
+          <p className="mx-auto max-w-md text-center font-display text-2xl leading-[1.25] font-bold text-balance text-navy-800 lg:mx-0 lg:my-auto lg:max-w-[24rem] lg:shrink-0 lg:pb-10 lg:text-start lg:text-[34px] xl:max-w-[26rem] dark:text-foreground">
             {statement?.before}{' '}
             {statement?.highlight ? <span className="text-primary">{statement.highlight}</span> : null}{' '}
             {statement?.after}
@@ -496,7 +504,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
           /* A flex-wrap board of fixed cells — large marks on tight 10px gaps
              so the logos, not the whitespace, carry the board. Four per row,
              remainder left-aligned: the 4/4/2 rhythm. */
-          <ul className="mx-auto grid w-full max-w-md grid-cols-3 gap-4 sm:max-w-[34rem] md:gap-x-8 lg:basis-[38rem] lg:gap-y-5">
+          <ul className="mx-auto grid w-full max-w-md shrink-0 grid-cols-3 gap-4 sm:max-w-[34rem] md:gap-x-8 lg:mx-0 lg:w-[38rem] lg:gap-y-5">
             {logos.map((logo) => {
               const image = logo.image as MediaDoc | undefined
               if (!image?.url) return null
@@ -778,7 +786,7 @@ export function ProcessSection({ block }: { block: BlockProps }) {
        * by side. Pulled to 56px, and the heading block gets its own tighter
        * internal rhythm so eyebrow/heading/body read as one unit.
        */}
-      <div className="container-site flex flex-col items-center gap-8 lg:gap-14">
+      <div className="container-site flex flex-col items-center gap-6 lg:gap-10">
         <div className="flex max-w-3xl flex-col items-center gap-3 text-center">
           {block.eyebrow ? (
             <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
