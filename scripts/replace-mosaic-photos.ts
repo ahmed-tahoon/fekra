@@ -41,7 +41,7 @@ const ASSIGNMENT: ({ file: string; alt: string } | null)[] = [
   { file: 'team-focus-coworking.webp', alt: 'A FEKRA engineer focused at her laptop' },
   { file: 'developer-coding-window.webp', alt: 'A FEKRA developer writing code by the window' },
   { file: 'team-pairing-session.webp', alt: 'Three FEKRA colleagues pairing over a laptop' },
-  { file: 'team-lounge-pair.webp', alt: 'Two FEKRA engineers working together in the office lounge' },
+  { file: 'team-planning-session.webp', alt: 'A FEKRA team planning a project together around a laptop' },
   { file: 'developer-desk-portrait.webp', alt: 'A FEKRA engineer at his desk in the Cairo office' },
   { file: 'team-review-huddle.webp', alt: 'A FEKRA team reviewing work together at a screen' },
 ]
