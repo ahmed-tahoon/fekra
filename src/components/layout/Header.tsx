@@ -113,8 +113,17 @@ export function Header({
                          * height in the first place).
                          */}
                         <div className="mx-auto w-full max-w-[1080px] px-4">
-                          <div className="max-h-[min(48vh,21rem)] overflow-y-auto overscroll-contain rounded-card border border-border bg-card p-5 shadow-lift">
-                            <div className="grid grid-cols-5 gap-x-5 gap-y-5">
+                          {/*
+                          The cap must fit the REAL content or the inner
+                          scrollbar returns — which is the exact complaint. At
+                          five columns the long service titles wrapped to two
+                          lines and blew the 21rem budget; four wider columns
+                          keep titles to one line, the CTA is a slim bar rather
+                          than a tall cell, and the whole panel measures under
+                          this cap with no scrolling.
+                        */}
+                        <div className="max-h-[min(60vh,26rem)] overflow-y-auto overscroll-contain rounded-card border border-border bg-card p-5 shadow-lift">
+                            <div className="grid grid-cols-4 gap-x-6 gap-y-5">
                             {mega.map((svc) => {
                               const roles = svc.roles.slice(0, MEGA_ROLES_PER_SERVICE)
                               const more = svc.roles.length - roles.length
@@ -149,15 +158,15 @@ export function Header({
                                 </div>
                               )
                             })}
-                            <div className="flex flex-col items-center justify-center gap-4 self-center rounded-card border border-brand-200 p-5 text-center dark:border-border">
-                              <p className="text-sm font-medium text-navy-800 dark:text-foreground">{dict.nav.buildTeam}</p>
+                            </div>
+                            <div className="mt-4 flex items-center justify-between gap-4 rounded-card border border-brand-200 px-4 py-2.5 dark:border-border">
+                              <p className="truncate text-sm font-medium text-navy-800 dark:text-foreground">{dict.nav.buildTeam}</p>
                               <Link
                                 href={localeHref(locale, '/services/hire-dedicated-developers')}
-                                className="rounded-pill bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
+                                className="shrink-0 rounded-pill bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
                               >
                                 {dict.nav.hireNow}
                               </Link>
-                            </div>
                             </div>
                           </div>
                         </div>
