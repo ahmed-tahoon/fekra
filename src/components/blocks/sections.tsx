@@ -410,6 +410,9 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 }
 
 
+/** The client-logo cell: 9rem x 4rem, matching the BairesDev reference. */
+const LOGO_CELL_ASPECT = 144 / 64
+
 export function LogoCloudSection({ block }: { block: BlockProps }) {
   /* Figma 1:11600 — the same logo array, presented as a centred badge row
      under a gradient heading instead of beside a statement. */
@@ -471,14 +474,18 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
        board pushed to opposite edges. container-site is the 1440 frame's
        content width; container-wide would stretch the board out of proportion. */
     <section id={block.anchor ?? undefined} className="py-[var(--section-y)]">
-      {/* CL-2 — the two halves were pinned to opposite edges of container-site,
-          which on a wide screen left a canyon between the copy and the board.
-          Cap the pair at 1040px and centre it so they read as one composition. */}
-      <div className="container-site mx-auto flex max-w-[1040px] flex-col items-center gap-8 lg:flex-row lg:justify-between lg:gap-14">
+      {/*
+       * Proportions matched to the BairesDev client-logo section, per the
+       * feedback's reference: stacked and centred until lg, then a two-column
+       * row with the copy on a 25rem basis and the board on 38rem, the pair
+       * capped at 5xl then 6xl. `basis` rather than justify-between is what
+       * stops the two halves drifting apart on a wide screen.
+       */}
+      <div className="container-site mx-auto flex flex-col items-center gap-12 lg:max-w-5xl lg:flex-row lg:items-start xl:max-w-6xl">
         {hasStatement ? (
           /* 458px / 32px / 48px line-height, Space Grotesk Medium in the comp —
              not bold, which is what made it read heavier than the design. */
-          <p className="max-w-[420px] font-display text-xl leading-[1.45] font-medium text-balance text-navy-800 lg:text-[26px] dark:text-foreground">
+          <p className="mx-auto max-w-md flex-1 text-center font-display text-xl leading-[1.45] font-medium text-balance text-navy-800 lg:mx-0 lg:my-auto lg:max-w-[24rem] lg:basis-[25rem] lg:pb-10 lg:text-start lg:text-[26px] xl:max-w-[28rem] dark:text-foreground">
             {statement?.before}{' '}
             {statement?.highlight ? <span className="text-primary">{statement.highlight}</span> : null}{' '}
             {statement?.after}
@@ -493,7 +500,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
           /* A flex-wrap board of fixed cells — large marks on tight 10px gaps
              so the logos, not the whitespace, carry the board. Four per row,
              remainder left-aligned: the 4/4/2 rhythm. */
-          <ul className="grid w-full max-w-[480px] grid-cols-3 gap-x-3 gap-y-2 sm:grid-cols-4">
+          <ul className="mx-auto grid w-full max-w-md grid-cols-3 gap-4 sm:max-w-[34rem] md:gap-x-8 lg:basis-[38rem] lg:gap-y-5">
             {logos.map((logo) => {
               const image = logo.image as MediaDoc | undefined
               if (!image?.url) return null
@@ -519,11 +526,14 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                  */
                 <li
                   key={logo.name}
-                  className="flex aspect-[4/3] w-full items-center justify-center rounded-lg dark:bg-white/92"
+                  className="mx-auto flex h-16 w-full max-w-[9rem] items-center justify-center rounded-lg dark:bg-white/92"
                 >
                   {/* Inner box carries the computed equal-area size; the image
                       contains inside it, so no logo is ever distorted. */}
-                  <span className="relative" style={logoMarkSize(image.width, image.height) ?? { width: '82%', height: '72%' }}>
+                  <span
+                    className="relative"
+                    style={logoMarkSize(image.width, image.height, LOGO_CELL_ASPECT) ?? { width: '82%', height: '72%' }}
+                  >
                     <Image
                       src={mediaUrl(image)}
                       alt={logo.name}
@@ -957,7 +967,9 @@ export function FaqSection({ block, locale }: { block: BlockProps; locale: Local
           {items.map((item, i) => (
             <details
               key={i}
-              open={i === 0}
+              /* Every item starts closed — an auto-opened first answer pushes
+                 the rest of the list down and makes one question look
+                 privileged. `open` stays available per-item if that changes. */
               className="group rounded-card border border-panel-grey bg-card px-8 py-6 shadow-[0_1px_2px_rgba(25,33,61,0.06)] open:shadow-[0_5px_15px_rgba(25,33,61,0.06)] dark:border-border"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 [&::-webkit-details-marker]:hidden">
