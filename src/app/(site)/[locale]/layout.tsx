@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Alexandria, IBM_Plex_Sans_Arabic, Inter, Space_Grotesk } from 'next/font/google'
+import { IBM_Plex_Sans_Arabic, Inter, Space_Grotesk, Tajawal } from 'next/font/google'
 import { notFound } from 'next/navigation'
 
 import { mediaUrl } from '@/components/blocks/types'
@@ -41,16 +41,17 @@ const inter = Inter({
 })
 
 /*
- * Arabic pairing, chosen to mirror the Latin pair rather than to merely cover
- * the script: Alexandria is a geometric display face (by an Egyptian type
- * designer — fitting) that sits naturally beside Space Grotesk in headings;
- * IBM Plex Sans Arabic is the humanist body face beside Inter. Both stay
- * unpreloaded — most visitors never download an Arabic glyph.
+ * Arabic pairing modelled on squadio.com, the reference the client pointed at.
+ * Squadio sets Arabic in DIN Next(TM) Arabic — a commercial Monotype face we
+ * cannot ship without a license. Tajawal is the standard free substitute: its
+ * Latin is DIN-derived and the Arabic carries the same geometric, low-contrast
+ * look. Their secondary face, IBM Plex Sans Arabic, is our body face already.
+ * Both stay unpreloaded — most visitors never download an Arabic glyph.
  */
-const alexandria = Alexandria({
+const tajawal = Tajawal({
   subsets: ['arabic'],
-  weight: ['500', '700'],
-  variable: '--font-alexandria',
+  weight: ['500', '700', '800'],
+  variable: '--font-tajawal',
   display: 'swap',
   preload: false,
 })
@@ -144,7 +145,7 @@ export default async function SiteLayout({
       lang={locale}
       dir={dir(locale)}
       suppressHydrationWarning
-      className={`${spaceGrotesk.variable} ${inter.variable} ${alexandria.variable} ${plexArabic.variable}`}
+      className={`${spaceGrotesk.variable} ${inter.variable} ${tajawal.variable} ${plexArabic.variable}`}
     >
       <head>
         {settings.searchConsoleVerification ? (

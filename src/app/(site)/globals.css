@@ -87,13 +87,13 @@
   --color-danger-600: #b91c1c;
 
   /*
-   * Type — Space Grotesk display + Inter body. Arabic glyphs fall through to a
-   * purpose-picked pair rather than one generic face: Alexandria (geometric
-   * display, sits naturally beside Space Grotesk) for headings and IBM Plex
-   * Sans Arabic (humanist, beside Inter) for body. Latin words inside Arabic
-   * copy keep their Latin faces; only the Arabic script changes hands.
+   * Type — Space Grotesk display + Inter body. Arabic glyphs fall through to
+   * the squadio.com-style pair: Tajawal (the free DIN-Next-Arabic equivalent —
+   * squadio's actual face is the commercial DIN Next(TM) Arabic) for headings,
+   * IBM Plex Sans Arabic (which squadio also uses) for body. Latin words in
+   * Arabic copy keep their Latin faces; only the Arabic script changes hands.
    */
-  --font-display: var(--font-space-grotesk), var(--font-alexandria), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-tajawal), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
 
   /* Scale measured from the comps: 12/14/16/18/20/24/30/40/48/60 */
