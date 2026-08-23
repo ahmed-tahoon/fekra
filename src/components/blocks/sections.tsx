@@ -47,20 +47,33 @@ const TILE_CORNER_SM = {
  * this preset fall back to a plain grid, so adding one in the CMS never
  * breaks the layout.
  */
+/*
+ * IM-4 — a MIRRORED five-column composition, replacing the Figma collage's
+ * irregular scatter (13 tiles at 9 different top offsets). Approved by FEKRA on
+ * review, Vivasoft as the reference: balanced composition, cleaner symmetry.
+ *
+ * Columns run 2-3-3-3-2 tiles; column 1 mirrors column 5 and column 2 mirrors
+ * column 4 exactly, with the outer pairs inset top and bottom so the board
+ * reads as a gentle arch around the centre. The four stat tiles sit balanced:
+ * top-left mirrored by top-right, one low-left, one dead centre.
+ *
+ * Index order still follows the CMS mosaic array (photo/stat interleaving),
+ * so no content migration is needed — only these positions changed.
+ */
 const MOSAIC_LAYOUT = [
-  { left: 0, top: 0, width: 12.358, height: 59.211 },
-  { left: 13.352, top: 13.158, width: 11.222, height: 46.053 },
-  { left: 25.568, top: 23.904, width: 11.648, height: 30.921 },
-  { left: 25.568, top: 58.333, width: 11.648, height: 41.667 },
-  { left: 38.21, top: 25, width: 12.997, height: 75 },
-  { left: 52.202, top: 35.307, width: 11.506, height: 40.351 },
-  { left: 52.202, top: 79.167, width: 11.506, height: 20.833 },
-  { left: 64.702, top: 23.684, width: 11.861, height: 31.14 },
-  { left: 64.702, top: 58.333, width: 22.94, height: 41.667 },
-  { left: 77.557, top: 14.254, width: 10.085, height: 40.57 },
-  { left: 88.636, top: 2.412, width: 11.364, height: 59.211 },
-  { left: 88.636, top: 65.132, width: 11.364, height: 34.868 },
-  { left: 0, top: 62.719, width: 24.574, height: 37.281 },
+  { left: 0, top: 6, width: 18.6, height: 42 }, // photo — outer left, upper
+  { left: 20.35, top: 0, width: 18.6, height: 30 }, // stat — top left
+  { left: 20.35, top: 33.5, width: 18.6, height: 30 }, // photo — mid left
+  { left: 0, top: 52, width: 18.6, height: 42 }, // stat — outer left, lower
+  { left: 40.7, top: 3, width: 18.6, height: 31 }, // photo — centre top
+  { left: 40.7, top: 37, width: 18.6, height: 26 }, // stat — dead centre
+  { left: 40.7, top: 66, width: 18.6, height: 31 }, // photo — centre bottom
+  { left: 61.05, top: 67, width: 18.6, height: 33 }, // photo — low right-mid
+  { left: 61.05, top: 33.5, width: 18.6, height: 30 }, // photo — mid right
+  { left: 61.05, top: 0, width: 18.6, height: 30 }, // stat — top right (mirrors top left)
+  { left: 81.4, top: 6, width: 18.6, height: 42 }, // photo — outer right, upper
+  { left: 81.4, top: 52, width: 18.6, height: 42 }, // photo — outer right, lower
+  { left: 20.35, top: 67, width: 18.6, height: 33 }, // photo — low left-mid
 ] as const
 
 /** Shared section heading. One H2 per section keeps the outline honest (18.4). */

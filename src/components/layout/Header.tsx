@@ -111,8 +111,8 @@ export function Header({
                          * height in the first place).
                          */}
                         <div className="mx-auto w-full max-w-[1080px] px-4">
-                          <div className="max-h-[min(58vh,26rem)] overflow-y-auto overscroll-contain rounded-card border border-border bg-card p-6 shadow-lift">
-                            <div className="grid grid-cols-5 gap-x-6 gap-y-7">
+                          <div className="max-h-[min(48vh,21rem)] overflow-y-auto overscroll-contain rounded-card border border-border bg-card p-5 shadow-lift">
+                            <div className="grid grid-cols-5 gap-x-5 gap-y-5">
                             {mega.map((svc) => {
                               const roles = svc.roles.slice(0, MEGA_ROLES_PER_SERVICE)
                               const more = svc.roles.length - roles.length
@@ -125,12 +125,12 @@ export function Header({
                                   >
                                     {svc.title}
                                   </Link>
-                                  <ul className="mt-2.5 flex flex-col gap-1.5 border-s border-border ps-3">
+                                  <ul className="mt-2 flex flex-col gap-1 border-s border-border ps-3">
                                     {roles.map((role) => (
                                       <li key={role}>
                                         <Link
                                           href={href}
-                                          className="block text-sm text-muted-foreground transition-colors hover:text-primary"
+                                          className="block text-[13px]/5 text-muted-foreground transition-colors hover:text-primary"
                                         >
                                           {role}
                                         </Link>
@@ -138,7 +138,7 @@ export function Header({
                                     ))}
                                     {more > 0 ? (
                                       <li>
-                                        <Link href={href} className="block text-sm font-medium text-primary hover:underline">
+                                        <Link href={href} className="block text-[13px]/5 font-medium text-primary hover:underline">
                                           +{more} more
                                         </Link>
                                       </li>
