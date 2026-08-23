@@ -1,92 +1,106 @@
 /**
- * Puts the client-logo board into the agreed priority order (task CL-5).
+ * Sets the client-logo board to the agreed 12, in the agreed order (task CL-5).
  *
- *   pnpm tsx scripts/order-client-logos.ts          # dry run, prints the plan
- *   pnpm tsx scripts/order-client-logos.ts --write  # applies it
+ *   pnpm tsx scripts/order-client-logos.ts          # dry run
+ *   pnpm tsx scripts/order-client-logos.ts --write  # apply
  *
- * Reorders the existing logos, drops anything not on the agreed list, and
- * reports the ones with no media asset yet so they can be chased. Only the
- * logoCloud block's `logos` array is touched — no other field, block or page.
+ * Uploads the supplied artwork from public/images/logos/client-*, then replaces
+ * the logoCloud block's array outright so the order is exactly the list below
+ * and nothing unlisted survives.
+ *
+ * This supersedes the earlier reorder-only version, which could manage 9 of 12:
+ * NEOM, Ooredoo and QNB had no asset in the repo, the CMS or the Figma design
+ * (that frame holds exactly 10 cells). FEKRA supplied all twelve on 23 Aug.
+ *
+ * The unlisted "Partner" pinwheel is dropped by construction — it is simply not
+ * in ORDER, and the array is replaced rather than merged.
  */
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 
-/** The client's agreed priority order. */
-const ORDER = [
-  'ADNOC',
-  'NEOM',
-  'Ooredoo',
-  'Al Rajhi Bank',
-  'STC',
-  'Kuwait Finance House',
-  'Allianz',
-  'QNB',
-  'Pitman',
-  'Codewave',
-  'Datafusion',
-  'Smart Management Systems',
-]
+const DIR = path.resolve(process.cwd(), 'public/images/logos')
 
-/** Loose match: CMS names carry suffixes ("Pitman Training", "stc"). */
-const key = (s: string) => s.toLowerCase().replace(/[^a-z]/g, '')
-const matches = (cmsName: string, wanted: string) => {
-  const a = key(cmsName)
-  const b = key(wanted)
-  return a.startsWith(b) || b.startsWith(a) || a.includes(b) || b.includes(a)
-}
+/** The client's agreed priority order. Position here IS the position on the page. */
+const ORDER: { name: string; file: string }[] = [
+  { name: 'ADNOC', file: 'client-adnoc.webp' },
+  { name: 'NEOM', file: 'client-neom.webp' },
+  { name: 'Ooredoo', file: 'client-ooredoo.webp' },
+  { name: 'Al Rajhi Bank', file: 'client-al-rajhi-bank.webp' },
+  { name: 'STC', file: 'client-stc.webp' },
+  { name: 'Kuwait Finance House', file: 'client-kuwait-finance-house.webp' },
+  { name: 'Allianz', file: 'client-allianz.webp' },
+  { name: 'QNB', file: 'client-qnb.svg' },
+  { name: 'Pitman', file: 'client-pitman.webp' },
+  { name: 'Codewave', file: 'client-codewave.svg' },
+  { name: 'Datafusion', file: 'client-datafusion.svg' },
+  { name: 'Smart Management Systems', file: 'client-smart-management-systems.svg' },
+]
 
 const run = async () => {
   const write = process.argv.includes('--write')
   const payload = await getPayload({ config })
 
-  const { docs } = await payload.find({ collection: 'pages', where: { slug: { equals: 'home' } }, limit: 1, depth: 0 })
-  const home = docs[0]
-  if (!home) throw new Error('No page with slug "home".')
+  const missing = ORDER.filter((l) => !existsSync(path.join(DIR, l.file)))
+  if (missing.length) throw new Error('Missing artwork:\n  ' + missing.map((m) => m.file).join('\n  '))
 
-  const layout = (home.layout ?? []) as { blockType?: string; variant?: string; logos?: { name: string }[] }[]
+  const page = (await payload.find({ collection: 'pages', where: { slug: { equals: 'home' } }, limit: 1, depth: 0 })).docs[0]
+  if (!page) throw new Error('No page with slug "home".')
+
+  const layout = [...((page.layout ?? []) as { blockType?: string; variant?: string; logos?: { name: string }[] }[])]
   const index = layout.findIndex((b) => b.blockType === 'logoCloud' && b.variant !== 'badges')
   const block = layout[index]
   if (!block) throw new Error('No statement-variant logoCloud block on the home page.')
 
-  const current = block.logos ?? []
-  const ordered: typeof current = []
-  const missing: string[] = []
-
-  for (const wanted of ORDER) {
-    const hit = current.find((l) => matches(l.name, wanted))
-    if (hit) ordered.push(hit)
-    else missing.push(wanted)
-  }
-  const dropped = current.filter((l) => !ordered.includes(l))
-
-  console.log('\nPlanned order:')
-  ordered.forEach((l, i) => console.log(`  ${String(i + 1).padStart(2)}. ${l.name}`))
-  if (missing.length) console.log('\nNo media asset yet (chase these):\n  - ' + missing.join('\n  - '))
-  if (dropped.length) console.log('\nNot on the agreed list, will be removed:\n  - ' + dropped.map((l) => l.name).join('\n  - '))
+  const current = (block.logos ?? []).map((l) => l.name)
+  console.log(`\ncurrent board: ${current.length} logos — ${current.join(', ')}`)
+  console.log(`\nagreed order (${ORDER.length}):`)
+  ORDER.forEach((l, i) => console.log(`  ${String(i + 1).padStart(2)}. ${l.name.padEnd(26)} ${l.file}`))
+  const dropped = current.filter((n) => !ORDER.some((o) => o.name.toLowerCase().replace(/[^a-z]/g, '').includes(n.toLowerCase().replace(/[^a-z]/g, '').slice(0, 6))))
+  if (dropped.length) console.log(`\nnot on the agreed list, will not survive: ${dropped.join(', ')}`)
 
   if (!write) {
     console.log('\nDry run. Re-run with --write to apply.')
     process.exit(0)
   }
 
-  layout[index] = { ...block, logos: ordered }
+  const logos = []
+  for (const { name, file } of ORDER) {
+    // Match on the stem: Payload renames on re-upload (foo.webp -> foo-1.webp),
+    // so an `equals` lookup misses an existing doc and uploads a duplicate.
+    const stem = file.replace(/\.(webp|svg)$/, '')
+    const found = await payload.find({ collection: 'media', where: { filename: { like: stem } }, limit: 1, sort: 'id', depth: 0 })
+    let id = found.docs[0]?.id as number | undefined
+    if (id) {
+      await payload.update({ collection: 'media', id, filePath: path.join(DIR, file), data: { alt: `${name} logo` } as never })
+      console.log(`  update ${name} -> media ${id}`)
+    } else {
+      const created = await payload.create({ collection: 'media', filePath: path.join(DIR, file), data: { alt: `${name} logo` } as never })
+      id = created.id as number
+      console.log(`  upload ${name} -> media ${id}`)
+    }
+    logos.push({ name, image: id })
+  }
+
+  layout[index] = { ...block, logos } as (typeof layout)[number]
   /*
    * `_status` MUST be carried through. Pages has drafts enabled, so an update
    * that omits it saves a draft and silently UNPUBLISHES the page — the public
    * /cms-api starts 404ing while the live site keeps serving a stale static
-   * copy, so nothing looks wrong until the next revalidation. Learned the hard
-   * way on 20 Aug 2026.
+   * copy, so nothing looks wrong until the next revalidation.
    */
   await payload.update({
     collection: 'pages',
-    id: home.id,
-    data: { layout, _status: home._status ?? 'published' } as never,
+    id: page.id,
+    data: { layout, _status: page._status ?? 'published' } as never,
   })
 
-  const after = await payload.findByID({ collection: 'pages', id: home.id, depth: 0 })
+  const after = await payload.findByID({ collection: 'pages', id: page.id, depth: 0 })
   if (after._status !== 'published') throw new Error(`Page left as "${after._status}" — republish it in /admin.`)
-  console.log(`\nApplied — ${ordered.length} logos in agreed order, page still published.`)
+  console.log(`\nApplied — ${logos.length} logos in agreed order, page still published.`)
   process.exit(0)
 }
 

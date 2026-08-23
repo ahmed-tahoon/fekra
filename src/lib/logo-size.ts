@@ -13,8 +13,19 @@
  * module — next/image, RichText, JsonLd and all — into the client bundle.
  */
 
-/** Share of the cell's area each mark covers. Raise it and the wall gets denser. */
-const AREA_FILL = 0.52
+/**
+ * Share of the cell's area each mark covers.
+ *
+ * 0.38, not something larger, because of the clamp below. A mark wider than the
+ * cell can take gets pinned to the cell's width and never reaches the target
+ * area, so it renders SMALLER than everything else — the exact defect this
+ * function exists to remove. QNB's lockup is 3.43:1; at 0.52 it came out 25%
+ * short and the spread across the twelve client logos was 1.34x. 0.38 is the
+ * largest fill at which nothing clamps (1 / (0.75 x 3.43)), giving 1.00x.
+ *
+ * Raise it only if the widest mark on the board gets narrower.
+ */
+const AREA_FILL = 0.38
 
 /**
  * Width and height, as percentages of the cell, chosen so every mark covers the
