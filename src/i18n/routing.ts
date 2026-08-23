@@ -33,10 +33,13 @@ export const isLocale = (value: string | undefined): value is Locale =>
  * content in; this is the subset that gets routed, linked, advertised in
  * hreflang/sitemap, and offered in the switcher.
  *
- * English only for now. Widen this one array to bring the others back — the
- * switcher hides itself while there is nothing to switch to.
+ * All five since 23 Aug 2026: the home page, header, footer, offices and the
+ * 13 service documents carry ar/de/fr/es translations (scripts/translate-home
+ * .ts). Blog posts and job ads remain English-only — their availableLocales
+ * say so, which keeps their hreflang honest (14.9), and untranslated CMS
+ * fields elsewhere fall back to English rather than rendering blank.
  */
-export const PUBLIC_LOCALES: readonly Locale[] = ['en']
+export const PUBLIC_LOCALES: readonly Locale[] = ['en', 'ar', 'de', 'fr', 'es']
 
 /* Plain boolean, not a type predicate: PUBLIC_LOCALES is a runtime subset of
    the same type, so narrowing on it would collapse the negated branch to never. */
