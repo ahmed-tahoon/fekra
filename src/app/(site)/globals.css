@@ -334,6 +334,20 @@
    * - Latin display leading (1.05–1.08 on headings) clips Arabic ascenders and
    *   vowel marks. Headings get open leading; the big display paragraphs too.
    */
+  /*
+   * The Arabic faces must come FIRST on Arabic pages, not merely be present in
+   * the chain. next/font injects a size-adjusted "Space Grotesk Fallback" /
+   * "Inter Fallback" (built on Arial) directly after each Latin face — and
+   * Arial HAS Arabic glyphs, so Arabic text was being swallowed by that
+   * fallback and never reached Tajawal or Plex Arabic. Leading with the
+   * Arabic face is also exactly what squadio.com does: on /ar their DIN Next
+   * Arabic sets the Latin and digits too, which keeps mixed runs consistent.
+   */
+  html[lang='ar'] {
+    --font-display: var(--font-tajawal), var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+    --font-sans: var(--font-plex-arabic), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+
   html[lang='ar'] * {
     letter-spacing: 0;
   }
