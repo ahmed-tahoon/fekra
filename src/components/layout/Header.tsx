@@ -23,7 +23,9 @@ export type HeaderData = {
 export type ServicesMenu = { title: string; slug: string; roles: string[] }[]
 
 /** Role links shown per service before the column collapses to a "+N more". */
-const MEGA_ROLES_PER_SERVICE = 5
+/* Three, not more: at five the panel needed two tall rows and read as a page.
+   The service page itself is one click away behind every "+N more". */
+const MEGA_ROLES_PER_SERVICE = 3
 
 export function Header({
   data,
