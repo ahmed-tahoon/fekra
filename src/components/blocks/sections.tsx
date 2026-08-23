@@ -6,7 +6,6 @@ import { RichText } from '@/components/RichText'
 import { LinkButton } from '@/components/ui/Button'
 import type { Locale } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
-import { logoMarkSize } from '@/lib/logo-size'
 import { faqSchema } from '@/lib/jsonld'
 import { resolveLink } from '@/lib/resolveLink'
 
@@ -410,9 +409,6 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
 }
 
 
-/** The client-logo cell: 9rem x 4rem, matching the BairesDev reference. */
-const LOGO_CELL_ASPECT = 144 / 64
-
 export function LogoCloudSection({ block }: { block: BlockProps }) {
   /* Figma 1:11600 — the same logo array, presented as a centred badge row
      under a gradient heading instead of beside a statement. */
@@ -485,7 +481,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
         {hasStatement ? (
           /* 458px / 32px / 48px line-height, Space Grotesk Medium in the comp —
              not bold, which is what made it read heavier than the design. */
-          <p className="mx-auto max-w-md flex-1 text-center font-display text-xl leading-[1.45] font-medium text-balance text-navy-800 lg:mx-0 lg:my-auto lg:max-w-[24rem] lg:basis-[25rem] lg:pb-10 lg:text-start lg:text-[26px] xl:max-w-[28rem] dark:text-foreground">
+          <p className="mx-auto max-w-md flex-1 text-center font-display text-2xl leading-[1.3] font-semibold text-balance text-navy-800 lg:mx-0 lg:my-auto lg:max-w-[24rem] lg:basis-[25rem] lg:pb-10 lg:text-start lg:text-[30px] xl:max-w-[28rem] dark:text-foreground">
             {statement?.before}{' '}
             {statement?.highlight ? <span className="text-primary">{statement.highlight}</span> : null}{' '}
             {statement?.after}
@@ -506,42 +502,29 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
               if (!image?.url) return null
               return (
                 /*
-                 * CL-1 / CL-4 — equal grid cells, so every mark sits on the
-                 * same baseline and the rows cannot go ragged.
+                 * Each mark fills its 9rem x 4rem cell (object-contain), which
+                 * is exactly what the BairesDev reference does — their SVGs are
+                 * w-full h-full in the same box. Equal-area sizing was tried
+                 * here first and reversed on request: it kept the ink even but
+                 * rendered the complex lockups (Pitman, KFH, SMS) too small to
+                 * read, and the reference favours legible-and-large. The tech
+                 * grid keeps equal-area, where the marks are simpler.
                  *
-                 * The marks run from 3:2 to 2:3, and object-contain in a wide
-                 * cell rewards square logos and starves portrait ones: Al Rajhi
-                 * (738x738) filled its box while ADNOC (198x288) rendered at
-                 * two thirds the area. A 4:3 cell plus inner padding evens the
-                 * optical weight without touching any logo's proportions.
-                 */
-                /*
-                 * Dark mode puts the marks on a light tile rather than
-                 * inverting them. `dark:invert` only works for a logo with a
-                 * transparent background: adnoc, kuwait-finance-house and
-                 * smart-management-systems ship an opaque white one, so
-                 * inverting turned each into a solid white rectangle. A tile
-                 * handles both kinds, and matches how the tech-stack logos are
-                 * meant to sit on white too.
+                 * Dark mode sets the marks on a light tile rather than
+                 * inverting them — three of the twelve ship opaque white
+                 * grounds, and inverting those makes solid white rectangles.
                  */
                 <li
                   key={logo.name}
-                  className="mx-auto flex h-16 w-full max-w-[9rem] items-center justify-center rounded-lg dark:bg-white/92"
+                  className="relative mx-auto flex h-16 w-full max-w-[9rem] items-center justify-center rounded-lg dark:bg-white/92"
                 >
-                  {/* Inner box carries the computed equal-area size; the image
-                      contains inside it, so no logo is ever distorted. */}
-                  <span
-                    className="relative"
-                    style={logoMarkSize(image.width, image.height, LOGO_CELL_ASPECT) ?? { width: '82%', height: '72%' }}
-                  >
-                    <Image
-                      src={mediaUrl(image)}
-                      alt={logo.name}
-                      fill
-                      sizes="128px"
-                      className="object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0"
-                    />
-                  </span>
+                  <Image
+                    src={mediaUrl(image)}
+                    alt={logo.name}
+                    fill
+                    sizes="144px"
+                    className="object-contain p-1 opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:p-1.5"
+                  />
                 </li>
               )
             })}
