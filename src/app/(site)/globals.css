@@ -366,15 +366,9 @@
     font-size: 0.8125rem;
   }
 
-  /* The marquee slides physically left; in RTL the eye reads right-to-left,
-     so the same direction feels like the cards are leaving backwards. */
-  [dir='rtl'] .fk-marquee {
-    animation-direction: reverse;
-  }
-
-  [dir='rtl'] .fk-marquee-reverse {
-    animation-direction: normal;
-  }
+  /* No RTL override for the marquee: its track is dir="ltr" by design (the
+     loop has no reading order; its geometry must not flip), so the authored
+     animation directions are already correct on every locale. */
 
   /* 17.11 — media reserves its box before it loads. */
   img,

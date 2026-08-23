@@ -76,7 +76,14 @@ const run = async () => {
     const layout = translate(en.page.layout, locale, stats)
     const headerData = translate({ items: en.header.items, ctas: en.header.ctas, announcement: en.header.announcement }, locale, stats) as Record<string, unknown>
     const f = en.footer as unknown as Record<string, unknown>
-    const footerData = translate({ tagline: f.tagline, blurb: f.blurb, columns: f.columns, legal: f.legal }, locale, stats) as Record<string, unknown>
+    // `newsletter` and `copyright` are the footer's real field names — an earlier
+    // subset guessed `legal` and silently skipped both, which is how the CTA
+    // band and the copyright line stayed English on translated pages.
+    const footerData = translate(
+      { tagline: f.tagline, blurb: f.blurb, columns: f.columns, newsletter: f.newsletter, copyright: f.copyright },
+      locale,
+      stats,
+    ) as Record<string, unknown>
     const officesData = translate({ offices: en.settings.offices }, locale, stats) as Record<string, unknown>
 
     console.log(`\n${locale}: ${stats.hit} strings translated, ${stats.miss.size} left in English`)

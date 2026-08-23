@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { JsonLd } from '@/components/JsonLd'
 import { RichText } from '@/components/RichText'
 import { LinkButton } from '@/components/ui/Button'
-import type { Locale } from '@/i18n/routing'
+import { dir, type Locale } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
 import { faqSchema } from '@/lib/jsonld'
 import { resolveLink } from '@/lib/resolveLink'
@@ -1191,6 +1191,19 @@ function plainText(node: unknown): string {
   return (obj.children ?? []).map(plainText).join(' ').replace(/\s+/g, ' ').trim()
 }
 
+/*
+ * Chip labels for the talent cards. Local rather than in the dictionaries:
+ * RenderBlocks hands sections only `locale`, and threading the full dict
+ * through every block for two words is not worth the plumbing.
+ */
+const TALENT_CHIPS: Record<Locale, { match: string; evaluated: string }> = {
+  en: { match: 'Match', evaluated: 'Technically Evaluated' },
+  ar: { match: 'نسبة التطابق', evaluated: 'تم تقييمه تقنياً' },
+  de: { match: 'Match', evaluated: 'Technisch geprüft' },
+  fr: { match: 'Compatibilité', evaluated: 'Évalué techniquement' },
+  es: { match: 'Afinidad', evaluated: 'Evaluado técnicamente' },
+}
+
 export function TalentShowcaseSection({ block, locale }: { block: BlockProps; locale: Locale }) {
   const people = block.people ?? []
   const copyRight = block.side === 'copyRight'
@@ -1208,6 +1221,9 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
       <li
         key={key}
         aria-hidden={hidden || undefined}
+        /* The track is dir="ltr" so the loop's geometry is stable; the card
+           restores the page direction for its own text and pill order. */
+        dir={dir(locale)}
         /* Margin, not gap, on the track. A gap leaves half of one at the seam,
            so translating the duplicated track by exactly -50% would stutter
            every loop; with margin the two halves are identical. */
@@ -1241,24 +1257,20 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
 
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-border pt-2.5 pb-1">
           {person.experience ? (
-            <span
-              dir="ltr"
-              className="rounded-pill border border-border bg-background-subtle px-2.5 py-1.5 text-xs text-ink-500 dark:text-muted-foreground"
-            >
+            /* No dir="ltr": it flipped the Arabic "+٥ سنوات" into "٥ سنوات+".
+                A Latin value like "3+ Years" is one LTR run and needs no help. */
+            <span className="rounded-pill border border-border bg-background-subtle px-2.5 py-1.5 text-xs text-ink-500 dark:text-muted-foreground">
               {person.experience}
             </span>
           ) : null}
           {typeof person.match === 'number' ? (
-            <span
-              dir="ltr"
-              className="rounded-pill border border-[#a7f3d0] bg-[#ecfdf5] px-2.5 py-1.5 text-xs text-success-600"
-            >
-              Match: {person.match}%
+            <span className="rounded-pill border border-[#a7f3d0] bg-[#ecfdf5] px-2.5 py-1.5 text-xs text-success-600">
+              {TALENT_CHIPS[locale].match}: {person.match}%
             </span>
           ) : null}
           {person.evaluated ? (
             <span className="rounded-pill border border-[#e0e7ff] bg-[#eef2ff] px-2.5 py-1.5 text-xs text-[#4338ca]">
-              Technically Evaluated
+              {TALENT_CHIPS[locale].evaluated}
             </span>
           ) : null}
         </div>
@@ -1328,8 +1340,16 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
 
       <div className="flex flex-col gap-6">
         {rows.map((row, rowIndex) => (
+          /*
+           * dir="ltr" pins the marquee's GEOMETRY: under RTL the flex row laid
+           * out right-to-left while the keyframes still slid physically left,
+           * so the first cards sat clipped off the start edge with a dead gap
+           * at the other end. A looping strip has no reading order to honour —
+           * only its cards do, and each carries the page direction itself.
+           */
           <ul
             key={rowIndex}
+            dir="ltr"
             style={{ '--marquee-duration': `${46 + rowIndex * 10}s` } as React.CSSProperties}
             className={cn('fk-marquee', rowIndex % 2 === 1 && 'fk-marquee-reverse')}
           >
