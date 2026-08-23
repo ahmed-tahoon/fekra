@@ -815,6 +815,21 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
   const items = block.items ?? []
   const stats = block.stats ?? []
 
+  /*
+   * TL-1 — the section stays in the CMS as a placeholder, but it does not go
+   * public until there is real content to show.
+   *
+   * A testimonial names a person, their job title and their employer, and puts
+   * words in their mouth. Invented ones are not neutral filler the way lorem
+   * ipsum is: on a live commercial site they read as genuine endorsements from
+   * real people at real companies. FEKRA will supply ten real profiles, and
+   * until then rendering nothing is the only honest state.
+   *
+   * Empty means "not ready", not "broken" — the heading and eyebrow are held in
+   * the CMS and reappear the moment items exist.
+   */
+  if (!items.length) return null
+
   return (
     <section id={block.anchor ?? undefined} className="section bg-brand-50 dark:bg-background-subtle">
       <div className="container-reading flex flex-col gap-10">
