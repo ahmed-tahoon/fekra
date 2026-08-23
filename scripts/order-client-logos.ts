@@ -26,6 +26,15 @@ const DIR = path.resolve(process.cwd(), 'public/images/logos')
 
 /** The client's agreed priority order. Position here IS the position on the page. */
 const ORDER: { name: string; file: string }[] = [
+  /*
+   * Every raster is TRIMMED to its artwork before upload. The supplied files
+   * carried heavy baked-in padding — Pitman's mark occupied 11% of its canvas,
+   * KFH 22%, NEOM 25% — so in a contain-fill cell they rendered tiny while the
+   * tight crops (stc 88%, Al Rajhi 89%) rendered huge. Trimming is what makes
+   * the marks commensurate, not the cell CSS. codewave/datafusion/SMS arrived
+   * as rasters wrapped in an <svg> tag and were rasterised at density 600 and
+   * trimmed the same way.
+   */
   { name: 'ADNOC', file: 'client-adnoc.webp' },
   { name: 'NEOM', file: 'client-neom.webp' },
   { name: 'Ooredoo', file: 'client-ooredoo.webp' },
@@ -35,9 +44,9 @@ const ORDER: { name: string; file: string }[] = [
   { name: 'Allianz', file: 'client-allianz.webp' },
   { name: 'QNB', file: 'client-qnb.svg' },
   { name: 'Pitman', file: 'client-pitman.webp' },
-  { name: 'Codewave', file: 'client-codewave.svg' },
-  { name: 'Datafusion', file: 'client-datafusion.svg' },
-  { name: 'Smart Management Systems', file: 'client-smart-management-systems.svg' },
+  { name: 'Codewave', file: 'client-codewave.webp' },
+  { name: 'Datafusion', file: 'client-datafusion.webp' },
+  { name: 'Smart Management Systems', file: 'client-smart-management-systems.webp' },
 ]
 
 const run = async () => {
