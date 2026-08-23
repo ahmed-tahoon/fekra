@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Noto_Sans_Arabic, Space_Grotesk } from 'next/font/google'
+import { Alexandria, IBM_Plex_Sans_Arabic, Inter, Space_Grotesk } from 'next/font/google'
 import { notFound } from 'next/navigation'
 
 import { mediaUrl } from '@/components/blocks/types'
@@ -40,10 +40,25 @@ const inter = Inter({
   display: 'swap',
 })
 
-const notoArabic = Noto_Sans_Arabic({
+/*
+ * Arabic pairing, chosen to mirror the Latin pair rather than to merely cover
+ * the script: Alexandria is a geometric display face (by an Egyptian type
+ * designer — fitting) that sits naturally beside Space Grotesk in headings;
+ * IBM Plex Sans Arabic is the humanist body face beside Inter. Both stay
+ * unpreloaded — most visitors never download an Arabic glyph.
+ */
+const alexandria = Alexandria({
   subsets: ['arabic'],
-  weight: ['400', '600', '700'],
-  variable: '--font-noto-arabic',
+  weight: ['500', '700'],
+  variable: '--font-alexandria',
+  display: 'swap',
+  preload: false,
+})
+
+const plexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ['arabic'],
+  weight: ['400', '500', '700'],
+  variable: '--font-plex-arabic',
   display: 'swap',
   preload: false,
 })
@@ -129,7 +144,7 @@ export default async function SiteLayout({
       lang={locale}
       dir={dir(locale)}
       suppressHydrationWarning
-      className={`${spaceGrotesk.variable} ${inter.variable} ${notoArabic.variable}`}
+      className={`${spaceGrotesk.variable} ${inter.variable} ${alexandria.variable} ${plexArabic.variable}`}
     >
       <head>
         {settings.searchConsoleVerification ? (

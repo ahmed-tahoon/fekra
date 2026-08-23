@@ -86,9 +86,15 @@
   --color-warning-500: #ffb300;
   --color-danger-600: #b91c1c;
 
-  /* Type — Space Grotesk display + Inter body, Arabic falls back to Noto Sans Arabic */
-  --font-display: var(--font-space-grotesk), var(--font-noto-arabic), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-inter), var(--font-noto-arabic), ui-sans-serif, system-ui, sans-serif;
+  /*
+   * Type — Space Grotesk display + Inter body. Arabic glyphs fall through to a
+   * purpose-picked pair rather than one generic face: Alexandria (geometric
+   * display, sits naturally beside Space Grotesk) for headings and IBM Plex
+   * Sans Arabic (humanist, beside Inter) for body. Latin words inside Arabic
+   * copy keep their Latin faces; only the Arabic script changes hands.
+   */
+  --font-display: var(--font-space-grotesk), var(--font-alexandria), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
 
   /* Scale measured from the comps: 12/14/16/18/20/24/30/40/48/60 */
   --text-2xs: 0.625rem;
@@ -315,6 +321,45 @@
   /* Arabic runs longer and sits lower — give it room without touching LTR. */
   [dir='rtl'] body {
     line-height: 1.85;
+  }
+
+  /*
+   * Arabic typography corrections. The design's tracking and leading are tuned
+   * for Latin and both damage Arabic:
+   *
+   * - Letter-spacing breaks a JOINED script: tracked Arabic tears the
+   *   connections between letters. The universal selector (0-1-1) outranks
+   *   every tracking-* utility (0-1-0), so all of them — the hero's negative
+   *   tracking, the eyebrows' 0.2em — flatten to zero under lang="ar".
+   * - Latin display leading (1.05–1.08 on headings) clips Arabic ascenders and
+   *   vowel marks. Headings get open leading; the big display paragraphs too.
+   */
+  html[lang='ar'] * {
+    letter-spacing: 0;
+  }
+
+  html[lang='ar'] :is(h1, h2, h3, h4) {
+    line-height: 1.45;
+  }
+
+  html[lang='ar'] p.font-display {
+    line-height: 1.6;
+  }
+
+  /* Arabic renders optically smaller at the same size — one notch up on the
+     smallest text keeps captions legible without disturbing the layout. */
+  html[lang='ar'] :is(.text-xs, .text-\[10px\], .text-\[11px\], .text-\[13px\]\/5) {
+    font-size: 0.8125rem;
+  }
+
+  /* The marquee slides physically left; in RTL the eye reads right-to-left,
+     so the same direction feels like the cards are leaving backwards. */
+  [dir='rtl'] .fk-marquee {
+    animation-direction: reverse;
+  }
+
+  [dir='rtl'] .fk-marquee-reverse {
+    animation-direction: normal;
   }
 
   /* 17.11 — media reserves its box before it loads. */
