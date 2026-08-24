@@ -96,7 +96,7 @@ export function ApplicationForm({
 
   return (
     <form onSubmit={onSubmit} noValidate encType="multipart/form-data" className="flex flex-col gap-5">
-      <div aria-hidden className="absolute -left-[9999px]">
+      <div aria-hidden className="sr-only">
         <label htmlFor="apply-website">Website</label>
         <input id="apply-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>

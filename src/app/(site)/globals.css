@@ -348,6 +348,14 @@
     --font-sans: var(--font-plex-arabic), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   }
 
+  /* Gradient headings clip Arabic marks: bg-clip-text paints only inside the
+     span's content box, and Tajawal's high dots (ث's third dot) sit above it,
+     so ثقة read as تقة. Block padding on an inline grows the paint box without
+     moving the line. */
+  html[lang='ar'] .bg-clip-text {
+    padding-block: 0.15em;
+  }
+
   html[lang='ar'] * {
     letter-spacing: 0;
   }

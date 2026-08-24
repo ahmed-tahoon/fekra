@@ -1,3 +1,4 @@
+import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 import { BrandLogo } from '@/components/layout/BrandLogo'
@@ -20,12 +21,7 @@ export type HeaderData = {
   announcement?: { enabled?: boolean; text?: string; link?: PayloadLink } | null
 }
 
-export type ServicesMenu = { title: string; slug: string; roles: string[] }[]
-
-/** Role links shown per service before the column collapses to a "+N more". */
-/* Three, not more: at five the panel needed two tall rows and read as a page.
-   The service page itself is one click away behind every "+N more". */
-const MEGA_ROLES_PER_SERVICE = 3
+export type ServicesMenu = { title: string; slug: string }[]
 
 export function Header({
   data,
@@ -103,69 +99,52 @@ export function Header({
                        */}
                       <div className="invisible fixed inset-x-0 top-full z-50 pt-2 opacity-0 transition-[opacity,visibility] group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
                         {/*
-                         * MM-1 — this used to be a full-bleed panel up to
-                         * 100dvh tall with its own scrollbar, so opening it put
-                         * the visitor inside a second page. Three changes bring
-                         * it back to being a dropdown: a centred max-width so
-                         * the page still frames it, a hard height cap so the
-                         * page stays visible underneath, and a per-service cap
-                         * on role links (61 of them were what forced the
-                         * height in the first place).
+                         * MM-1, fourth pass — the reference's actual layout:
+                         * a full-width flyout attached under the header. A
+                         * tinted left rail carries the pitch and the Hire CTA
+                         * (BairesDev's intro rail); the right side is an
+                         * eyebrow label, service links flowing down five-row
+                         * columns, and an "All Services" exit. Content-fitted
+                         * height, no inner scroll, page visible below.
                          */}
-                        <div className="mx-auto w-full max-w-[1080px] px-4">
-                          {/*
-                          The cap must fit the REAL content or the inner
-                          scrollbar returns — which is the exact complaint. At
-                          five columns the long service titles wrapped to two
-                          lines and blew the 21rem budget; four wider columns
-                          keep titles to one line, the CTA is a slim bar rather
-                          than a tall cell, and the whole panel measures under
-                          this cap with no scrolling.
-                        */}
-                        <div className="max-h-[min(60vh,26rem)] overflow-y-auto overscroll-contain rounded-card border border-border bg-card p-5 shadow-lift">
-                            <div className="grid grid-cols-4 gap-x-6 gap-y-5">
-                            {mega.map((svc) => {
-                              const roles = svc.roles.slice(0, MEGA_ROLES_PER_SERVICE)
-                              const more = svc.roles.length - roles.length
-                              const href = localeHref(locale, `/services/${svc.slug}`)
-                              return (
-                                <div key={svc.slug}>
-                                  <Link
-                                    href={href}
-                                    className="text-sm font-bold text-navy-800 transition-colors hover:text-primary dark:text-foreground"
-                                  >
-                                    {svc.title}
-                                  </Link>
-                                  <ul className="mt-2 flex flex-col gap-1 border-s border-border ps-3">
-                                    {roles.map((role) => (
-                                      <li key={role}>
-                                        <Link
-                                          href={href}
-                                          className="block text-[13px]/5 text-muted-foreground transition-colors hover:text-primary"
-                                        >
-                                          {role}
-                                        </Link>
-                                      </li>
-                                    ))}
-                                    {more > 0 ? (
-                                      <li>
-                                        <Link href={href} className="block text-[13px]/5 font-medium text-primary hover:underline">
-                                          +{more} more
-                                        </Link>
-                                      </li>
-                                    ) : null}
-                                  </ul>
-                                </div>
-                              )
-                            })}
-                            </div>
-                            <div className="mt-4 flex items-center justify-between gap-4 rounded-card border border-brand-200 px-4 py-2.5 dark:border-border">
-                              <p className="truncate text-sm font-medium text-navy-800 dark:text-foreground">{dict.nav.buildTeam}</p>
+                        <div className="border-y border-border bg-card shadow-lift">
+                          <div className="container-wide grid gap-10 py-8 lg:grid-cols-[300px_1fr]">
+                            <div className="flex flex-col items-start gap-4 rounded-card bg-background-subtle p-6">
+                              <p className="font-display text-xl font-bold text-navy-800 dark:text-foreground">
+                                {item.link!.label}
+                              </p>
+                              <p className="text-sm/6 text-muted-foreground">{dict.nav.buildTeam}</p>
                               <Link
                                 href={localeHref(locale, '/services/hire-dedicated-developers')}
-                                className="shrink-0 rounded-pill bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
+                                className="rounded-pill bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
                               >
                                 {dict.nav.hireNow}
+                              </Link>
+                            </div>
+
+                            <div className="flex flex-col items-start">
+                              <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
+                                <span aria-hidden className="size-2 bg-primary" />
+                                {item.link!.label}
+                              </p>
+                              <ul className="mt-4 grid w-full grid-flow-col grid-rows-5 gap-x-8">
+                                {mega.map((svc) => (
+                                  <li key={svc.slug}>
+                                    <Link
+                                      href={localeHref(locale, `/services/${svc.slug}`)}
+                                      className="block py-2 text-[15px] font-medium text-navy-800 transition-colors hover:text-primary dark:text-foreground"
+                                    >
+                                      {svc.title}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                              <Link
+                                href={localeHref(locale, '/services')}
+                                className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-navy-800 transition-colors hover:text-primary dark:text-foreground"
+                              >
+                                {dict.nav.allServices}
+                                <ArrowRight aria-hidden className="size-4 rtl:-scale-x-100" />
                               </Link>
                             </div>
                           </div>

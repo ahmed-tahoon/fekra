@@ -100,16 +100,17 @@ export function TechTabs({ groups }: { groups: TechGroup[] }) {
                  * wide and barely 30 tall — an 8x spread in ink. Equal-area
                  * sizing in a fixed square brings that to ~1x.
                  *
-                 * The cell is transparent: the white tiles TS-4 asked for read
-                 * as heavy cards floating on the tinted panel, so they were
-                 * dropped on request. The panel supplies the ground instead.
-                 * Keeping the fixed square is what still holds the grid even.
+                 * White tile per TS-4 (client's consolidated feedback — it
+                 * supersedes the earlier request to drop them): same treatment
+                 * as the client-logo board, a soft ring instead of a shadow so
+                 * the tiles sit in the panel rather than float over it, and
+                 * still white in dark mode — a logo's ground stays white.
                  *
                  * No logo yet? Render the name in the same square with a soft
                  * outline, so the cell is not simply empty.
                  */}
                 {item.src ? (
-                  <span className="flex size-[104px] items-center justify-center p-2">
+                  <span className="flex size-[104px] items-center justify-center rounded-2xl bg-white p-3 ring-1 ring-navy-800/10 dark:bg-white/92 dark:ring-white/15">
                     <span
                       className="relative block"
                       style={logoMarkSize(item.width, item.height, 1) ?? { width: '100%', height: '100%' }}
@@ -118,7 +119,7 @@ export function TechTabs({ groups }: { groups: TechGroup[] }) {
                     </span>
                   </span>
                 ) : (
-                  <span className="flex size-[104px] items-center justify-center rounded-2xl px-3 text-center text-sm font-semibold text-navy-800 ring-1 ring-navy-800/10 dark:text-foreground dark:ring-white/15">
+                  <span className="flex size-[104px] items-center justify-center rounded-2xl bg-white px-3 text-center text-sm font-semibold text-navy-800 ring-1 ring-navy-800/10 dark:bg-white/92 dark:text-navy-800 dark:ring-white/15">
                     {item.name}
                   </span>
                 )}

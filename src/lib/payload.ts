@@ -1,3 +1,5 @@
+import { cache } from 'react'
+
 import { draftMode } from 'next/headers'
 import { getPayload, type SelectType, type Where } from 'payload'
 import configPromise from '@payload-config'
@@ -79,11 +81,23 @@ export async function findDocs<T = unknown>({
   return { docs: result.docs as T[], totalPages: result.totalPages, totalDocs: result.totalDocs }
 }
 
-export async function findDoc<T = unknown>(
+/*
+ * `cache()` dedupes within one request: generateMetadata and the page both ask
+ * for the same document, and the layout and page both ask for site-settings —
+ * without it each render paid for every query twice. It only memoizes on
+ * primitive-arg identity, which is why findDoc/getGlobal are wrapped and the
+ * object-arg findDocs is not.
+ *
+ * Depth 2, not 3: the deepest chain any renderer follows is block -> media (or
+ * block -> category.slug), one level. resolveLink reads reference.value.slug,
+ * also one level. Each extra depth fans out into per-relationship queries
+ * against a remote database.
+ */
+export const findDoc = cache(async function findDoc<T = unknown>(
   collection: FindArgs['collection'],
   slug: string,
   locale: Locale,
-  depth = 3,
+  depth = 2,
 ): Promise<T | null> {
   const { docs } = await findDocs<T>({
     collection,
@@ -93,12 +107,18 @@ export async function findDoc<T = unknown>(
     where: { slug: { equals: slug } },
   })
   return docs[0] ?? null
-}
+})
 
-export async function getGlobal<T = unknown>(slug: 'header' | 'footer' | 'site-settings', locale: Locale): Promise<T> {
+// Depth 1: header/footer links need reference.value.slug and nothing deeper.
+// Depth 2 made the header global populate its referenced pages' own relations
+// — a full second per request on its own.
+export const getGlobal = cache(async function getGlobal<T = unknown>(
+  slug: 'header' | 'footer' | 'site-settings',
+  locale: Locale,
+): Promise<T> {
   const payload = await payloadClient()
-  return (await payload.findGlobal({ slug, locale, fallbackLocale: 'en', depth: 2 })) as T
-}
+  return (await payload.findGlobal({ slug, locale, fallbackLocale: 'en', depth: 1 })) as T
+})
 
 /**
  * Slug list for `generateStaticParams`. A build must not die because the

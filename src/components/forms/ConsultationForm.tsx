@@ -87,7 +87,7 @@ export function ConsultationForm({
       ) : (
         <form onSubmit={onSubmit} noValidate className="mt-4 flex flex-col gap-2">
           {/* Honeypot — hidden from users and screen readers, irresistible to bots. */}
-          <div aria-hidden className="absolute -left-[9999px]">
+          <div aria-hidden className="sr-only">
             <label htmlFor="consult-website">Website</label>
             <input id="consult-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
           </div>

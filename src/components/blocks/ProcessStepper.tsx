@@ -119,10 +119,6 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
       >
         {steps.map((s, i) => {
           const on = i === active
-          // A stage the process has already passed stays lightly filled, so
-          // progress accumulates down the funnel instead of a lone ribbon
-          // hopping between grey blocks.
-          const passed = i < active
           const width = BARS[i] ?? BARS[BARS.length - 1]!
           return (
             <li key={s.title} className="flex h-10 justify-center sm:h-14">
@@ -141,7 +137,19 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                   )}
                 >
                   {on ? (
-                    <span className="absolute inset-y-0 start-0 -end-4 bg-primary [clip-path:polygon(0_0,calc(100%-16px)_0,calc(100%-16px)_4px,100%_20px,100%_100%,0_100%,24px_50%)] rtl:-scale-x-100" />
+                    /* Active-step marker butted into the bar's slanted edge
+                       (reference): step 1 is a banner flag with a notched
+                       tail; the rest are parallelograms at the funnel's
+                       angle. Asymmetric shapes, hence the RTL mirror. */
+                    <span
+                      className={cn(
+                        'absolute inset-y-0 start-0 bg-primary rtl:-scale-x-100',
+                        i === 0
+                          ? '[clip-path:polygon(0_0,calc(100%_-_var(--fs)*18.5px)_0,100%_100%,0_100%,calc(var(--fs)*12px)_50%)]'
+                          : '[clip-path:polygon(0_0,calc(100%_-_var(--fs)*18.5px)_0,100%_100%,calc(var(--fs)*18.5px)_100%)]',
+                      )}
+                      style={{ insetInlineEnd: 'calc(var(--fs) * -18.5px)' }}
+                    />
                   ) : null}
                   <span className="relative">{i + 1}</span>
                 </span>
@@ -152,30 +160,19 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                   aria-current={on ? 'step' : undefined}
                   /* Icon size and gap ride --fs with the bar widths, so the row
                      can never outgrow its bar at any scale. */
-                  className={cn(
-                    'group relative flex size-full items-center justify-center gap-[calc(var(--fs)*16px)] transition-colors duration-500',
-                    on || passed ? 'text-primary' : 'text-ink-500 dark:text-muted-foreground',
-                  )}
+                  className="group relative flex size-full items-center justify-center gap-[calc(var(--fs)*16px)] text-ink-500 dark:text-muted-foreground"
                 >
                   {/*
                    * The shape lives on this span, not the button, so the focus
-                   * ring is not clipped. Measured off the Figma render: the top
-                   * edge overhangs 16px past the end, the bottom start is inset
-                   * 16px, and both transitions bevel between y=4 and y=20 — the
-                   * folded-ribbon look. Physical-left clip-path, hence the RTL
-                   * mirror; the span reaches 16px past the bar box (-end-4) to
-                   * hold the overhang.
+                   * ring is not clipped. A plain symmetric trapezoid, per the
+                   * reference funnel: rows shrink 40px on a 60px pitch, so an
+                   * 18.5px per-side inset continues the SAME slope through the
+                   * 4px gaps — five stages read as one funnel, not stacked
+                   * blocks. Symmetric, so no RTL mirror is needed.
                    */}
                   <span
                     aria-hidden
-                    className={cn(
-                      'absolute inset-y-0 start-0 -end-4 transition-colors duration-500 [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] rtl:-scale-x-100',
-                      on
-                        ? 'bg-brand-100 dark:bg-brand-900/60'
-                        : passed
-                          ? 'bg-brand-50 dark:bg-brand-900/30'
-                          : 'bg-border group-hover:bg-canvas-2 dark:bg-card dark:group-hover:bg-border',
-                    )}
+                    className="absolute inset-0 bg-border transition-colors duration-200 group-hover:bg-canvas-2 [clip-path:polygon(0_0,100%_0,calc(100%_-_var(--fs)*18.5px)_100%,calc(var(--fs)*18.5px)_100%)] dark:bg-card dark:group-hover:bg-border"
                   />
                   <span className="sr-only">
                     Step {i + 1} — {s.title}
@@ -194,45 +191,66 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
         })}
 
         {/*
-         * PF-4 — the funnel's final stage IS the result.
-         *
-         * "Top 3%" used to hang off the tip as a separate arrow-pointed ribbon,
-         * which read as a label sitting beside the process rather than its
-         * outcome. Now the last box is the brand colour with the result inside
-         * it, so the eye finishes the narrowing and lands on the answer. The
-         * box keeps the same bevelled clip-path as every bar above it, so it
-         * still belongs to the funnel rather than being a new shape.
+         * PF-4, reference-exact pass: the funnel ends in a GREY tip that
+         * continues the taper (top 128 = row 5's bottom edge), and the result
+         * is an arrow-tipped brand ribbon overlapping the tip and running out
+         * past the funnel's edge — the reference's "Top 1%" treatment. The
+         * ribbon's left edge slants at the funnel's angle; asymmetric shape,
+         * so it mirrors under RTL while its content does not.
          */}
         <li aria-hidden className="flex h-11 justify-center sm:h-16">
-          <div
-            className={cn(
-              'relative h-full transition-transform duration-500',
-              resultActive && 'scale-[1.04]',
-            )}
-            style={{ width: 'calc(var(--fs) * 232px)' }}
-          >
+          <div className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
             <span
               className={cn(
-                'absolute inset-y-0 start-0 -end-4 bg-primary transition-shadow duration-500 [clip-path:polygon(0_0,100%_0,100%_4px,calc(100%-16px)_20px,calc(100%-16px)_100%,16px_100%,16px_20px,0_4px)] rtl:-scale-x-100',
-                resultActive && 'shadow-[0_12px_32px_-8px_rgba(32,162,188,0.55)]',
+                'absolute inset-0 bg-border transition-opacity duration-500 [clip-path:polygon(0_0,100%_0,calc(100%_-_var(--fs)*21px)_100%,calc(var(--fs)*21px)_100%)] dark:bg-card',
+                resultActive && 'opacity-0',
               )}
             />
-            <span className="relative flex h-full items-center justify-center gap-2 text-primary-foreground">
-              <svg
-                viewBox="0 0 17.45 21.04"
-                fill="currentColor"
-                stroke="currentColor"
-                strokeWidth="0.5"
-                strokeLinejoin="round"
-                aria-hidden
-                className="h-5 w-auto shrink-0 sm:h-6"
-              >
-                {WINNER_PATHS.map((d) => (
-                  <path key={d.slice(0, 16)} d={d} />
-                ))}
-              </svg>
-              <span className="text-base font-bold whitespace-nowrap sm:text-lg">Top 3%</span>
-            </span>
+            {/* Reference geometry: same height as the tip, and at rest the
+                ribbon STARTS where the tip ends — its slanted edge sits 4px
+                past the tip's own right edge, giving the thin parallel seam.
+                On the result beat it slides back to the tip's start and the
+                tip fades: the ribbon replaces the last grey shape. */}
+            <div
+              className={cn(
+                'absolute inset-y-0 transition-transform duration-500',
+                resultActive && '-translate-x-[53%] rtl:translate-x-[53%]',
+              )}
+              style={{
+                insetInlineStart: 'calc(100% - var(--fs) * 22px)',
+                width: 'calc(var(--fs) * 200px)',
+              }}
+            >
+              <span
+                /* Resting: left edge "/" continues the tip's right side, and
+                   the box overlaps the tip 1px so no background peeks through.
+                   Active: the edge morphs to "\" — the funnel's LEFT slant —
+                   because the ribbon now stands where the tip stood. Same
+                   vertex count, so the clip animates with the slide. */
+                className={cn(
+                  'absolute inset-0 bg-primary transition-[clip-path,box-shadow] duration-500 rtl:-scale-x-100',
+                  resultActive
+                    ? '[clip-path:polygon(0_0,calc(100%_-_var(--fs)*26px)_0,100%_50%,calc(100%_-_var(--fs)*26px)_100%,calc(var(--fs)*21px)_100%)] shadow-[0_12px_32px_-8px_rgba(32,162,188,0.55)]'
+                    : '[clip-path:polygon(calc(var(--fs)*21px)_0,calc(100%_-_var(--fs)*26px)_0,100%_50%,calc(100%_-_var(--fs)*26px)_100%,0_100%)]',
+                )}
+              />
+              <span className="relative flex h-full items-center justify-center gap-1.5 pe-[calc(var(--fs)*14px)] text-primary-foreground">
+                <svg
+                  viewBox="0 0 17.45 21.04"
+                  fill="currentColor"
+                  stroke="currentColor"
+                  strokeWidth="0.5"
+                  strokeLinejoin="round"
+                  aria-hidden
+                  className="h-5 w-auto shrink-0 sm:h-6"
+                >
+                  {WINNER_PATHS.map((d) => (
+                    <path key={d.slice(0, 16)} d={d} />
+                  ))}
+                </svg>
+                <span className="text-sm font-bold whitespace-nowrap sm:text-base">Top 3%</span>
+              </span>
+            </div>
           </div>
         </li>
       </ol>

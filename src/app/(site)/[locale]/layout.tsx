@@ -131,10 +131,11 @@ export default async function SiteLayout({
     }),
   ])
 
-  // Only services with roles form columns in the header's Services mega-menu.
+  // menuRoles now only gates menu MEMBERSHIP — the menu itself shows titles
+  // alone (MM-1: role sublists made the panel page-sized).
   const servicesMenu = servicesDocs.docs
     .filter((s) => s.menuRoles?.length)
-    .map((s) => ({ title: s.title, slug: s.slug, roles: (s.menuRoles ?? []).map((r) => r.label) }))
+    .map((s) => ({ title: s.title, slug: s.slug }))
 
   const siteName = settings.siteName ?? 'FEKRA'
   const logoUrl = settings.logoLight?.url ? mediaUrl(settings.logoLight) : null

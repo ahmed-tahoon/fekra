@@ -71,7 +71,7 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
       {/* Honeypot — hidden from users and screen readers, irresistible to bots. */}
-      <div aria-hidden className="absolute -left-[9999px]">
+      <div aria-hidden className="sr-only">
         <label htmlFor="contact-website">Website</label>
         <input id="contact-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>

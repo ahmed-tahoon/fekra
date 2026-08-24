@@ -602,7 +602,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                     alt=""
                     width={132}
                     height={86}
-                    className="pointer-events-none absolute -top-2 -right-px -z-10 w-[132px]"
+                    className="pointer-events-none absolute -end-px -top-2 -z-10 w-[132px] rtl:-scale-x-100"
                   />
 
                   <div className="flex flex-col gap-3">
@@ -785,7 +785,12 @@ export function ProcessSection({ block }: { block: BlockProps }) {
   const steps = (block.steps ?? []).map((s) => ({ title: s.title, body: s.body }))
 
   return (
-    <section id={block.anchor ?? undefined} className="section">
+    <section
+      id={block.anchor ?? undefined}
+      /* Same soft diagonal wash as the hero (client request) so the funnel
+         sits on a tinted ground instead of bare page. */
+      className="section bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]"
+    >
       {/*
        * PF-1 — the comp's 100px gap between the heading and the funnel is what
        * reads as "too spread out" once the funnel and its description sit side
@@ -1284,15 +1289,27 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
         <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{block.eyebrow}</p>
       ) : null}
 
-      <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+      {/* Arabic reads as ONE line (client request): joined by a space, and a
+          step smaller so the longest title still fits the 480px copy column.
+          Other locales keep the comp's two-line break. */}
+      <h2
+        className={cn(
+          'font-display leading-[1.05] font-bold',
+          locale === 'ar' ? 'text-[clamp(1.75rem,3vw,2.375rem)]' : 'text-[clamp(2rem,4vw,3rem)]',
+        )}
+      >
         {/* Teal to indigo clipped to the text — the hero's treatment. */}
         <span className="bg-[linear-gradient(114.22deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
           {block.heading}
           {block.headingAccent ? (
-            <>
-              <br />
-              {block.headingAccent}
-            </>
+            locale === 'ar' ? (
+              <> {block.headingAccent}</>
+            ) : (
+              <>
+                <br />
+                {block.headingAccent}
+              </>
+            )
           ) : null}
         </span>
       </h2>
@@ -1338,7 +1355,14 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-6">
+      {/*
+       * dir="ltr" on the wrapper as well as the tracks: a track is wider than
+       * the panel, and a block box that overflows an RTL containing block is
+       * right-anchored — its excess hangs off the LEFT. The keyframes then
+       * slide it further left, so past mid-loop the stage showed nothing.
+       * An LTR containing block left-anchors the track, as the loop assumes.
+       */}
+      <div dir="ltr" className="flex flex-col gap-6">
         {rows.map((row, rowIndex) => (
           /*
            * dir="ltr" pins the marquee's GEOMETRY: under RTL the flex row laid
