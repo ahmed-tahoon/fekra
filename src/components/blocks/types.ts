@@ -45,6 +45,7 @@ export const mediaAlt = (media: MediaDoc): string => (media.decorative ? '' : (m
 export type BlockItem = {
   value?: string
   label?: string
+  icon?: unknown
   quote?: string
   authorName?: string
   authorRole?: string
@@ -69,12 +70,12 @@ export type BlockProps = {
   trustLine?: string | null
   media?: unknown
   caption?: string | null
-  width?: 'prose' | 'full' | 'container'
+  width?: 'prose' | 'full' | 'container' | 'panel'
   content?: SerializedEditorState | null
   columns?: '2' | '3' | '4'
   /** cardGrid: plain|business. logoCloud: statement|badges. */
-  variant?: 'plain' | 'business' | 'statement' | 'badges' | null
-  tone?: 'brand' | 'ink' | 'subtle' | 'feature' | 'band'
+  variant?: 'plain' | 'business' | 'compliance' | 'numbered' | 'statement' | 'badges' | null
+  tone?: 'brand' | 'ink' | 'subtle' | 'feature' | 'band' | 'panel'
   marquee?: boolean | null
   emitSchema?: boolean | null
   footnote?: string | null
@@ -86,7 +87,7 @@ export type BlockProps = {
   ctas?: { variant?: 'primary' | 'secondary' | 'ghost'; link?: PayloadLink }[] | null
   stats?: { value: string; label: string; star?: boolean | null }[] | null
   items?: BlockItem[] | null
-  cards?: { icon?: unknown; title: string; body?: string | null; link?: PayloadLink }[] | null
+  cards?: { icon?: unknown; title: string; subtitle?: string | null; body?: string | null; note?: string | null; link?: PayloadLink }[] | null
   steps?: { title: string; body: string }[] | null
   logos?: { image?: unknown; name: string; url?: string | null }[] | null
   groups?: { name: string; items?: { name: string; logo?: unknown }[] }[] | null

@@ -1,3 +1,4 @@
+import { Award, Clock, FilePenLine } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -91,8 +92,9 @@ function SectionHeading({
       {eyebrow ? (
         <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{eyebrow}</p>
       ) : null}
+      {/* 42/50 #000 — measured off the comp's section heading (93:3073). */}
       {heading ? (
-        <As className="text-4xl md:text-5xl">
+        <As className="text-[clamp(1.75rem,2.92vw,2.625rem)]/[1.19] tracking-normal text-wrap text-[#000000] dark:text-foreground">
           {heading}
           {headingAccent ? <span className="text-primary"> {headingAccent}</span> : null}
         </As>
@@ -116,7 +118,10 @@ function Ctas({
   className?: string
   withArrow?: boolean
 }) {
-  const resolved = (ctas ?? []).map((c) => ({ variant: c.variant, link: resolveLink(c.link, locale) }))
+  const resolved = (ctas ?? []).map((c) => ({
+    variant: c.variant,
+    link: resolveLink(c.link, locale),
+  }))
   if (!resolved.some((c) => c.link)) return null
   return (
     <div className="flex flex-wrap gap-3">
@@ -136,7 +141,86 @@ function Ctas({
   )
 }
 
-export function HeroSection({ block, locale, isFirst }: { block: BlockProps; locale: Locale; isFirst: boolean }) {
+/* Hero body copy supports **bold** runs — comp 93:2966 bolds the key figures
+   inside an otherwise plain paragraph, and a full richText field would be
+   overkill for one emphasis style. */
+function emphasize(text: string) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    i % 2 ? (
+      <strong key={i} className="font-semibold text-[#333333] dark:text-foreground">
+        {part}
+      </strong>
+    ) : (
+      part
+    ),
+  )
+}
+
+/**
+ * Meet-Fika comp — copy at the start, illustration at the end, on the same
+ * soft wash as the other heroes. Its own function rather than a third branch
+ * inside HeroSection: it shares no alignment, no collage and no badge row
+ * with the centred layouts, so weaving it in would only tangle them.
+ */
+function SplitHero({ block, locale, isFirst }: { block: BlockProps; locale: Locale; isFirst: boolean }) {
+  const media = block.media as MediaDoc
+  const Title = isFirst ? 'h1' : 'h2'
+  return (
+    <section
+      id={block.anchor ?? undefined}
+      className="relative isolate mt-[calc(var(--header-block)*-1)] overflow-hidden pt-[calc(var(--header-block)+clamp(2rem,5vw,4.5rem))] pb-[clamp(2.5rem,5vw,4.5rem)] dark:bg-background"
+    >
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]"
+      />
+      <div className="container-site grid items-center gap-10 md:grid-cols-[1fr_384px] md:gap-12">
+        <div className="max-w-[460px]">
+          <Title className="text-[clamp(1.75rem,2.36vw,2.125rem)]/[1.21] font-bold tracking-normal text-wrap text-[#333333] dark:text-foreground">
+            {block.heading}
+            {block.headingAccent ? (
+              <>
+                {' '}
+                <span className="text-[#2ebde9]">{block.headingAccent}</span>
+              </>
+            ) : null}
+          </Title>
+          {block.body ? (
+            <p className="mt-5 text-[clamp(0.875rem,1.11vw,1rem)]/[1.6] whitespace-pre-line text-[#333333] dark:text-muted-foreground">
+              {block.body}
+            </p>
+          ) : null}
+          {block.ctas?.length ? (
+            <div className="mt-7">
+              <Ctas ctas={block.ctas} locale={locale} />
+            </div>
+          ) : null}
+        </div>
+        <Image
+          src={mediaUrl(media)}
+          alt={mediaAlt(media)}
+          width={384}
+          height={417}
+          priority={isFirst}
+          className="mx-auto h-auto w-[clamp(220px,26vw,384px)] object-contain md:mx-0"
+        />
+      </div>
+    </section>
+  )
+}
+
+export function HeroSection({
+  block,
+  locale,
+  isFirst,
+}: {
+  block: BlockProps
+  locale: Locale
+  isFirst: boolean
+}) {
+  // An illustration switches the hero to the split Meet-Fika layout.
+  if ((block.media as MediaDoc | undefined)?.url) return <SplitHero block={block} locale={locale} isFirst={isFirst} />
+
   const words = (block.rotatingWords ?? []).map((w) => w.text).filter(Boolean)
   const mosaic = block.mosaic ?? []
   const Title = isFirst ? 'h1' : 'h2'
@@ -161,6 +245,10 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
     if (i % 2) pair.reverse()
     mobileTiles.push(...pair.slice(0, 6 - mobileTiles.length))
   }
+
+  // No mosaic -> the About comp's simple centred hero: wider copy column,
+  // larger subhead, badge pills below the CTA. Home (with mosaic) unaffected.
+  const simple = !mosaic.length
 
   const tile = (item: (typeof mosaic)[number], index: number, compact = false) => {
     const image = item.image as MediaDoc | undefined
@@ -192,7 +280,9 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
             dir="ltr"
             className={cn(
               'font-display font-bold tracking-[-0.04em]',
-              compact ? 'mt-1.5 block text-[1.75rem] leading-none' : 'mt-3 block text-2xl md:text-[clamp(1.5rem,2.8vw,2.5rem)] lg:leading-8',
+              compact
+                ? 'mt-1.5 block text-[1.75rem] leading-none'
+                : 'mt-3 block text-2xl md:text-[clamp(1.5rem,2.8vw,2.5rem)] lg:leading-8',
             )}
           />
         </div>
@@ -222,7 +312,16 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
       // board on short windows, which is what broke the tiles' proportions.
       // Budgeted so copy + collage land the section bottom at ~982px on a
       // 1440x982 screen — the whole hero fits one screen by default there.
-      className="relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.25rem,5.2vw,4.75rem))] pb-8 md:pb-12 dark:bg-background"
+      className={cn(
+        'relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.25rem,5.2vw,4.75rem))] pb-8 md:pb-12 dark:bg-background',
+        // The copy-only hero carries the comp's 136px of air under the nav;
+        // the collage hero cannot afford it and keeps the tighter default.
+        // 26px under the badges is the comp's own clearance (pills end 758,
+        // frame ends 784) — the default 48px left the tint cutting to white
+        // right at the badge edge.
+        simple &&
+          'pt-[calc(var(--header-block)+clamp(2rem,8.8vw,7.875rem))] pb-[26px] md:pb-[26px]',
+      )}
     >
       {/*
         The tint is its own layer, stopping where the collage stops, so the
@@ -236,12 +335,22 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
         /* Dark gets its own wash rather than `dark:hidden`, which left the hero
            flat black while every other theme surface carried a tint. Same angle,
            brand teal into navy at low alpha over the dark background. */
-        className="absolute inset-x-0 top-0 bottom-8 md:bottom-12 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]"
+        className={cn(
+          'absolute inset-x-0 top-0 bottom-8 md:bottom-12 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]',
+          // No collage to clear, so the wash runs the full frame as it does in
+          // the comp, instead of stopping short and banding into white.
+          simple && 'bottom-0 md:bottom-0',
+        )}
       />
       <div className="relative z-10 container-wide shrink-0">
         {/* Uniform ~28px rhythm between pill, headline, body, bullets and CTA —
             measured off the comp at 1440. */}
-        <div className="mx-auto flex max-w-[844px] flex-col items-center gap-5 text-center md:gap-7">
+        <div
+          className={cn(
+            'mx-auto flex max-w-[844px] flex-col items-center text-center',
+            simple ? 'max-w-[1130px] gap-0' : 'gap-5 md:gap-7',
+          )}
+        >
           {block.trustLine ? (
             <p
               style={{ '--i': 0 } as React.CSSProperties}
@@ -259,7 +368,16 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
           <Title
             style={{ '--i': 1 } as React.CSSProperties}
             // 60px at the 1440 comp width, easing down with the viewport.
-            className="fk-enter font-display text-[clamp(1.75rem,4.6vw,3.75rem)] leading-[1.08] font-bold tracking-[-0.5px] text-balance md:leading-[1.05] md:tracking-[-1.5px] text-navy-800 dark:text-foreground"
+            className={cn(
+              'fk-enter font-display font-bold',
+              simple
+                ? // text-wrap overrides the global `text-wrap: balance` on
+                  // headings: the comp fills line one and drops the remainder
+                  // ("…Technology &" / "Outsourcing Partner"), where balancing
+                  // evens the two lines and breaks after "Trusted".
+                  'text-[clamp(1.875rem,3.6vw,3.25rem)] leading-[1.19] font-semibold tracking-normal text-wrap text-[#333333] dark:text-foreground'
+                : 'text-[clamp(1.75rem,4.6vw,3.75rem)] leading-[1.08] tracking-[-0.5px] text-balance text-navy-800 md:leading-[1.05] md:tracking-[-1.5px] dark:text-foreground',
+            )}
           >
             {block.heading}
             <br />
@@ -269,23 +387,32 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
                 when a `background-clip: text` element has animating children. */}
             {words.length ? (
               <RotatingWords words={words} />
-            ) : (
-              <span className="bg-[linear-gradient(137.53deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
+            ) : block.headingAccent ? (
+              /* Static accent renders as the SUBHEAD line (About-page comp
+                 93:2966): small, bold, navy — several steps below the H1. */
+              /* Roboto Medium in the comp, not the display face — Inter is
+                 our neutral grotesque, so the subhead drops out of the display face. */
+              <span className="mt-2 block font-sans text-[clamp(1.125rem,1.66vw,1.5rem)] leading-[1.25] font-medium tracking-normal text-[#333333] dark:text-foreground">
                 {block.headingAccent}
               </span>
-            )}
+            ) : null}
           </Title>
 
           {block.body ? (
             <p
               style={{ '--i': 2 } as React.CSSProperties}
-              className="fk-enter text-[15px]/6 text-ink-500 md:text-lg/7 dark:text-muted-foreground"
+              className={cn(
+                'fk-enter whitespace-pre-line',
+                simple
+                  ? 'mt-[21px] text-[clamp(0.9375rem,1.25vw,1.125rem)]/[1.56] text-[#333333] dark:text-muted-foreground'
+                  : 'text-[15px]/6 text-ink-500 md:text-lg/7 dark:text-muted-foreground',
+              )}
             >
-              {block.body}
+              {emphasize(block.body)}
             </p>
           ) : null}
 
-          {block.bullets?.length ? (
+          {block.bullets?.length && !simple ? (
             <ul
               style={{ '--i': 3 } as React.CSSProperties}
               /* One row at every size, and it must fit — the three labels run
@@ -337,10 +464,52 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
             style={{ '--i': 4 } as React.CSSProperties}
             // The arbitrary variants stretch Ctas' shrink-to-fit container so
             // the button can actually fill the row on phones.
-            className="fk-enter flex w-full flex-wrap justify-center gap-4 [&>div]:w-full [&>div]:justify-center"
+            className={cn(
+              'fk-enter flex w-full flex-wrap justify-center gap-4 [&>div]:w-full [&>div]:justify-center',
+              simple && 'mt-[10px]',
+            )}
           >
-            <Ctas ctas={block.ctas} locale={locale} className="w-full py-3 text-sm sm:w-auto sm:py-4 sm:text-base" />
+            <Ctas
+              ctas={block.ctas}
+              locale={locale}
+              className="w-full py-3 text-sm sm:w-auto sm:py-4 sm:text-base"
+            />
           </div>
+
+          {block.bullets?.length && simple ? (
+            /* Simple hero (comp 93:2966): grey badge chips BELOW the CTA. A
+               CMS icon upload wins; otherwise the comp's three glyphs cycle —
+               medal, signed document, clock. */
+            <ul
+              style={{ '--i': 5 } as React.CSSProperties}
+              className="fk-enter mt-[29px] flex flex-wrap items-center justify-center gap-2.5"
+            >
+              {block.bullets.map((bullet, i) => {
+                const icon = bullet.icon as MediaDoc | undefined
+                const Fallback = [Award, FilePenLine, Clock][i % 3]!
+                return (
+                  <li
+                    key={bullet.text}
+                    className="inline-flex h-[38px] items-center gap-1.5 rounded-pill bg-[#eef0f4] px-5 text-base font-normal text-black dark:bg-elevated dark:text-foreground"
+                  >
+                    {icon?.url ? (
+                      <Image
+                        src={mediaUrl(icon)}
+                        alt=""
+                        width={20}
+                        height={20}
+                        aria-hidden
+                        className="size-5 shrink-0"
+                      />
+                    ) : (
+                      <Fallback aria-hidden className="size-5 shrink-0" strokeWidth={1.8} />
+                    )}
+                    {bullet.text}
+                  </li>
+                )
+              })}
+            </ul>
+          ) : null}
         </div>
       </div>
 
@@ -403,8 +572,8 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
               <div key={stat.label}>
                 <dt className="text-sm text-muted-foreground">{stat.label}</dt>
                 <dd className="font-display text-3xl font-bold text-primary">
-                <CountUp value={stat.value ?? ''} dir="ltr" />
-              </dd>
+                  <CountUp value={stat.value ?? ''} dir="ltr" />
+                </dd>
               </div>
             ))}
           </dl>
@@ -413,7 +582,6 @@ export function HeroSection({ block, locale, isFirst }: { block: BlockProps; loc
     </section>
   )
 }
-
 
 export function LogoCloudSection({ block }: { block: BlockProps }) {
   /* Figma 1:11600 — the same logo array, presented as a centred badge row
@@ -433,7 +601,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                 {block.eyebrow}
               </p>
             ) : null}
-            <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+            <h2 className="font-display text-[clamp(1.75rem,2.92vw,2.625rem)] leading-[1.19] font-bold">
               <span className="bg-[linear-gradient(139.28deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
                 {block.heading}
               </span>
@@ -497,7 +665,9 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
              not bold, which is what made it read heavier than the design. */
           <p className="mx-auto max-w-md text-center font-display text-2xl leading-[1.25] font-bold text-balance text-navy-800 lg:mx-0 lg:my-auto lg:max-w-[24rem] lg:shrink-0 lg:pb-10 lg:text-start lg:text-[34px] xl:max-w-[26rem] dark:text-foreground">
             {statement?.before}{' '}
-            {statement?.highlight ? <span className="text-primary">{statement.highlight}</span> : null}{' '}
+            {statement?.highlight ? (
+              <span className="text-primary">{statement.highlight}</span>
+            ) : null}{' '}
             {statement?.after}
           </p>
         ) : block.heading ? (
@@ -558,6 +728,160 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
    * card count alone: the first two span three columns, the rest span two. No
    * per-row markup, and a sixth card simply joins the second row.
    */
+  /*
+   * About comp 93:3098 — full-width certification rows: badge art at the
+   * start, title over a bold one-liner over body copy, and a tinted
+   * "What It Means for You" strip across the bottom. Strip tints cycle.
+   */
+  /*
+   * Meet-Fika comp — six numbered steps in two narrow columns. The number is
+   * part of the card title in the CMS ("1. Understand Your Needs Faster"), so
+   * there is no counter to keep in sync with the copy.
+   */
+  if (block.variant === 'numbered') {
+    return (
+      <section id={block.anchor ?? undefined} className="section">
+        <div className="container-site flex flex-col items-center gap-10">
+          {block.heading ? <SectionHeading heading={block.heading} body={block.body} /> : null}
+          <ul className="grid w-full max-w-[760px] gap-5 sm:grid-cols-2">
+            {cards.map((card) => (
+              <li
+                key={card.title}
+                className="rounded-2xl bg-[#f7f8fb] px-5 py-4 shadow-[0_1px_3px_rgba(25,33,61,0.04)] dark:bg-card"
+              >
+                <h3 className="text-[15px]/[22px] font-semibold text-[#333333] dark:text-foreground">{card.title}</h3>
+                {card.body ? (
+                  <p className="mt-2 text-[13px]/[20px] text-ink-500 dark:text-muted-foreground">{card.body}</p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+          <Ctas ctas={block.ctas} locale={locale} />
+        </div>
+      </section>
+    )
+  }
+
+  if (block.variant === 'compliance') {
+    /*
+     * Row 1 is measured off the comp (93:3103): a #e4f0fe disc behind the
+     * badge and a #d9f3cf strip. Rows 2-5 keep the comp's hue order but their
+     * exact values are unread — Figma's call limit only allowed one row.
+     * ponytail: approximated tints, replace with the real ones when the rest
+     * of 93:3112-93:3140 can be read.
+     */
+    const ROW_TINTS = [
+      { disc: '#e4f0fe', strip: '#d9f3cf' },
+      { disc: '#e4f0fe', strip: '#dbe4fb' },
+      { disc: '#e4f0fe', strip: '#fbdcdc' },
+      { disc: '#e4f0fe', strip: '#d5ecfa' },
+      { disc: '#e4f0fe', strip: '#fbf0cf' },
+    ]
+    return (
+      /* The rows are bg-white in the comp, which only reads as a card because
+         the band behind them is tinted. */
+      <section
+        id={block.anchor ?? undefined}
+        className="section bg-[#eafafb] dark:bg-background-subtle"
+      >
+        {/* Wider than `.container-site`: the comp runs the heading on one line
+            (896 wide) and the description on one line at 1329, which is past
+            the 1200 grid. Boxed at max-w-4xl both wrapped to two lines. */}
+        <div className="mx-auto flex w-full max-w-[1330px] flex-col items-center gap-12 px-5">
+          <div className="flex flex-col items-center gap-4 text-center">
+            {block.eyebrow ? (
+              <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
+                {block.eyebrow}
+              </p>
+            ) : null}
+            <h2 className="font-display text-[clamp(1.75rem,2.92vw,2.625rem)]/[1.19] font-bold tracking-normal text-[#000000] dark:text-foreground">
+              {block.heading}
+            </h2>
+            {block.body ? (
+              <p className="text-[clamp(1rem,1.39vw,1.25rem)]/[1.6] text-[#333333] dark:text-muted-foreground">
+                {block.body}
+              </p>
+            ) : null}
+          </div>
+
+          {/* 1096-wide list, 30px between rows. Each row is a 10px-radius white
+              card — no border — with a 120px disc at a 25px inset, a 30px
+              gutter, then the copy, over a 34px tinted strip (93:3103). */}
+          <ul className="flex w-full max-w-[1096px] flex-col gap-[30px]">
+            {cards.map((card, index) => {
+              const icon = card.icon as MediaDoc | undefined
+              const tint = ROW_TINTS[index % ROW_TINTS.length]!
+              // The comp sets the "What It Means for You:" lead-in Regular and
+              // the sentence after it Medium.
+              const split = card.note?.indexOf(':') ?? -1
+              const noteLead = split > -1 ? card.note!.slice(0, split + 1) : null
+              const noteRest = split > -1 ? card.note!.slice(split + 1) : card.note
+              return (
+                <li
+                  key={card.title}
+                  className="overflow-hidden rounded-[10px] bg-white dark:bg-card"
+                >
+                  <div className="flex flex-col items-center gap-5 px-[25px] py-6 sm:min-h-[150px] sm:flex-row sm:gap-[30px] sm:py-[15px]">
+                    {icon?.url ? (
+                      /* The comp discs only the round badges — the ISTQB
+                         wordmark (157x56) sits bare, and a circle behind a
+                         wide lockup reads wrong. Derived from the art rather
+                         than a CMS flag: no new field, no migration. */
+                      <span
+                        style={{ '--fk-tint': tint.disc } as React.CSSProperties}
+                        className={cn(
+                          'grid size-[120px] shrink-0 place-items-center overflow-hidden rounded-full',
+                          (icon.width ?? 1) / (icon.height ?? 1) > 1.5 ? undefined : 'fk-tint-bg',
+                        )}
+                      >
+                        <Image
+                          src={mediaUrl(icon)}
+                          alt=""
+                          width={120}
+                          height={120}
+                          aria-hidden
+                          className="max-h-[120px] w-auto object-contain"
+                        />
+                      </span>
+                    ) : null}
+                    <div className="text-center sm:text-start">
+                      <h3 className="text-[22px]/[26px] font-semibold text-[#333333] dark:text-foreground">
+                        {card.title}
+                      </h3>
+                      {card.subtitle ? (
+                        <p className="mt-[15px] text-[18px]/[22px] font-medium text-[#333333] dark:text-foreground">
+                          {card.subtitle}
+                        </p>
+                      ) : null}
+                      {card.body ? (
+                        <p className="mt-2.5 max-w-[868px] text-[15px]/[18px] text-[#666666] dark:text-muted-foreground">
+                          {card.body}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                  {card.note ? (
+                    <p
+                      style={{ '--fk-tint': tint.strip } as React.CSSProperties}
+                      className="fk-tint-bg flex min-h-[34px] items-center justify-center px-6 py-2 text-center text-[14px]/[18px] text-[#333333] dark:text-foreground"
+                    >
+                      <span>
+                        {noteLead}
+                        <span className="font-medium">{noteRest}</span>
+                      </span>
+                    </p>
+                  ) : null}
+                </li>
+              )
+            })}
+          </ul>
+
+          <Ctas ctas={block.ctas} locale={locale} />
+        </div>
+      </section>
+    )
+  }
+
   if (block.variant === 'business') {
     return (
       <section id={block.anchor ?? undefined} className="section">
@@ -568,14 +892,16 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                 {block.eyebrow}
               </p>
             ) : null}
-            <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+            <h2 className="font-display text-[clamp(1.75rem,2.92vw,2.625rem)] leading-[1.19] font-bold">
               <span className="bg-[linear-gradient(147.07deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
                 {block.heading}
                 {block.headingAccent ? ` ${block.headingAccent}` : null}
               </span>
             </h2>
             {block.body ? (
-              <p className="max-w-3xl text-lg/[1.3] text-ink-500 dark:text-muted-foreground">{block.body}</p>
+              <p className="max-w-3xl text-lg/[1.3] text-ink-500 dark:text-muted-foreground">
+                {block.body}
+              </p>
             ) : null}
           </div>
 
@@ -664,7 +990,14 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
             const inner = (
               <>
                 {icon ? (
-                  <Image src={mediaUrl(icon)} alt="" width={48} height={48} className="size-12" aria-hidden />
+                  <Image
+                    src={mediaUrl(icon)}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="size-12"
+                    aria-hidden
+                  />
                 ) : null}
                 <h3 className="text-xl">{card.title}</h3>
                 {card.body ? <p className="text-sm text-muted-foreground">{card.body}</p> : null}
@@ -723,7 +1056,11 @@ export function IndustriesSection({ block }: { block: BlockProps }) {
               {block.headingAccent ? ` ${block.headingAccent}` : null}
             </span>
           </h2>
-          {block.body ? <p className="max-w-3xl text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p> : null}
+          {block.body ? (
+            <p className="max-w-3xl text-lg/7 text-ink-500 dark:text-muted-foreground">
+              {block.body}
+            </p>
+          ) : null}
         </div>
 
         {/*
@@ -748,10 +1085,19 @@ export function IndustriesSection({ block }: { block: BlockProps }) {
               >
                 <span className="flex size-8 items-center justify-center">
                   {icon?.url ? (
-                    <Image src={mediaUrl(icon)} alt="" width={32} height={32} aria-hidden className="size-8" />
+                    <Image
+                      src={mediaUrl(icon)}
+                      alt=""
+                      width={32}
+                      height={32}
+                      aria-hidden
+                      className="size-8"
+                    />
                   ) : null}
                 </span>
-                <span className="text-center text-base leading-6 font-semibold text-ink-900">{item.label}</span>
+                <span className="text-center text-base leading-6 font-semibold text-ink-900">
+                  {item.label}
+                </span>
               </li>
             )
           })}
@@ -761,20 +1107,68 @@ export function IndustriesSection({ block }: { block: BlockProps }) {
   )
 }
 
+/*
+ * About comp 93:3074-93:3095 — one tint per card, used for BOTH the 2px
+ * border and the corner chip. The chip is flush to the top-end corner (which
+ * is why the card leaves that corner square) and the glyph inside is plain
+ * #333, not a saturated version of the tint. Cycles, so a fifth stat reuses
+ * the first tint.
+ */
+const STAT_TINTS = ['#e3f0f6', '#fdf3ed', '#eff5e7', '#fbf5e7'] as const
+
 export function StatsSection({ block }: { block: BlockProps }) {
   return (
     <section id={block.anchor ?? undefined} className="section">
       <div className="container-site">
         {block.heading ? <SectionHeading heading={block.heading} /> : null}
-        <dl className="mt-10 grid grid-cols-2 gap-8 text-center md:grid-cols-4">
-          {(block.items ?? []).map((item, i) => (
-            <div key={i} className="rounded-card border border-border bg-card p-6">
-              <dd className="font-display text-4xl font-bold text-primary">
-                <CountUp value={item.value ?? ''} dir="ltr" />
-              </dd>
-              <dt className="mt-2 text-sm text-muted-foreground">{item.label}</dt>
-            </div>
-          ))}
+        {/* 282x204 cards on the 1200 grid, 24px apart — 93:3074. Value box is
+            centred at 82 and the label at 136, both on a 22px inset. */}
+        <dl className="mt-[35px] grid grid-cols-2 gap-5 md:grid-cols-4 md:gap-6">
+          {(block.items ?? []).map((item, i) => {
+            const tint = STAT_TINTS[i % STAT_TINTS.length]
+            const icon = item.icon as MediaDoc | undefined
+            return (
+              <div
+                key={i}
+                style={{ '--fk-tint': tint } as React.CSSProperties}
+                /* The comp's 52px of top air is a 1440 number; below md it
+                   would leave the label almost no room. Top-end corner stays
+                   square so the chip can sit flush in it. */
+                className="fk-tint-border relative flex min-w-0 flex-col overflow-hidden rounded-[25px] rounded-se-none border-2 bg-white px-[22px] pt-8 pb-8 shadow-[0_3px_3px_rgba(51,51,51,0.05)] md:min-h-[204px] md:pt-[52px] md:pb-0 dark:bg-card"
+              >
+                <span
+                  aria-hidden
+                  className="fk-tint-bg absolute end-0 top-0 grid size-11 place-items-center rounded-es-[40px] md:size-[65px] md:rounded-es-[60px]"
+                >
+                  {icon?.url ? (
+                    /* Masked, not <img>: the export is a flat shape and the
+                       comp paints it #333 like the rest of the card copy. */
+                    <span
+                      className="size-6 bg-[#333333] md:size-[30px] dark:bg-foreground"
+                      style={{
+                        maskImage: `url(${mediaUrl(icon)})`,
+                        maskRepeat: 'no-repeat',
+                        maskPosition: 'center',
+                        maskSize: 'contain',
+                        WebkitMaskImage: `url(${mediaUrl(icon)})`,
+                        WebkitMaskRepeat: 'no-repeat',
+                        WebkitMaskPosition: 'center',
+                        WebkitMaskSize: 'contain',
+                      }}
+                    />
+                  ) : (
+                    <span className="size-3.5 rounded-pill bg-[#333333] dark:bg-foreground" />
+                  )}
+                </span>
+                <dd className="text-[clamp(2rem,3.47vw,3.125rem)]/[60px] font-medium text-[#333333] dark:text-foreground">
+                  <CountUp value={item.value ?? ''} dir="ltr" />
+                </dd>
+                <dt className="mt-3 text-sm text-[#333333] md:text-xl/[24px] dark:text-muted-foreground">
+                  {item.label}
+                </dt>
+              </div>
+            )
+          })}
         </dl>
       </div>
     </section>
@@ -813,7 +1207,9 @@ export function ProcessSection({ block }: { block: BlockProps }) {
             </span>
           </h2>
           {block.body ? (
-            <p className="max-w-2xl text-base/7 text-ink-500 dark:text-muted-foreground">{block.body}</p>
+            <p className="max-w-2xl text-base/7 text-ink-500 dark:text-muted-foreground">
+              {block.body}
+            </p>
           ) : null}
         </div>
 
@@ -843,7 +1239,10 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
   if (!items.length) return null
 
   return (
-    <section id={block.anchor ?? undefined} className="section bg-brand-50 dark:bg-background-subtle">
+    <section
+      id={block.anchor ?? undefined}
+      className="section bg-brand-50 dark:bg-background-subtle"
+    >
       <div className="container-reading flex flex-col gap-10">
         <div className="flex flex-col items-center gap-2 text-center">
           {block.eyebrow ? (
@@ -851,7 +1250,7 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
               {block.eyebrow}
             </p>
           ) : null}
-          <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+          <h2 className="font-display text-[clamp(1.75rem,2.92vw,2.625rem)] leading-[1.19] font-bold">
             <span className="bg-[linear-gradient(141.83deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
               {block.heading}
               {block.headingAccent ? ` ${block.headingAccent}` : null}
@@ -933,7 +1332,9 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
                     className="font-display text-3xl font-bold text-navy-800 dark:text-foreground"
                   />
                 </span>
-                <span className="text-xs text-ink-500 dark:text-muted-foreground">{stat.label}</span>
+                <span className="text-xs text-ink-500 dark:text-muted-foreground">
+                  {stat.label}
+                </span>
               </li>
             ))}
           </ul>
@@ -954,7 +1355,7 @@ export function FaqSection({ block, locale }: { block: BlockProps; locale: Local
               {block.eyebrow}
             </p>
           ) : null}
-          <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+          <h2 className="font-display text-[clamp(1.75rem,2.92vw,2.625rem)] leading-[1.19] font-bold">
             <span className="bg-[linear-gradient(154.58deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
               {block.heading}
               {block.headingAccent ? ` ${block.headingAccent}` : null}
@@ -982,7 +1383,13 @@ export function FaqSection({ block, locale }: { block: BlockProps; locale: Local
                   aria-hidden
                   className="grid size-[34px] shrink-0 place-items-center rounded-pill bg-[linear-gradient(135deg,rgba(72,155,194,0.4)_0%,rgba(142,142,142,0.1)_100%)] text-navy-800 transition-transform duration-300 group-open:rotate-90 group-open:bg-primary group-open:bg-none group-open:text-white dark:text-foreground"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" className="size-4" strokeWidth="2.5" stroke="currentColor">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="size-4"
+                    strokeWidth="2.5"
+                    stroke="currentColor"
+                  >
                     <path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
@@ -1044,7 +1451,9 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
               </span>
             </h2>
             {block.body ? (
-              <p className="max-w-[818px] text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p>
+              <p className="max-w-[818px] text-lg/7 text-ink-500 dark:text-muted-foreground">
+                {block.body}
+              </p>
             ) : null}
           </div>
 
@@ -1060,7 +1469,12 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
 
           {/* The comp's wide solid pill — 340px, label only, no arrow. Capped
               at 100% so it cannot overflow a narrow phone. */}
-          <Ctas ctas={block.ctas} locale={locale} withArrow={false} className="min-w-[min(340px,100%)]" />
+          <Ctas
+            ctas={block.ctas}
+            locale={locale}
+            withArrow={false}
+            className="min-w-[min(340px,100%)]"
+          />
         </div>
       </section>
     )
@@ -1069,7 +1483,10 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
   /* Figma 1:13917 — full-bleed navy band, copy left, dot field right. */
   if (tone === 'band') {
     return (
-      <section id={block.anchor ?? undefined} className="relative isolate overflow-hidden bg-navy-800">
+      <section
+        id={block.anchor ?? undefined}
+        className="relative isolate overflow-hidden bg-navy-800"
+      >
         {/* A 7-column field of 8px dots on a 36px grid, inset from the right —
             the comp's dots are large and gathered, not a fine spray across the
             whole half. */}
@@ -1081,7 +1498,9 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
           <h2 className="max-w-[860px] font-display text-[clamp(1.75rem,3.4vw,2.5rem)] leading-tight font-bold text-white">
             {block.heading}
           </h2>
-          {block.body ? <p className="max-w-[700px] text-base/6 text-white/80">{block.body}</p> : null}
+          {block.body ? (
+            <p className="max-w-[700px] text-base/6 text-white/80">{block.body}</p>
+          ) : null}
           {/* On navy the outlined pill flips to white per the comp. */}
           <Ctas
             ctas={block.ctas}
@@ -1094,18 +1513,110 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
     )
   }
 
+  /*
+   * About comp 93:3175 — the band is 1388x325 sitting on a 25px side margin,
+   * which is wider than `.container-site` and lets the heading hold one line.
+   * Boxed inside the 1200 container it ran 475px tall on a two-line heading.
+   */
+  /*
+   * Meet-Fika comp — a white card floated on a tinted band, illustration at
+   * the start and the copy at the end. `body` keeps one paragraph per line,
+   * matching how the other blocks treat a textarea.
+   */
+  if (tone === 'panel') {
+    return (
+      <section id={block.anchor ?? undefined} className="section bg-[#f5f6f8] dark:bg-background-subtle">
+        <div className="container-site">
+          <div className="grid items-center gap-8 rounded-[24px] bg-white px-6 py-10 sm:px-12 md:grid-cols-[300px_1fr] md:gap-14 md:px-16 dark:bg-card">
+            {media?.url ? (
+              <Image
+                src={mediaUrl(media)}
+                alt={mediaAlt(media)}
+                width={300}
+                height={326}
+                className="mx-auto h-auto w-[clamp(180px,22vw,300px)] object-contain"
+              />
+            ) : null}
+            <div>
+              <h2 className="text-[clamp(1.5rem,2.08vw,1.875rem)]/[1.25] font-bold tracking-normal text-[#333333] dark:text-foreground">
+                {block.heading}
+              </h2>
+              {block.body ? (
+                <div className="mt-4 flex flex-col gap-4">
+                  {block.body.split(/\n+/).map((para, i) => (
+                    <p key={i} className="text-[14px]/[22px] text-ink-500 dark:text-muted-foreground">
+                      {para}
+                    </p>
+                  ))}
+                </div>
+              ) : null}
+              {block.ctas?.length ? (
+                <div className="mt-7">
+                  <Ctas ctas={block.ctas} locale={locale} />
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  /*
+   * About comp 93:3175 — the brand band inverts the usual hierarchy: the
+   * heading is a small lead-in and the BODY carries the display size, copy
+   * sits at the start rather than centred, and the button rides on the end
+   * edge. Decorative arcs (93:3178) sit on the top edge of the gradient.
+   */
+  if (tone === 'brand') {
+    return (
+      <section id={block.anchor ?? undefined} className="section">
+        <div className="mx-auto w-full max-w-[1438px] px-[25px]">
+          <div className="relative isolate flex flex-col justify-center gap-8 overflow-hidden rounded-[20px] bg-[linear-gradient(90deg,#2497b4_0%,#63b4dc_100%)] px-6 py-10 sm:px-[50px] md:min-h-[325px] md:flex-row md:items-center md:justify-between md:gap-12">
+            <Image
+              src="/images/decor/cta-band-shapes.svg"
+              alt=""
+              width={311}
+              height={68}
+              aria-hidden
+              className="pointer-events-none absolute top-0 end-[10%] -z-10 max-w-none"
+            />
+            <div className="max-w-[640px]">
+              {block.heading ? (
+                <h2 className="text-[clamp(0.9375rem,1.25vw,1.125rem)]/[1.5] font-normal tracking-normal text-white/90">
+                  {block.heading}
+                </h2>
+              ) : null}
+              {block.body ? (
+                <p className="mt-1.5 text-[clamp(1.375rem,2.08vw,1.875rem)]/[1.36] font-medium text-white">
+                  {block.body}
+                </p>
+              ) : null}
+            </div>
+            {/* Solid white pill with a dark disc around the arrow. */}
+            <Ctas
+              ctas={block.ctas}
+              locale={locale}
+              size="md"
+              className="shrink-0 border-0 bg-white py-2 ps-6 pe-2 text-[15px] text-navy-800 hover:bg-white/90 [&_svg]:size-8 [&_svg]:rounded-pill [&_svg]:bg-navy-800 [&_svg]:p-2 [&_svg]:text-white"
+            />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id={block.anchor ?? undefined} className="section">
       <div className="container-site">
         <div
           className={cn(
-            'flex flex-col items-center gap-6 rounded-panel px-6 py-14 text-center md:px-16',
-            tone === 'brand' && 'bg-primary text-primary-foreground',
+            'flex flex-col items-center justify-center gap-6 rounded-panel px-6 py-14 text-center md:px-16',
             tone === 'ink' && 'bg-ink-900 text-white',
             tone === 'subtle' && 'border border-border bg-background-subtle',
           )}
         >
-          <h2 className="max-w-2xl text-4xl">{block.heading}</h2>
+          <h2 className="max-w-2xl text-[clamp(1.75rem,2.92vw,2.625rem)]/[1.19]">{block.heading}</h2>
           {block.body ? <p className="max-w-2xl text-lg opacity-90">{block.body}</p> : null}
           <Ctas ctas={block.ctas} locale={locale} />
         </div>
@@ -1136,13 +1647,15 @@ export function TechStackSection({ block }: { block: BlockProps }) {
     <section id={block.anchor ?? undefined} className="section">
       <div className="container-board flex flex-col items-center">
         <div className="flex flex-col items-center gap-6 text-center">
-          <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+          <h2 className="font-display text-[clamp(1.75rem,2.92vw,2.625rem)] leading-[1.19] font-bold">
             <span className="bg-[linear-gradient(154.19deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
               {block.heading}
               {block.headingAccent ? ` ${block.headingAccent}` : null}
             </span>
           </h2>
-          {block.body ? <p className="text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p> : null}
+          {block.body ? (
+            <p className="text-lg/7 text-ink-500 dark:text-muted-foreground">{block.body}</p>
+          ) : null}
         </div>
 
         <div className="w-full">
@@ -1153,7 +1666,89 @@ export function TechStackSection({ block }: { block: BlockProps }) {
   )
 }
 
+/**
+ * About comp 93:3148 — the "Who We Are" band: a centred h2 and a chip sitting
+ * on the page background, then a 1276-wide tinted panel holding the prose and
+ * a white "What We Deliver" card whose checklist runs in two columns.
+ *
+ * The leading heading and the bold-only paragraph are lifted OUT of the
+ * Lexical tree and rendered as real elements, because the tint is a box and
+ * those two live outside it — no selector can pull them out of their own
+ * background. Everything after them stays rich text.
+ */
+function PanelRichText({ block }: { block: BlockProps }) {
+  type Node = { type?: string; tag?: string; children?: { text?: string; format?: number }[] }
+  const root = block.content?.root as { children?: Node[] } | undefined
+  const nodes = root?.children ?? []
+
+  let i = 0
+  const headingNode =
+    nodes[i]?.type === 'heading' && nodes[i]?.tag === 'h2' ? nodes[i++] : undefined
+  // A paragraph whose entire content is one bold run is the chip line.
+  const chipNode =
+    nodes[i]?.type === 'paragraph' &&
+    nodes[i]?.children?.length === 1 &&
+    (nodes[i]!.children![0]!.format ?? 0) & 1
+      ? nodes[i++]
+      : undefined
+  const plain = (node?: Node) => (node?.children ?? []).map((c) => c.text ?? '').join('')
+  const rest = nodes.slice(i)
+
+  return (
+    <section id={block.anchor ?? undefined} className="section">
+      {/* 1276 at 1440 — wider than the site container, per the comp. */}
+      <div className="mx-auto flex w-full max-w-[1276px] flex-col items-center px-5">
+        {headingNode ? (
+          <h2 className="font-display text-center text-[clamp(1.75rem,2.92vw,2.625rem)]/[1.19] font-bold tracking-normal text-[#000000] dark:text-foreground">
+            {plain(headingNode)}
+          </h2>
+        ) : null}
+        {chipNode ? (
+          /* Neutral grey pill in the comp, not a blue one, and the label is
+             not bold. */
+          <p className="mt-1 inline-flex h-[44px] items-center rounded-pill bg-[#f0f0f0] px-4 text-[clamp(0.9375rem,1.25vw,1.125rem)]/[28px] font-normal text-[#333333] dark:bg-elevated dark:text-foreground">
+            {plain(chipNode)}
+          </p>
+        ) : null}
+
+        {/* The marker art rides in on a custom property: RichText takes no
+            style prop, and a quoted url() inside a Tailwind arbitrary value
+            does not survive the CSS parser. */}
+        <div
+          className="w-full"
+          style={{ '--fk-bullet': "url('/images/icons/list-bullet.png')" } as React.CSSProperties}
+        >
+          <RichText
+            data={
+              rest.length
+                ? ({ ...block.content, root: { ...root, children: rest } } as typeof block.content)
+                : block.content
+            }
+            className={cn(
+              'mt-9 w-full max-w-none rounded-[24px] bg-[#eafafb] px-6 pt-8 pb-10 sm:px-[50px] sm:pb-[50px] dark:bg-background-subtle',
+              '[&_p]:text-base/[26px] [&_p]:text-[#333333] dark:[&_p]:text-muted-foreground',
+              // h3 + ul are the two halves of one white card.
+              // Comp gaps the prose from the white card by 46px (body ends 344,
+              // card starts 390 inside the 93:3152 overlay).
+              // The card stops at 1102 of the 1276 panel — it does NOT fill the
+              // padded width, so it sits inset from the panel's end edge.
+              '[&_h3]:mt-[46px] [&_h3]:mb-0 [&_h3]:max-w-[1102px] [&_h3]:rounded-t-2xl [&_h3]:bg-card [&_h3]:px-6 [&_h3]:pt-[34px] [&_h3]:pb-0 [&_h3]:text-xl/[26px]',
+              '[&_ul]:mb-0 [&_ul]:grid [&_ul]:max-w-[1102px] [&_ul]:list-none [&_ul]:gap-x-6 [&_ul]:gap-y-6 [&_ul]:rounded-b-2xl [&_ul]:bg-card [&_ul]:px-6 [&_ul]:pt-5 [&_ul]:pb-[34px] [&_ul]:ps-6 sm:[&_ul]:grid-cols-2',
+              '[&_li]:relative [&_li]:mb-0 [&_li]:ps-[30px] [&_li]:text-base/[28px] [&_li]:text-[#333333] dark:[&_li]:text-foreground',
+              // The marker art itself, supplied by FEKRA — a 10x20 blue disc
+              // sitting in the comp's 20px slot (93:3158). Background-image
+              // rather than <img> because the list comes out of Lexical.
+              "[&_li]:before:absolute [&_li]:before:start-0 [&_li]:before:top-[4px] [&_li]:before:size-5 [&_li]:before:bg-[image:var(--fk-bullet)] [&_li]:before:bg-contain [&_li]:before:bg-center [&_li]:before:bg-no-repeat [&_li]:before:content-['']",
+            )}
+          />
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export function RichTextSection({ block }: { block: BlockProps }) {
+  if (block.width === 'panel') return <PanelRichText block={block} />
   return (
     <section id={block.anchor ?? undefined} className="section">
       <div className={cn('container-site', block.width === 'prose' && 'max-w-3xl')}>
@@ -1180,7 +1775,9 @@ export function MediaSection({ block }: { block: BlockProps }) {
           />
         </div>
         {block.caption ? (
-          <figcaption className="mt-3 text-center text-sm text-muted-foreground">{block.caption}</figcaption>
+          <figcaption className="mt-3 text-center text-sm text-muted-foreground">
+            {block.caption}
+          </figcaption>
         ) : null}
       </figure>
     </section>
@@ -1220,7 +1817,11 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
    */
   const rows = people.length ? [people, [...people.slice(1), ...people.slice(0, 1)]] : []
 
-  const card = (person: NonNullable<BlockProps['people']>[number], key: string, hidden: boolean) => {
+  const card = (
+    person: NonNullable<BlockProps['people']>[number],
+    key: string,
+    hidden: boolean,
+  ) => {
     const avatar = person.avatar as MediaDoc | undefined
     return (
       <li
@@ -1256,7 +1857,9 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
             <span className="block truncate font-display text-base font-bold text-navy-800 dark:text-foreground">
               {person.name}
             </span>
-            <span className="block truncate text-xs text-ink-500 dark:text-muted-foreground">{person.role}</span>
+            <span className="block truncate text-xs text-ink-500 dark:text-muted-foreground">
+              {person.role}
+            </span>
           </span>
         </div>
 
@@ -1286,7 +1889,9 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
   const copy = (
     <div className="flex w-full flex-col gap-8 lg:w-[480px] lg:shrink-0">
       {block.eyebrow ? (
-        <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{block.eyebrow}</p>
+        <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
+          {block.eyebrow}
+        </p>
       ) : null}
 
       {/* Arabic reads as ONE line (client request): joined by a space, and a
@@ -1314,7 +1919,9 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
         </span>
       </h2>
 
-      {block.body ? <p className="text-lg/[1.6] text-ink-500 dark:text-muted-foreground">{block.body}</p> : null}
+      {block.body ? (
+        <p className="text-lg/[1.6] text-ink-500 dark:text-muted-foreground">{block.body}</p>
+      ) : null}
 
       {block.bullets?.length ? (
         <ul className="ms-5 flex list-disc flex-col gap-1 text-lg/[1.6] text-ink-500 dark:text-muted-foreground">

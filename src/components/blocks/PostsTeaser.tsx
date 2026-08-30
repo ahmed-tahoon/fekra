@@ -39,7 +39,7 @@ export async function PostsTeaser({ block, locale }: { block: BlockProps; locale
               {block.eyebrow}
             </p>
           ) : null}
-          <h2 className="font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-bold">
+          <h2 className="font-display text-[clamp(1.75rem,2.92vw,2.625rem)] leading-[1.19] font-bold">
             <span className="bg-[linear-gradient(142.32deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent">
               {block.heading}
               {block.headingAccent ? ` ${block.headingAccent}` : null}

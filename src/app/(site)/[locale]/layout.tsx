@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { IBM_Plex_Sans_Arabic, Inter, Space_Grotesk, Tajawal } from 'next/font/google'
+import { IBM_Plex_Sans_Arabic, Inter, Tajawal, Urbanist } from 'next/font/google'
 import { notFound } from 'next/navigation'
 
 import { mediaUrl } from '@/components/blocks/types'
@@ -26,10 +26,12 @@ import '../globals.css'
  * visible during load; `preload` is on for the two Latin faces that render
  * above the fold and off for Arabic, which most visitors never download.
  */
-const spaceGrotesk = Space_Grotesk({
+const urbanist = Urbanist({
   subsets: ['latin'],
-  weight: ['500', '700'],
-  variable: '--font-space-grotesk',
+  // 600 carries the comp's SemiBold headings; 500/700 are the existing
+  // medium and bold steps the rest of the site already sets.
+  weight: ['500', '600', '700'],
+  variable: '--font-urbanist',
   display: 'swap',
 })
 
@@ -131,11 +133,10 @@ export default async function SiteLayout({
     }),
   ])
 
-  // menuRoles now only gates menu MEMBERSHIP — the menu itself shows titles
-  // alone (MM-1: role sublists made the panel page-sized).
+  // Only services with roles form groups in the header's Services mega-menu.
   const servicesMenu = servicesDocs.docs
     .filter((s) => s.menuRoles?.length)
-    .map((s) => ({ title: s.title, slug: s.slug }))
+    .map((s) => ({ title: s.title, slug: s.slug, roles: (s.menuRoles ?? []).map((r) => r.label) }))
 
   const siteName = settings.siteName ?? 'FEKRA'
   const logoUrl = settings.logoLight?.url ? mediaUrl(settings.logoLight) : null
@@ -146,7 +147,7 @@ export default async function SiteLayout({
       lang={locale}
       dir={dir(locale)}
       suppressHydrationWarning
-      className={`${spaceGrotesk.variable} ${inter.variable} ${tajawal.variable} ${plexArabic.variable}`}
+      className={`${urbanist.variable} ${inter.variable} ${tajawal.variable} ${plexArabic.variable}`}
     >
       <head>
         {settings.searchConsoleVerification ? (

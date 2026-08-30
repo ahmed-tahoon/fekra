@@ -87,13 +87,15 @@
   --color-danger-600: #b91c1c;
 
   /*
-   * Type — Space Grotesk display + Inter body. Arabic glyphs fall through to
+   * Type — Urbanist display + Inter body, per the New-website comps (which set
+   * headings in Urbanist and secondary/UI text in Roboto; Inter is our stand-in
+   * for the latter). Arabic glyphs fall through to
    * the squadio.com-style pair: Tajawal (the free DIN-Next-Arabic equivalent —
    * squadio's actual face is the commercial DIN Next(TM) Arabic) for headings,
    * IBM Plex Sans Arabic (which squadio also uses) for body. Latin words in
    * Arabic copy keep their Latin faces; only the Arabic script changes hands.
    */
-  --font-display: var(--font-space-grotesk), var(--font-tajawal), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-urbanist), var(--font-tajawal), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
 
   /* Scale measured from the comps: 12/14/16/18/20/24/30/40/48/60 */
@@ -344,7 +346,7 @@
    * Arabic sets the Latin and digits too, which keeps mixed runs consistent.
    */
   html[lang='ar'] {
-    --font-display: var(--font-tajawal), var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+    --font-display: var(--font-tajawal), var(--font-urbanist), ui-sans-serif, system-ui, sans-serif;
     --font-sans: var(--font-plex-arabic), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   }
 
@@ -388,6 +390,28 @@
 }
 
 @layer utilities {
+  /*
+   * Per-item tints that come from the CMS/comp rather than the token set (the
+   * About stat cards and certification rows each carry their own pastel).
+   * They have to arrive as an inline custom property, NOT an inline
+   * background/border: inline styles outrank every class, so a `dark:` variant
+   * could never override them and the pastels stayed light-mode bright on a
+   * dark page. Consuming the property in CSS lets dark mode dim the same hue
+   * instead of dropping it.
+   */
+  .fk-tint-bg {
+    background-color: var(--fk-tint);
+  }
+  .fk-tint-border {
+    border-color: var(--fk-tint);
+  }
+  .dark .fk-tint-bg {
+    background-color: color-mix(in srgb, var(--fk-tint) 14%, transparent);
+  }
+  .dark .fk-tint-border {
+    border-color: color-mix(in srgb, var(--fk-tint) 26%, transparent);
+  }
+
   .container-site,
   .container-board,
   .container-reading {

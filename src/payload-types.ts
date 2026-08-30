@@ -222,6 +222,10 @@ export interface HeroBlock {
   body?: string | null;
   trustLine?: string | null;
   /**
+   * Optional illustration — renders the split hero (copy at the start, art at the end).
+   */
+  media?: (number | null) | Media;
+  /**
    * Cycled in the headline. Leave empty to use the accent line instead.
    */
   rotatingWords?:
@@ -897,9 +901,9 @@ export interface Job {
  */
 export interface CardGridBlock {
   /**
-   * Business styles the cards like the "All Businesses Types" section.
+   * Business styles the cards like the "All Businesses Types" section; compliance renders full-width certification rows (About page).
    */
-  variant?: ('plain' | 'business') | null;
+  variant?: ('plain' | 'business' | 'compliance' | 'numbered') | null;
   eyebrow?: string | null;
   heading: string;
   /**
@@ -912,7 +916,15 @@ export interface CardGridBlock {
     | {
         icon?: (number | null) | Media;
         title: string;
+        /**
+         * Compliance rows only — the bold one-liner under the title.
+         */
+        subtitle?: string | null;
         body?: string | null;
+        /**
+         * Compliance rows only — the tinted "What It Means for You" strip.
+         */
+        note?: string | null;
         link?: {
           type?: ('internal' | 'route' | 'external') | null;
           /**
@@ -1004,6 +1016,10 @@ export interface StatsBlock {
     | {
         value: string;
         label: string;
+        /**
+         * Corner-chip glyph (About comp).
+         */
+        icon?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -1330,7 +1346,7 @@ export interface CtaBlock {
         id?: string | null;
       }[]
     | null;
-  tone?: ('brand' | 'ink' | 'subtle' | 'feature' | 'band') | null;
+  tone?: ('brand' | 'ink' | 'subtle' | 'feature' | 'band' | 'panel') | null;
   /**
    * Optional #id for in-page links. Lowercase, no spaces.
    */
@@ -1359,7 +1375,7 @@ export interface RichTextBlock {
     };
     [k: string]: unknown;
   };
-  width?: ('prose' | 'full') | null;
+  width?: ('prose' | 'full' | 'panel') | null;
   /**
    * Optional #id for in-page links. Lowercase, no spaces.
    */
@@ -1687,6 +1703,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
   headingAccent?: T;
   body?: T;
   trustLine?: T;
+  media?: T;
   rotatingWords?:
     | T
     | {
@@ -1931,7 +1948,9 @@ export interface CardGridBlockSelect<T extends boolean = true> {
     | {
         icon?: T;
         title?: T;
+        subtitle?: T;
         body?: T;
+        note?: T;
         link?:
           | T
           | {
@@ -1977,6 +1996,7 @@ export interface StatsBlockSelect<T extends boolean = true> {
     | {
         value?: T;
         label?: T;
+        icon?: T;
         id?: T;
       };
   anchor?: T;

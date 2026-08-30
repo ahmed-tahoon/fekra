@@ -1,0 +1,121 @@
+import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
+
+export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  await db.execute(sql`
+   ALTER TYPE "public"."enum_pages_blocks_card_grid_variant" ADD VALUE 'compliance';
+  ALTER TYPE "public"."enum_pages_blocks_rich_text_width" ADD VALUE 'panel';
+  ALTER TYPE "public"."enum__pages_v_blocks_card_grid_variant" ADD VALUE 'compliance';
+  ALTER TYPE "public"."enum__pages_v_blocks_rich_text_width" ADD VALUE 'panel';
+  ALTER TYPE "public"."enum_posts_blocks_card_grid_variant" ADD VALUE 'compliance';
+  ALTER TYPE "public"."enum_posts_blocks_rich_text_width" ADD VALUE 'panel';
+  ALTER TYPE "public"."enum__posts_v_blocks_card_grid_variant" ADD VALUE 'compliance';
+  ALTER TYPE "public"."enum__posts_v_blocks_rich_text_width" ADD VALUE 'panel';
+  ALTER TYPE "public"."enum_services_blocks_card_grid_variant" ADD VALUE 'compliance';
+  ALTER TYPE "public"."enum_services_blocks_rich_text_width" ADD VALUE 'panel';
+  ALTER TYPE "public"."enum__services_v_blocks_card_grid_variant" ADD VALUE 'compliance';
+  ALTER TYPE "public"."enum__services_v_blocks_rich_text_width" ADD VALUE 'panel';
+  DROP INDEX "_pages_v_autosave_idx";
+  ALTER TABLE "pages_blocks_card_grid_cards_locales" ADD COLUMN "subtitle" varchar;
+  ALTER TABLE "pages_blocks_card_grid_cards_locales" ADD COLUMN "note" varchar;
+  ALTER TABLE "_pages_v_blocks_card_grid_cards_locales" ADD COLUMN "subtitle" varchar;
+  ALTER TABLE "_pages_v_blocks_card_grid_cards_locales" ADD COLUMN "note" varchar;
+  ALTER TABLE "posts_blocks_card_grid_cards_locales" ADD COLUMN "subtitle" varchar;
+  ALTER TABLE "posts_blocks_card_grid_cards_locales" ADD COLUMN "note" varchar;
+  ALTER TABLE "_posts_v_blocks_card_grid_cards_locales" ADD COLUMN "subtitle" varchar;
+  ALTER TABLE "_posts_v_blocks_card_grid_cards_locales" ADD COLUMN "note" varchar;
+  ALTER TABLE "services_blocks_card_grid_cards_locales" ADD COLUMN "subtitle" varchar;
+  ALTER TABLE "services_blocks_card_grid_cards_locales" ADD COLUMN "note" varchar;
+  ALTER TABLE "_services_v_blocks_card_grid_cards_locales" ADD COLUMN "subtitle" varchar;
+  ALTER TABLE "_services_v_blocks_card_grid_cards_locales" ADD COLUMN "note" varchar;
+  ALTER TABLE "_pages_v" DROP COLUMN "autosave";`)
+}
+
+export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+  await db.execute(sql`
+   ALTER TABLE "pages_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE text;
+  ALTER TABLE "pages_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::text;
+  DROP TYPE "public"."enum_pages_blocks_card_grid_variant";
+  CREATE TYPE "public"."enum_pages_blocks_card_grid_variant" AS ENUM('plain', 'business');
+  ALTER TABLE "pages_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::"public"."enum_pages_blocks_card_grid_variant";
+  ALTER TABLE "pages_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE "public"."enum_pages_blocks_card_grid_variant" USING "variant"::"public"."enum_pages_blocks_card_grid_variant";
+  ALTER TABLE "pages_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE text;
+  ALTER TABLE "pages_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::text;
+  DROP TYPE "public"."enum_pages_blocks_rich_text_width";
+  CREATE TYPE "public"."enum_pages_blocks_rich_text_width" AS ENUM('prose', 'full');
+  ALTER TABLE "pages_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::"public"."enum_pages_blocks_rich_text_width";
+  ALTER TABLE "pages_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE "public"."enum_pages_blocks_rich_text_width" USING "width"::"public"."enum_pages_blocks_rich_text_width";
+  ALTER TABLE "_pages_v_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE text;
+  ALTER TABLE "_pages_v_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::text;
+  DROP TYPE "public"."enum__pages_v_blocks_card_grid_variant";
+  CREATE TYPE "public"."enum__pages_v_blocks_card_grid_variant" AS ENUM('plain', 'business');
+  ALTER TABLE "_pages_v_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::"public"."enum__pages_v_blocks_card_grid_variant";
+  ALTER TABLE "_pages_v_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE "public"."enum__pages_v_blocks_card_grid_variant" USING "variant"::"public"."enum__pages_v_blocks_card_grid_variant";
+  ALTER TABLE "_pages_v_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE text;
+  ALTER TABLE "_pages_v_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::text;
+  DROP TYPE "public"."enum__pages_v_blocks_rich_text_width";
+  CREATE TYPE "public"."enum__pages_v_blocks_rich_text_width" AS ENUM('prose', 'full');
+  ALTER TABLE "_pages_v_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::"public"."enum__pages_v_blocks_rich_text_width";
+  ALTER TABLE "_pages_v_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE "public"."enum__pages_v_blocks_rich_text_width" USING "width"::"public"."enum__pages_v_blocks_rich_text_width";
+  ALTER TABLE "posts_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE text;
+  ALTER TABLE "posts_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::text;
+  DROP TYPE "public"."enum_posts_blocks_card_grid_variant";
+  CREATE TYPE "public"."enum_posts_blocks_card_grid_variant" AS ENUM('plain', 'business');
+  ALTER TABLE "posts_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::"public"."enum_posts_blocks_card_grid_variant";
+  ALTER TABLE "posts_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE "public"."enum_posts_blocks_card_grid_variant" USING "variant"::"public"."enum_posts_blocks_card_grid_variant";
+  ALTER TABLE "posts_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE text;
+  ALTER TABLE "posts_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::text;
+  DROP TYPE "public"."enum_posts_blocks_rich_text_width";
+  CREATE TYPE "public"."enum_posts_blocks_rich_text_width" AS ENUM('prose', 'full');
+  ALTER TABLE "posts_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::"public"."enum_posts_blocks_rich_text_width";
+  ALTER TABLE "posts_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE "public"."enum_posts_blocks_rich_text_width" USING "width"::"public"."enum_posts_blocks_rich_text_width";
+  ALTER TABLE "_posts_v_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE text;
+  ALTER TABLE "_posts_v_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::text;
+  DROP TYPE "public"."enum__posts_v_blocks_card_grid_variant";
+  CREATE TYPE "public"."enum__posts_v_blocks_card_grid_variant" AS ENUM('plain', 'business');
+  ALTER TABLE "_posts_v_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::"public"."enum__posts_v_blocks_card_grid_variant";
+  ALTER TABLE "_posts_v_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE "public"."enum__posts_v_blocks_card_grid_variant" USING "variant"::"public"."enum__posts_v_blocks_card_grid_variant";
+  ALTER TABLE "_posts_v_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE text;
+  ALTER TABLE "_posts_v_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::text;
+  DROP TYPE "public"."enum__posts_v_blocks_rich_text_width";
+  CREATE TYPE "public"."enum__posts_v_blocks_rich_text_width" AS ENUM('prose', 'full');
+  ALTER TABLE "_posts_v_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::"public"."enum__posts_v_blocks_rich_text_width";
+  ALTER TABLE "_posts_v_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE "public"."enum__posts_v_blocks_rich_text_width" USING "width"::"public"."enum__posts_v_blocks_rich_text_width";
+  ALTER TABLE "services_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE text;
+  ALTER TABLE "services_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::text;
+  DROP TYPE "public"."enum_services_blocks_card_grid_variant";
+  CREATE TYPE "public"."enum_services_blocks_card_grid_variant" AS ENUM('plain', 'business');
+  ALTER TABLE "services_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::"public"."enum_services_blocks_card_grid_variant";
+  ALTER TABLE "services_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE "public"."enum_services_blocks_card_grid_variant" USING "variant"::"public"."enum_services_blocks_card_grid_variant";
+  ALTER TABLE "services_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE text;
+  ALTER TABLE "services_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::text;
+  DROP TYPE "public"."enum_services_blocks_rich_text_width";
+  CREATE TYPE "public"."enum_services_blocks_rich_text_width" AS ENUM('prose', 'full');
+  ALTER TABLE "services_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::"public"."enum_services_blocks_rich_text_width";
+  ALTER TABLE "services_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE "public"."enum_services_blocks_rich_text_width" USING "width"::"public"."enum_services_blocks_rich_text_width";
+  ALTER TABLE "_services_v_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE text;
+  ALTER TABLE "_services_v_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::text;
+  DROP TYPE "public"."enum__services_v_blocks_card_grid_variant";
+  CREATE TYPE "public"."enum__services_v_blocks_card_grid_variant" AS ENUM('plain', 'business');
+  ALTER TABLE "_services_v_blocks_card_grid" ALTER COLUMN "variant" SET DEFAULT 'plain'::"public"."enum__services_v_blocks_card_grid_variant";
+  ALTER TABLE "_services_v_blocks_card_grid" ALTER COLUMN "variant" SET DATA TYPE "public"."enum__services_v_blocks_card_grid_variant" USING "variant"::"public"."enum__services_v_blocks_card_grid_variant";
+  ALTER TABLE "_services_v_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE text;
+  ALTER TABLE "_services_v_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::text;
+  DROP TYPE "public"."enum__services_v_blocks_rich_text_width";
+  CREATE TYPE "public"."enum__services_v_blocks_rich_text_width" AS ENUM('prose', 'full');
+  ALTER TABLE "_services_v_blocks_rich_text" ALTER COLUMN "width" SET DEFAULT 'prose'::"public"."enum__services_v_blocks_rich_text_width";
+  ALTER TABLE "_services_v_blocks_rich_text" ALTER COLUMN "width" SET DATA TYPE "public"."enum__services_v_blocks_rich_text_width" USING "width"::"public"."enum__services_v_blocks_rich_text_width";
+  ALTER TABLE "_pages_v" ADD COLUMN "autosave" boolean;
+  CREATE INDEX "_pages_v_autosave_idx" ON "_pages_v" USING btree ("autosave");
+  ALTER TABLE "pages_blocks_card_grid_cards_locales" DROP COLUMN "subtitle";
+  ALTER TABLE "pages_blocks_card_grid_cards_locales" DROP COLUMN "note";
+  ALTER TABLE "_pages_v_blocks_card_grid_cards_locales" DROP COLUMN "subtitle";
+  ALTER TABLE "_pages_v_blocks_card_grid_cards_locales" DROP COLUMN "note";
+  ALTER TABLE "posts_blocks_card_grid_cards_locales" DROP COLUMN "subtitle";
+  ALTER TABLE "posts_blocks_card_grid_cards_locales" DROP COLUMN "note";
+  ALTER TABLE "_posts_v_blocks_card_grid_cards_locales" DROP COLUMN "subtitle";
+  ALTER TABLE "_posts_v_blocks_card_grid_cards_locales" DROP COLUMN "note";
+  ALTER TABLE "services_blocks_card_grid_cards_locales" DROP COLUMN "subtitle";
+  ALTER TABLE "services_blocks_card_grid_cards_locales" DROP COLUMN "note";
+  ALTER TABLE "_services_v_blocks_card_grid_cards_locales" DROP COLUMN "subtitle";
+  ALTER TABLE "_services_v_blocks_card_grid_cards_locales" DROP COLUMN "note";`)
+}

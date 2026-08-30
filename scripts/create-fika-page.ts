@@ -1,114 +1,118 @@
 /**
- * Creates the "Meet Fika AI" page at /fika and adds it to the header nav
- * (tasks HD-2 and, as a side effect, 1.9 / 13.1–13.4).
+ * Rebuilds the "Meet Fika AI" page at /fika from the FEKRA comp (screenshot
+ * supplied 29 Aug): a split hero with the Fika illustration, six numbered
+ * "journey" steps, and a closing panel pairing the illustration with the
+ * support copy.
  *
  *   pnpm tsx scripts/create-fika-page.ts          # dry run
  *   pnpm tsx scripts/create-fika-page.ts --write  # apply
  *
  * Why a CMS page rather than a coded route: /[slug] already renders CMS pages,
- * so Fika gets a real URL now and can be swapped for a coded route later
- * WITHOUT the URL changing (13.4). Every word below is editable in /admin.
+ * so Fika keeps a real URL and every word below stays editable in /admin.
  *
- * The copy deliberately does not claim a live AI backend — there isn't one; the
- * "Talk to Fika" widget links to booking. Overclaiming here is exactly what
- * 13.2 rules out. This is a first draft for FEKRA to approve and edit.
+ * The illustration is uploaded once and reused by both blocks; re-runs find
+ * the existing upload by filename rather than creating duplicates.
  */
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 
-const text = (value: string) => ({
-  type: 'paragraph',
-  format: '',
-  indent: 0,
-  version: 1,
-  direction: 'ltr' as const,
-  children: [{ type: 'text', text: value, format: 0, style: '', mode: 'normal', detail: 0, version: 1 }],
-})
+const AVATAR = { stem: 'fika-avatar', path: 'public/images/fika/fika-avatar.webp' }
 
-const doc = (paragraphs: string[]) => ({
-  root: { type: 'root', format: '', indent: 0, version: 1, direction: 'ltr' as const, children: paragraphs.map(text) },
-})
+/** Row ids from the home page must not travel into this document. */
+const stripIds = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(stripIds)
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(value)) if (k !== 'id') out[k] = stripIds(v)
+    return out
+  }
+  return value
+}
 
-const layout = [
+const STEPS = [
+  ['1. Understand Your Needs Faster', 'Fika helps clarify your technology, talent, and project requirements from the start.'],
+  ['2. Define the Right Tech Roles', 'Get guidance on the skills, seniority, and expertise your team actually needs.'],
+  ['3. Find the Right Engagement Model', 'Explore whether dedicated teams, team extension, or project-based delivery fits you best.'],
+  ["4. Navigate FEKRA's Expertise", 'Quickly discover the services, technologies, and capabilities relevant to your needs.'],
+  ['5. Reduce Unnecessary Back-and-Forth', 'Share your requirements once and reach the right FEKRA team with better context.'],
+  ['6. Connect with Human Experts', "Move seamlessly from AI assistance to FEKRA's technology and talent specialists."],
+] as const
+
+const layout = (avatarId: number, bandBlock: Record<string, unknown>) => [
   {
     blockType: 'hero',
-    eyebrow: 'Meet Fika',
-    heading: 'Your first conversation',
-    headingAccent: 'starts with Fika',
-    body: 'Fika is how FEKRA says hello. Tell us what you are building and what your team is missing, and Fika points you at the right service, the right role, or a call with a human who can answer properly.',
-    trustLine: 'A calmer way to start',
-    bullets: [
-      { text: 'Ask what you actually need' },
-      { text: 'Get pointed to the right team' },
-      { text: 'Talk to a person when it matters' },
-    ],
-    ctas: [{ variant: 'primary', link: { type: 'route', route: '/meeting', label: 'Book a 30-min call' } }],
+    heading: 'Build & Scale Your Tech Team Faster with',
+    headingAccent: '\u201cFika AI\u201d',
+    body:
+      "Fika is FEKRA's AI-powered technology and talent assistant, helping you understand your needs, define the right roles, explore the best engagement model, and connect with the right tech expertise \u2014 faster and with less complexity.",
+    media: avatarId,
   },
   {
     blockType: 'cardGrid',
-    eyebrow: 'What Fika helps with',
-    heading: 'Three things, done well',
-    columns: '3',
-    cards: [
-      {
-        title: 'Scope the role',
-        body: 'Describe the gap in your team and Fika helps turn it into a role: the stack, the seniority, the engagement model that fits.',
-      },
-      {
-        title: 'Find the service',
-        body: 'Not sure whether you need a dedicated team, a staff-augmentation contract or a full build? Fika narrows it down before you spend an hour on a call.',
-      },
-      {
-        title: 'Reach a human',
-        body: 'When the question needs a real answer, Fika hands you straight to the team — no forms, no queue, no chatbot loop.',
-      },
-    ],
-  },
-  {
-    blockType: 'faq',
-    eyebrow: 'Straight answers',
-    heading: 'What Fika is, and is not',
-    emitSchema: true,
-    items: [
-      {
-        question: 'Is Fika an AI chatbot?',
-        answer: doc([
-          'Not today. Fika is how we introduce FEKRA and guide you to the right next step. We would rather tell you that plainly than dress a contact form up as artificial intelligence.',
-        ]),
-      },
-      {
-        question: 'What happens when I start a conversation?',
-        answer: doc([
-          'You are pointed to the service, role or page that matches what you described, and offered a 30-minute call with the team when a person is the faster answer.',
-        ]),
-      },
-      {
-        question: 'Will Fika get smarter?',
-        answer: doc([
-          'That is the plan. The page and the route are built so richer functionality can be added later without the address or the experience changing underneath you.',
-        ]),
-      },
-      {
-        question: 'Do I have to use Fika to contact FEKRA?',
-        answer: doc([
-          'No. The contact page and the booking link are always available, and they reach exactly the same team.',
-        ]),
-      },
-    ],
+    variant: 'numbered',
+    heading: 'How Fika Makes Your Journey Smarter',
+    columns: '2',
+    cards: STEPS.map(([title, body]) => ({ title, body })),
   },
   {
     blockType: 'cta',
-    heading: 'Ready when you are',
-    body: 'Book a 30-minute call and tell us what you are building.',
-    tone: 'brand',
-    ctas: [{ variant: 'primary', link: { type: 'route', route: '/meeting', label: 'Book a 30-min call' } }],
+    tone: 'panel',
+    heading: 'Smarter Support at Every Step',
+    media: avatarId,
+    body:
+      'Fika is your AI-powered technology and talent assistant, designed to support you throughout your journey with FEKRA \u2014 from understanding your needs to finding the right expertise and engagement model.\n' +
+      "It combines the speed and intelligence of AI with FEKRA's human expertise, helping you make clearer decisions, reduce unnecessary back-and-forth, and move forward with greater confidence.",
   },
+  // The page closes on the same three shared blocks as home and About.
+  {
+    blockType: 'postsTeaser',
+    eyebrow: 'Latest blogs',
+    heading: 'Our Recent Blogs',
+    limit: 3,
+    ctas: [{ variant: 'secondary', link: { type: 'route', route: '/blog', label: 'View all blogs' } }],
+  },
+  {
+    blockType: 'contact',
+    eyebrow: "Let's Talk Business!",
+    heading: 'Contact us',
+    showOffices: true,
+    showForm: true,
+  },
+  bandBlock,
 ]
 
 const run = async () => {
   const write = process.argv.includes('--write')
   const payload = await getPayload({ config })
+
+  // Upload the illustration once; re-runs reuse it rather than duplicating.
+  const found = await payload.find({
+    collection: 'media',
+    where: { filename: { like: AVATAR.stem } },
+    limit: 1,
+    sort: 'id',
+    depth: 0,
+  })
+  let avatarId = found.docs[0]?.id as number | undefined
+  if (!avatarId && write) {
+    const created = await payload.create({
+      collection: 'media',
+      filePath: AVATAR.path,
+      data: { alt: 'Fika, the FEKRA AI assistant' } as never,
+    })
+    avatarId = created.id as number
+    console.log(`  uploaded ${AVATAR.stem} -> media ${avatarId}`)
+  }
+
+  // The navy pre-footer band is copied verbatim from home rather than
+  // restated here, so editing it once updates every page that ends on it.
+  const home = (await payload.find({ collection: 'pages', where: { slug: { equals: 'home' } }, limit: 1, depth: 0 })).docs[0]
+  const homeLayout = (home?.layout ?? []) as { blockType?: string; tone?: string }[]
+  const bandBlock = stripIds(homeLayout.find((x) => x.blockType === 'cta' && x.tone === 'band')) as
+    | Record<string, unknown>
+    | undefined
+  if (!bandBlock) throw new Error('Home page is missing the navy band cta block.')
 
   const existing = await payload.find({ collection: 'pages', where: { slug: { equals: 'fika' } }, limit: 1, depth: 0 })
   const header = await payload.findGlobal({ slug: 'header', depth: 0 })
@@ -117,7 +121,8 @@ const run = async () => {
 
   console.log(`\n/fika page:  ${existing.docs[0] ? 'exists (id ' + existing.docs[0].id + ') — will update' : 'missing — will create'}`)
   console.log(`nav item:    ${hasNav ? 'already present' : 'missing — will append "Meet Fika AI"'}`)
-  console.log(`blocks:      ${layout.map((b) => b.blockType).join(' · ')}`)
+  console.log(`avatar:      ${avatarId ? 'media ' + avatarId : 'will upload on --write'}`)
+  console.log(`blocks:      ${layout(avatarId ?? 0, bandBlock).map((b) => b.blockType).join(' · ')}`)
 
   if (!write) {
     console.log('\nDry run. Re-run with --write to apply.')
@@ -126,7 +131,7 @@ const run = async () => {
 
   const data = {
     title: 'Meet Fika AI',
-    layout,
+    layout: layout(avatarId!, bandBlock),
     availableLocales: ['en'],
     _status: 'published',
     meta: {

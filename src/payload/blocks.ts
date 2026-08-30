@@ -37,6 +37,12 @@ export const HeroBlock: Block = {
     ...heading,
     { name: 'trustLine', type: 'text', localized: true },
     {
+      name: 'media',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Optional illustration — renders the split hero (copy at the start, art at the end).' },
+    },
+    {
       // The headline's last word cycles: "Scale Your Team Faster With
       // <AI Engineers | Backend Engineers | …>". One entry renders as static
       // text, so this doubles as a plain accent line.
@@ -210,8 +216,10 @@ export const CardGridBlock: Block = {
       options: [
         { label: 'Plain cards', value: 'plain' },
         { label: 'Business cards (gradient wash, 2 over 3)', value: 'business' },
+        { label: 'Compliance rows (badge, subtitle, tinted note strip)', value: 'compliance' },
+        { label: 'Numbered steps (two narrow columns, tinted cards)', value: 'numbered' },
       ],
-      admin: { description: 'Business styles the cards like the "All Businesses Types" section.' },
+      admin: { description: 'Business styles the cards like the "All Businesses Types" section; compliance renders full-width certification rows (About page).' },
     },
     ...heading,
     {
@@ -227,7 +235,19 @@ export const CardGridBlock: Block = {
       fields: [
         { name: 'icon', type: 'upload', relationTo: 'media' },
         { name: 'title', type: 'text', localized: true, required: true },
+        {
+          name: 'subtitle',
+          type: 'text',
+          localized: true,
+          admin: { description: 'Compliance rows only — the bold one-liner under the title.' },
+        },
         { name: 'body', type: 'textarea', localized: true },
+        {
+          name: 'note',
+          type: 'text',
+          localized: true,
+          admin: { description: 'Compliance rows only — the tinted "What It Means for You" strip.' },
+        },
         linkField({ name: 'link', label: 'Card link (optional)' }),
       ],
     },
@@ -288,6 +308,7 @@ export const StatsBlock: Block = {
       fields: [
         { name: 'value', type: 'text', required: true },
         { name: 'label', type: 'text', localized: true, required: true },
+        { name: 'icon', type: 'upload', relationTo: 'media', admin: { description: 'Corner-chip glyph (About comp).' } },
       ],
     },
     anchor,
@@ -413,6 +434,7 @@ export const CtaBlock: Block = {
         { label: 'Subtle', value: 'subtle' },
         { label: 'Feature (gradient wash, gradient heading)', value: 'feature' },
         { label: 'Navy band (left aligned, dot pattern)', value: 'band' },
+        { label: 'Panel (white card, art at the start, copy at the end)', value: 'panel' },
       ],
     },
     anchor,
@@ -459,6 +481,7 @@ export const RichTextBlock: Block = {
       options: [
         { label: 'Reading width', value: 'prose' },
         { label: 'Full container', value: 'full' },
+        { label: 'Tinted panel (About "Who We Are")', value: 'panel' },
       ],
     },
     anchor,

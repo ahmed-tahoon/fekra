@@ -14,6 +14,9 @@ import * as migration_20260814_004459_social_whatsapp from './20260814_004459_so
 import * as migration_20260814_124609_service_pages_blocks from './20260814_124609_service_pages_blocks';
 import * as migration_20260814_135055_services_menu_roles_and_hero_tones from './20260814_135055_services_menu_roles_and_hero_tones';
 import * as migration_20260818_114905_link_route_about_fika from './20260818_114905_link_route_about_fika';
+import * as migration_20260825_235511_about_page_blocks from './20260825_235511_about_page_blocks';
+import * as migration_20260826_145238_stats_item_icon from './20260826_145238_stats_item_icon';
+import * as migration_20260829_202349_fika_page_blocks from './20260829_202349_fika_page_blocks';
 
 export const migrations = [
   {
@@ -94,6 +97,21 @@ export const migrations = [
   {
     up: migration_20260818_114905_link_route_about_fika.up,
     down: migration_20260818_114905_link_route_about_fika.down,
-    name: '20260818_114905_link_route_about_fika'
+    name: '20260818_114905_link_route_about_fika',
+  },
+  {
+    up: migration_20260825_235511_about_page_blocks.up,
+    down: migration_20260825_235511_about_page_blocks.down,
+    name: '20260825_235511_about_page_blocks',
+  },
+  {
+    up: migration_20260826_145238_stats_item_icon.up,
+    down: migration_20260826_145238_stats_item_icon.down,
+    name: '20260826_145238_stats_item_icon',
+  },
+  {
+    up: migration_20260829_202349_fika_page_blocks.up,
+    down: migration_20260829_202349_fika_page_blocks.down,
+    name: '20260829_202349_fika_page_blocks'
   },
 ];
