@@ -174,9 +174,9 @@ function SplitHero({ block, locale, isFirst }: { block: BlockProps; locale: Loca
         aria-hidden
         className="absolute inset-0 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]"
       />
-      <div className="container-site grid items-center gap-10 md:grid-cols-[1fr_384px] md:gap-12">
-        <div className="max-w-[460px]">
-          <Title className="text-[clamp(1.75rem,2.36vw,2.125rem)]/[1.21] font-bold tracking-normal text-wrap text-[#333333] dark:text-foreground">
+      <div className="container-site grid items-center gap-10 md:grid-cols-[1fr_410px] md:gap-12">
+        <div className="max-w-[568px]">
+          <Title className="text-[clamp(2rem,3.06vw,2.75rem)]/[1.06] font-bold tracking-normal text-wrap text-[#333333] dark:text-foreground">
             {block.heading}
             {block.headingAccent ? (
               <>
@@ -186,7 +186,7 @@ function SplitHero({ block, locale, isFirst }: { block: BlockProps; locale: Loca
             ) : null}
           </Title>
           {block.body ? (
-            <p className="mt-5 text-[clamp(0.875rem,1.11vw,1rem)]/[1.6] whitespace-pre-line text-[#333333] dark:text-muted-foreground">
+            <p className="mt-6 text-[clamp(0.875rem,1.11vw,1rem)]/[1.55] whitespace-pre-line text-[#333333] dark:text-muted-foreground">
               {block.body}
             </p>
           ) : null}
@@ -202,7 +202,7 @@ function SplitHero({ block, locale, isFirst }: { block: BlockProps; locale: Loca
           width={384}
           height={417}
           priority={isFirst}
-          className="mx-auto h-auto w-[clamp(220px,26vw,384px)] object-contain md:mx-0"
+          className="mx-auto h-auto w-[clamp(240px,28.5vw,410px)] object-contain md:mx-0"
         />
       </div>
     </section>
@@ -742,16 +742,20 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
     return (
       <section id={block.anchor ?? undefined} className="section">
         <div className="container-site flex flex-col items-center gap-10">
-          {block.heading ? <SectionHeading heading={block.heading} body={block.body} /> : null}
-          <ul className="grid w-full max-w-[760px] gap-5 sm:grid-cols-2">
+          {block.heading ? (
+            <h2 className="text-center text-[clamp(1.875rem,4.03vw,3.625rem)]/[1.15] font-bold tracking-normal text-[#000000] dark:text-foreground">
+              {block.heading}
+            </h2>
+          ) : null}
+          <ul className="grid w-full max-w-[749px] gap-y-6 sm:grid-cols-2 sm:gap-x-[117px]">
             {cards.map((card) => (
               <li
                 key={card.title}
-                className="rounded-2xl bg-[#f7f8fb] px-5 py-4 shadow-[0_1px_3px_rgba(25,33,61,0.04)] dark:bg-card"
+                className="flex min-h-[140px] flex-col justify-center rounded-xl bg-[#f7f8fb] px-5 py-5 shadow-[0_1px_3px_rgba(25,33,61,0.04)] dark:bg-card"
               >
                 <h3 className="text-[15px]/[22px] font-semibold text-[#333333] dark:text-foreground">{card.title}</h3>
                 {card.body ? (
-                  <p className="mt-2 text-[13px]/[20px] text-ink-500 dark:text-muted-foreground">{card.body}</p>
+                  <p className="mt-2.5 text-[14px]/[21px] text-ink-500 dark:text-muted-foreground">{card.body}</p>
                 ) : null}
               </li>
             ))}

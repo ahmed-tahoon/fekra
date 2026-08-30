@@ -46,7 +46,12 @@ export function SmoothScroll() {
       firstRender.current = false
       return
     }
-    if (!window.location.hash) lenisRef.current?.scrollTo(0, { immediate: true, force: true })
+    if (window.location.hash) return
+    // Reset natively too, not only through Lenis: on a fast navigation the
+    // library may still be loading, which left the reset depending on Next's
+    // own behaviour rather than on anything this component guarantees.
+    window.scrollTo(0, 0)
+    lenisRef.current?.scrollTo(0, { immediate: true, force: true })
   }, [pathname])
 
   return null
