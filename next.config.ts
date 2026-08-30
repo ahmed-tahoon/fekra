@@ -92,7 +92,9 @@ const nextConfig: NextConfig = {
    * workers = 36 clients fighting for 15 slots → ECHECKOUTTIMEOUT after 60s.
    * Three workers (12 clients) leave room for a dev server alongside.
    */
-  experimental: { cpus: 3 },
+  // staleTimes: the client router keeps visited pages for 3 min, so switching
+  // BACK to a language is instant instead of a full re-render round trip.
+  experimental: { cpus: 3, staleTimes: { dynamic: 180, static: 300 } },
   // Trailing-slash policy is a canonical signal — keep it fixed forever (18.1/18.3).
   trailingSlash: false,
 

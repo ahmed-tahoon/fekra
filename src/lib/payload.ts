@@ -37,6 +37,24 @@ async function isDraft(): Promise<boolean> {
   }
 }
 
+/*
+ * Dev-only memo. `next dev` re-renders every request — ISR is a production
+ * mechanism — so each locale switch repaid ~1.2s of remote queries for data
+ * that had not changed. 60s TTL: fresh enough while editing the CMS, long
+ * enough to make hopping between locales instant. Draft reads bypass it, and
+ * production never touches it (ISR is the one cache layer there).
+ */
+const devCache = new Map<string, { t: number; v: unknown }>()
+const DEV_TTL_MS = 60_000
+async function devMemo<T>(key: string | null, fn: () => Promise<T>): Promise<T> {
+  if (process.env.NODE_ENV !== 'development' || key === null) return fn()
+  const hit = devCache.get(key)
+  if (hit && Date.now() - hit.t < DEV_TTL_MS) return hit.v as T
+  const v = await fn()
+  devCache.set(key, { t: Date.now(), v })
+  return v
+}
+
 /**
  * Draft mode reads unpublished versions; published reads are cached by the
  * route segment itself (`export const revalidate` + the revalidatePath calls in
@@ -64,19 +82,23 @@ export async function findDocs<T = unknown>({
   // e.g. `categories` is a 400. Read it from the config so it cannot drift.
   const hasDrafts = Boolean(payload.collections[collection]?.config.versions?.drafts)
 
-  const result = await payload.find({
-    collection,
-    locale,
-    fallbackLocale: 'en',
-    draft,
-    overrideAccess: draft,
-    depth,
-    limit,
-    page,
-    sort,
-    select,
-    where: draft || !hasDrafts ? where : { ...where, _status: { equals: 'published' } },
-  })
+  const result = await devMemo(
+    draft ? null : JSON.stringify(['find', collection, locale, limit, page, where, sort, depth, select]),
+    () =>
+      payload.find({
+        collection,
+        locale,
+        fallbackLocale: 'en',
+        draft,
+        overrideAccess: draft,
+        depth,
+        limit,
+        page,
+        sort,
+        select,
+        where: draft || !hasDrafts ? where : { ...where, _status: { equals: 'published' } },
+      }),
+  )
 
   return { docs: result.docs as T[], totalPages: result.totalPages, totalDocs: result.totalDocs }
 }
@@ -117,7 +139,9 @@ export const getGlobal = cache(async function getGlobal<T = unknown>(
   locale: Locale,
 ): Promise<T> {
   const payload = await payloadClient()
-  return (await payload.findGlobal({ slug, locale, fallbackLocale: 'en', depth: 1 })) as T
+  return (await devMemo(JSON.stringify(['global', slug, locale]), () =>
+    payload.findGlobal({ slug, locale, fallbackLocale: 'en', depth: 1 }),
+  )) as T
 })
 
 /**

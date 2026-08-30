@@ -2,7 +2,7 @@
 
 import { Check, Globe } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import { LOCALES, PUBLIC_LOCALES, LOCALE_META, type Locale, localeHref, splitLocale } from '@/i18n/routing'
@@ -26,6 +26,22 @@ export function LanguageSwitcher({
   const { rest } = splitLocale(pathname)
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+
+  /*
+   * The moment the menu opens, warm every switch target. Links inside a
+   * closed dropdown are never in the viewport, so automatic prefetch cannot
+   * help here — by the time the user has read the options, the RSC payloads
+   * are already in the router cache and the switch is a swap, not a reload.
+   * (Prefetch is a no-op in dev; production is where this lands.)
+   */
+  useEffect(() => {
+    if (!open) return
+    const approved = new Set<Locale>(available?.length ? (available as Locale[]) : [...PUBLIC_LOCALES])
+    for (const l of PUBLIC_LOCALES) {
+      if (approved.has(l) && l !== current) router.prefetch(localeHref(l, rest))
+    }
+  }, [open, available, current, rest, router])
 
   useEffect(() => {
     if (!open) return

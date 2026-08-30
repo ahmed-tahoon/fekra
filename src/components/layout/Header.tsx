@@ -1,4 +1,3 @@
-import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 import { BrandLogo } from '@/components/layout/BrandLogo'
@@ -21,7 +20,7 @@ export type HeaderData = {
   announcement?: { enabled?: boolean; text?: string; link?: PayloadLink } | null
 }
 
-export type ServicesMenu = { title: string; slug: string }[]
+export type ServicesMenu = { title: string; slug: string; roles: string[] }[]
 
 export function Header({
   data,
@@ -99,52 +98,48 @@ export function Header({
                        */}
                       <div className="invisible fixed inset-x-0 top-full z-50 pt-2 opacity-0 transition-[opacity,visibility] group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
                         {/*
-                         * MM-1, fourth pass — the reference's actual layout:
-                         * a full-width flyout attached under the header. A
-                         * tinted left rail carries the pitch and the Hire CTA
-                         * (BairesDev's intro rail); the right side is an
-                         * eyebrow label, service links flowing down five-row
-                         * columns, and an "All Services" exit. Content-fitted
-                         * height, no inner scroll, page visible below.
+                         * MM-1, fifth pass — the client's own Figma card: each
+                         * service is a bold group heading over a left-bordered
+                         * role list, groups packed into responsive CSS columns
+                         * (break-inside-avoid keeps a group whole), and the
+                         * "build your team" box rides the flow into the last
+                         * column's tail. Content-fitted height, no inner
+                         * scroll; the page stays visible below.
                          */}
                         <div className="border-y border-border bg-card shadow-lift">
-                          <div className="container-wide grid gap-10 py-8 lg:grid-cols-[300px_1fr]">
-                            <div className="flex flex-col items-start gap-4 rounded-card bg-background-subtle p-6">
-                              <p className="font-display text-xl font-bold text-navy-800 dark:text-foreground">
-                                {item.link!.label}
-                              </p>
-                              <p className="text-sm/6 text-muted-foreground">{dict.nav.buildTeam}</p>
+                          <div className="container-wide columns-2 gap-8 py-8 md:columns-3 xl:columns-5">
+                            {mega.map((svc) => {
+                              const href = localeHref(locale, `/services/${svc.slug}`)
+                              return (
+                                <div key={svc.slug} className="mb-6 break-inside-avoid">
+                                  <Link
+                                    href={href}
+                                    className="text-[13px] font-bold text-navy-800 transition-colors hover:text-primary dark:text-foreground"
+                                  >
+                                    {svc.title}
+                                  </Link>
+                                  <ul className="mt-2 flex flex-col gap-1.5 border-s border-border ps-3">
+                                    {svc.roles.map((role) => (
+                                      <li key={role}>
+                                        <Link
+                                          href={href}
+                                          className="block text-[13px]/5 text-muted-foreground transition-colors hover:text-primary"
+                                        >
+                                          {role}
+                                        </Link>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )
+                            })}
+                            <div className="break-inside-avoid rounded-xl border border-brand-200 p-4 text-center dark:border-border">
+                              <p className="text-sm/6 font-medium text-navy-800 dark:text-foreground">{dict.nav.buildTeam}</p>
                               <Link
                                 href={localeHref(locale, '/services/hire-dedicated-developers')}
-                                className="rounded-pill bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
+                                className="mt-3 inline-block rounded-pill bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
                               >
                                 {dict.nav.hireNow}
-                              </Link>
-                            </div>
-
-                            <div className="flex flex-col items-start">
-                              <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
-                                <span aria-hidden className="size-2 bg-primary" />
-                                {item.link!.label}
-                              </p>
-                              <ul className="mt-4 grid w-full grid-flow-col grid-rows-5 gap-x-8">
-                                {mega.map((svc) => (
-                                  <li key={svc.slug}>
-                                    <Link
-                                      href={localeHref(locale, `/services/${svc.slug}`)}
-                                      className="block py-2 text-[15px] font-medium text-navy-800 transition-colors hover:text-primary dark:text-foreground"
-                                    >
-                                      {svc.title}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                              <Link
-                                href={localeHref(locale, '/services')}
-                                className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-navy-800 transition-colors hover:text-primary dark:text-foreground"
-                              >
-                                {dict.nav.allServices}
-                                <ArrowRight aria-hidden className="size-4 rtl:-scale-x-100" />
                               </Link>
                             </div>
                           </div>
