@@ -1,9 +1,9 @@
 /**
  * Creates the About Us page at /about from Figma 93:2964 ("New website
  * 25_8_2026"), composed ENTIRELY of existing shared blocks — hero, stats,
- * cardGrid, richText, cta, faq, postsTeaser, contact. The FAQ items and the
- * navy pre-footer band are copied verbatim from the home page at run time, so
- * the two pages cannot drift apart.
+ * cardGrid, richText, cta, and shared references to home's FAQ, blog teaser,
+ * contact block and navy band — referenced rather than restated, so the pages
+ * cannot drift apart.
  *
  *   pnpm tsx scripts/create-about-page.ts          # dry run
  *   pnpm tsx scripts/create-about-page.ts --write  # apply
@@ -35,17 +35,6 @@ const ul = (items: string[]) => ({
 const doc = (children: unknown[]) => ({
   root: { type: 'root', format: '', indent: 0, version: 1, direction: 'ltr' as const, children },
 })
-
-/** Row ids from the home page must not travel into the new document. */
-const stripIds = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(stripIds)
-  if (value && typeof value === 'object') {
-    const out: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(value)) if (k !== 'id') out[k] = stripIds(v)
-    return out
-  }
-  return value
-}
 
 const CERTS: { stem: string; title: string; subtitle: string; body: string; note: string }[] = [
   {
@@ -125,13 +114,6 @@ const run = async () => {
     certCards.push({ icon: media.id, title: cert.title, subtitle: cert.subtitle, body: cert.body, note: cert.note })
   }
 
-  // Shared content lifted from home: the FAQ block and the navy CTA band.
-  const home = (await payload.find({ collection: 'pages', where: { slug: { equals: 'home' } }, limit: 1, depth: 0 })).docs[0]!
-  const homeLayout = (home.layout ?? []) as { blockType?: string; tone?: string }[]
-  const faqBlock = stripIds(homeLayout.find((b) => b.blockType === 'faq')) as Record<string, unknown> | undefined
-  const bandBlock = stripIds(homeLayout.find((b) => b.blockType === 'cta' && b.tone === 'band')) as Record<string, unknown> | undefined
-  if (!faqBlock || !bandBlock) throw new Error('Home page is missing the faq or band cta block.')
-
   const layout = [
     {
       blockType: 'hero',
@@ -201,22 +183,11 @@ const run = async () => {
       body: 'From carefully vetted tech talent to dedicated engineering teams, FEKRA helps you move faster with the right expertise.',
       ctas: [{ variant: 'secondary', link: { type: 'route', route: '/meeting', label: 'Book a 30-Minute Call' } }],
     },
-    faqBlock,
-    {
-      blockType: 'postsTeaser',
-      eyebrow: 'Latest blogs',
-      heading: 'Our Recent Blogs',
-      limit: 3,
-      ctas: [{ variant: 'secondary', link: { type: 'route', route: '/blog', label: 'View all blogs' } }],
-    },
-    {
-      blockType: 'contact',
-      eyebrow: "Let's Talk Business!",
-      heading: 'Contact us',
-      showOffices: true,
-      showForm: true,
-    },
-    bandBlock,
+    // Home owns these four; About just points at them.
+    { blockType: 'sharedSection', section: 'faq' },
+    { blockType: 'sharedSection', section: 'posts' },
+    { blockType: 'sharedSection', section: 'contact' },
+    { blockType: 'sharedSection', section: 'ctaBand' },
   ]
 
   console.log('About page blocks:')

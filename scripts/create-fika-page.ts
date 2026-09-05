@@ -19,17 +19,6 @@ import config from '../src/payload.config'
 
 const AVATAR = { stem: 'fika-avatar', path: 'public/images/fika/fika-avatar.webp' }
 
-/** Row ids from the home page must not travel into this document. */
-const stripIds = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(stripIds)
-  if (value && typeof value === 'object') {
-    const out: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(value)) if (k !== 'id') out[k] = stripIds(v)
-    return out
-  }
-  return value
-}
-
 const STEPS = [
   ['1. Understand Your Needs Faster', 'Fika helps clarify your technology, talent, and project requirements from the start.'],
   ['2. Define the Right Tech Roles', 'Get guidance on the skills, seniority, and expertise your team actually needs.'],
@@ -39,7 +28,7 @@ const STEPS = [
   ['6. Connect with Human Experts', "Move seamlessly from AI assistance to FEKRA's technology and talent specialists."],
 ] as const
 
-const layout = (avatarId: number, bandBlock: Record<string, unknown>) => [
+const layout = (avatarId: number) => [
   {
     blockType: 'hero',
     heading: 'Build & Scale Your Tech Team Faster with',
@@ -64,22 +53,11 @@ const layout = (avatarId: number, bandBlock: Record<string, unknown>) => [
       'Fika is your AI-powered technology and talent assistant, designed to support you throughout your journey with FEKRA \u2014 from understanding your needs to finding the right expertise and engagement model.\n' +
       "It combines the speed and intelligence of AI with FEKRA's human expertise, helping you make clearer decisions, reduce unnecessary back-and-forth, and move forward with greater confidence.",
   },
-  // The page closes on the same three shared blocks as home and About.
-  {
-    blockType: 'postsTeaser',
-    eyebrow: 'Latest blogs',
-    heading: 'Our Recent Blogs',
-    limit: 3,
-    ctas: [{ variant: 'secondary', link: { type: 'route', route: '/blog', label: 'View all blogs' } }],
-  },
-  {
-    blockType: 'contact',
-    eyebrow: "Let's Talk Business!",
-    heading: 'Contact us',
-    showOffices: true,
-    showForm: true,
-  },
-  bandBlock,
+  // The page closes on home's own blog teaser, contact block and navy band —
+  // referenced, not restated, so the three cannot drift apart.
+  { blockType: 'sharedSection', section: 'posts' },
+  { blockType: 'sharedSection', section: 'contact' },
+  { blockType: 'sharedSection', section: 'ctaBand' },
 ]
 
 const run = async () => {
@@ -105,15 +83,6 @@ const run = async () => {
     console.log(`  uploaded ${AVATAR.stem} -> media ${avatarId}`)
   }
 
-  // The navy pre-footer band is copied verbatim from home rather than
-  // restated here, so editing it once updates every page that ends on it.
-  const home = (await payload.find({ collection: 'pages', where: { slug: { equals: 'home' } }, limit: 1, depth: 0 })).docs[0]
-  const homeLayout = (home?.layout ?? []) as { blockType?: string; tone?: string }[]
-  const bandBlock = stripIds(homeLayout.find((x) => x.blockType === 'cta' && x.tone === 'band')) as
-    | Record<string, unknown>
-    | undefined
-  if (!bandBlock) throw new Error('Home page is missing the navy band cta block.')
-
   const existing = await payload.find({ collection: 'pages', where: { slug: { equals: 'fika' } }, limit: 1, depth: 0 })
   const header = await payload.findGlobal({ slug: 'header', depth: 0 })
   const items = [...((header.items ?? []) as { link?: { label?: string } }[])]
@@ -122,7 +91,7 @@ const run = async () => {
   console.log(`\n/fika page:  ${existing.docs[0] ? 'exists (id ' + existing.docs[0].id + ') — will update' : 'missing — will create'}`)
   console.log(`nav item:    ${hasNav ? 'already present' : 'missing — will append "Meet Fika AI"'}`)
   console.log(`avatar:      ${avatarId ? 'media ' + avatarId : 'will upload on --write'}`)
-  console.log(`blocks:      ${layout(avatarId ?? 0, bandBlock).map((b) => b.blockType).join(' · ')}`)
+  console.log(`blocks:      ${layout(avatarId ?? 0).map((b) => b.blockType).join(' · ')}`)
 
   if (!write) {
     console.log('\nDry run. Re-run with --write to apply.')
@@ -131,7 +100,7 @@ const run = async () => {
 
   const data = {
     title: 'Meet Fika AI',
-    layout: layout(avatarId!, bandBlock),
+    layout: layout(avatarId!),
     availableLocales: ['en'],
     _status: 'published',
     meta: {

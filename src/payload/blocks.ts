@@ -1,5 +1,6 @@
 import type { Block, Field } from 'payload'
 
+import { SHARED_SECTION_OPTIONS } from '../lib/shared-sections'
 import { linkField, linksArray } from './fields/link'
 
 /**
@@ -710,6 +711,24 @@ export const HiringModelsBlock: Block = {
   ],
 }
 
+export const SharedSectionBlock: Block = {
+  slug: 'sharedSection',
+  interfaceName: 'SharedSectionBlock',
+  labels: { singular: 'Shared section', plural: 'Shared sections' },
+  fields: [
+    {
+      name: 'section',
+      type: 'select',
+      required: true,
+      options: SHARED_SECTION_OPTIONS,
+      admin: {
+        description:
+          'Pulls the section from the home page in the current locale. Edit it on home and every page using it updates \u2014 there is nothing to keep in sync here.',
+      },
+    },
+  ],
+}
+
 export const allBlocks = [
   HeroBlock,
   ServiceHeroBlock,
@@ -729,6 +748,7 @@ export const allBlocks = [
   MediaBlock,
   ContactBlock,
   BookingBlock,
+  SharedSectionBlock,
 ]
 
 export const layoutField: Field = {

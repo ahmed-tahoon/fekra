@@ -62,6 +62,8 @@ export type BlockItem = {
 export type BlockProps = {
   blockType: string
   id?: string
+  /** sharedSection: which home block to render here. */
+  section?: string | null
   anchor?: string | null
   eyebrow?: string | null
   heading?: string | null

@@ -181,11 +181,14 @@ export default async function SiteLayout({
           dangerouslySetInnerHTML={{
             __html:
               '<div id="fk-splash" aria-hidden="true">' +
-              // width/height so the pulse has a box before the bytes land, and
-              // the dark logo is lazy: display:none never triggers the loader, so
-              // light-mode visitors stop paying 23 KiB for a logo they never see.
+              // width/height so the pulse has a box before the bytes land.
+              // Both logos are eager: `loading="lazy"` on the dark one was meant
+              // to spare light-mode visitors its 23 KiB, but Chrome fetches a
+              // lazy image it cannot position (display:none) anyway — the
+              // 05 Sep 2026 Lighthouse trace shows both files downloaded, with
+              // the deferred one becoming the LCP element on /about at 6.5 s.
               '<img src="/images/fekra-logo.webp" alt="" width="663" height="198" fetchpriority="high" class="fk-splash-logo dark:hidden"/>' +
-              '<img src="/images/fekra-logo-white.webp" alt="" width="680" height="199" loading="lazy" class="fk-splash-logo hidden dark:block"/>' +
+              '<img src="/images/fekra-logo-white.webp" alt="" width="680" height="199" fetchpriority="high" class="fk-splash-logo hidden dark:block"/>' +
               '</div>' +
               '<noscript><style>#fk-splash{display:none}</style></noscript>' +
               "<script>(function(){var s=document.getElementById('fk-splash');if(!s)return;" +
@@ -215,7 +218,7 @@ export default async function SiteLayout({
 
           <TalkToFika locale={locale} dict={dict} />
           {/* Hidden for launch. Restore: enabled={(settings.consentMode ?? 'opt-in') === 'opt-in'} */}
-          <ConsentBanner dict={dict} enabled={false} />
+          <ConsentBanner dict={dict} locale={locale} enabled={false} />
           <Analytics
             gtmId={settings.gtmContainerId}
             ga4Id={settings.ga4MeasurementId}

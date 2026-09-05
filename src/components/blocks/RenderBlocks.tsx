@@ -1,5 +1,7 @@
 import type { Dictionary } from '@/i18n/getDictionary'
 import type { Locale } from '@/i18n/routing'
+import { findDoc } from '@/lib/payload'
+import { findSharedSection } from '@/lib/shared-sections'
 
 import { BookingSection } from './BookingSection'
 import { ContactSection } from './ContactSection'
@@ -24,11 +26,32 @@ import {
 import type { BlockProps } from './types'
 
 /**
+ * Swaps every `sharedSection` reference for the real block it names on the
+ * home page, so a section lives in exactly one place and every page that uses
+ * it stays in step. `findDoc` is request-cached, so N references cost one
+ * query, and home is only fetched when a page actually references something.
+ *
+ * A reference whose section has since been removed from home is dropped rather
+ * than rendered empty — a CMS edit must not be able to break another page.
+ */
+async function resolveShared(blocks: BlockProps[], locale: Locale): Promise<BlockProps[]> {
+  if (!blocks.some((block) => block.blockType === 'sharedSection')) return blocks
+
+  const home = await findDoc<{ layout?: BlockProps[] }>('pages', 'home', locale)
+
+  return blocks.flatMap((block) => {
+    if (block.blockType !== 'sharedSection') return [block]
+    const source = findSharedSection(block.section, home?.layout)
+    return source ? [{ ...source, id: block.id ?? source.id }] : []
+  })
+}
+
+/**
  * Renders the CMS layout array. An unknown block type is skipped silently in
  * production rather than crashing the page — a stale draft must never take the
  * site down.
  */
-export function RenderBlocks({
+export async function RenderBlocks({
   blocks,
   locale,
   dict,
@@ -41,9 +64,11 @@ export function RenderBlocks({
 }) {
   if (!blocks?.length) return null
 
+  const layout = await resolveShared(blocks, locale)
+
   return (
     <>
-      {blocks.map((block, index) => {
+      {layout.map((block, index) => {
         const key = block.id ?? `${block.blockType}-${index}`
         const isFirst = index === 0
 

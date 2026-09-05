@@ -71,13 +71,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.warn('sitemap: CMS unavailable, emitting static routes only —', error)
   }
 
-  const listings: MetadataRoute.Sitemap = [
-    entry('/blog', [...PUBLIC_LOCALES], undefined, 0.8),
-    entry('/services', [...PUBLIC_LOCALES], undefined, 0.9),
-    entry('/careers', [...PUBLIC_LOCALES], undefined, 0.8),
-    entry('/contact', [...PUBLIC_LOCALES], undefined, 0.8),
-    entry('/meeting', [...PUBLIC_LOCALES], undefined, 0.7),
+  // Paths that a coded route owns. A CMS page with the same slug (`contact`)
+  // only supplies that route's content — emitting it again from the pages
+  // collection put the URL in the sitemap twice (1.11 / 18.5).
+  const LISTINGS: [path: string, priority: number][] = [
+    ['/blog', 0.8],
+    ['/services', 0.9],
+    ['/careers', 0.8],
+    ['/contact', 0.8],
+    ['/meeting', 0.7],
   ]
+  const listings: MetadataRoute.Sitemap = LISTINGS.map(([path, priority]) =>
+    entry(path, [...PUBLIC_LOCALES], undefined, priority),
+  )
+  const coded = new Set(['home', ...LISTINGS.map(([path]) => path.slice(1))])
 
   const fromCollection = (docs: Indexable[], collection: LinkableCollection, priority: number) =>
     docs
@@ -90,7 +97,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry('/', [...PUBLIC_LOCALES], undefined, 1),
     ...listings,
     ...fromCollection(
-      pages.filter((p) => p.slug !== 'home'),
+      pages.filter((p) => !coded.has(p.slug)),
       'pages',
       0.7,
     ),

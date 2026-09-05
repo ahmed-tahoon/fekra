@@ -177,6 +177,7 @@ export interface Page {
         | MediaBlock
         | ContactBlock
         | BookingBlock
+        | SharedSectionBlock
       )[]
     | null;
   /**
@@ -431,6 +432,7 @@ export interface Post {
         | MediaBlock
         | ContactBlock
         | BookingBlock
+        | SharedSectionBlock
       )[]
     | null;
   category?: (number | null) | Category;
@@ -604,6 +606,7 @@ export interface Service {
         | MediaBlock
         | ContactBlock
         | BookingBlock
+        | SharedSectionBlock
       )[]
     | null;
   /**
@@ -1448,6 +1451,19 @@ export interface BookingBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SharedSectionBlock".
+ */
+export interface SharedSectionBlock {
+  /**
+   * Pulls the section from the home page in the current locale. Edit it on home and every page using it updates — there is nothing to keep in sync here.
+   */
+  section: 'techStack' | 'process' | 'industries' | 'fika' | 'certifications' | 'faq' | 'posts' | 'contact' | 'ctaBand';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'sharedSection';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -1676,6 +1692,7 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         contact?: T | ContactBlockSelect<T>;
         booking?: T | BookingBlockSelect<T>;
+        sharedSection?: T | SharedSectionBlockSelect<T>;
       };
   hideFromSitemap?: T;
   availableLocales?: T;
@@ -2235,6 +2252,15 @@ export interface BookingBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SharedSectionBlock_select".
+ */
+export interface SharedSectionBlockSelect<T extends boolean = true> {
+  section?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -2264,6 +2290,7 @@ export interface PostsSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         contact?: T | ContactBlockSelect<T>;
         booking?: T | BookingBlockSelect<T>;
+        sharedSection?: T | SharedSectionBlockSelect<T>;
       };
   category?: T;
   author?: T;
@@ -2326,6 +2353,7 @@ export interface ServicesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         contact?: T | ContactBlockSelect<T>;
         booking?: T | BookingBlockSelect<T>;
+        sharedSection?: T | SharedSectionBlockSelect<T>;
       };
   parent?: T;
   relatedServices?: T;

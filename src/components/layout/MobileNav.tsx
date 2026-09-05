@@ -51,7 +51,7 @@ export function MobileNav({
         onClick={() => setOpen(true)}
         aria-label={dict.nav.openMenu}
         aria-expanded={open}
-        className="grid size-11 place-items-center rounded-pill text-foreground hover:bg-background-subtle lg:hidden"
+        className="grid size-11 place-items-center rounded-pill text-foreground hover:bg-background-subtle xl:hidden"
       >
         <Menu className="size-6" aria-hidden />
       </button>
@@ -61,7 +61,7 @@ export function MobileNav({
         onClose={() => setOpen(false)}
         onCancel={() => setOpen(false)}
         aria-label="Main"
-        className="m-0 h-dvh max-h-none w-full max-w-none bg-background p-0 text-foreground backdrop:bg-[var(--overlay)] lg:hidden"
+        className="m-0 h-dvh max-h-none w-full max-w-none bg-background p-0 text-foreground backdrop:bg-[var(--overlay)] xl:hidden"
       >
         {open ? (
           <div className="flex h-full flex-col">

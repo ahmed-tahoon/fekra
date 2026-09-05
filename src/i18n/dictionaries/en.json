@@ -177,7 +177,8 @@
     "preferences": "Preferences",
     "save": "Save choices",
     "analytics": "Analytics",
-    "marketing": "Marketing"
+    "marketing": "Marketing",
+    "cookiePolicy": "Cookie Policy"
   },
   "a11y": {
     "reducedMotionNote": "Animations are reduced based on your system preference."

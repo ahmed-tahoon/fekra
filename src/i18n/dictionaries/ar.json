@@ -177,7 +177,8 @@
     "preferences": "التفضيلات",
     "save": "حفظ الاختيارات",
     "analytics": "التحليلات",
-    "marketing": "التسويق"
+    "marketing": "التسويق",
+    "cookiePolicy": "سياسة ملفات تعريف الارتباط"
   },
   "a11y": {
     "reducedMotionNote": "تم تقليل الحركة بناءً على إعدادات جهازك."

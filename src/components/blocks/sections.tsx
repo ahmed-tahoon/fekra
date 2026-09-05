@@ -1955,7 +1955,11 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
   const panel = rows.length ? (
     <div
       className={cn(
-        'fk-marquee-stage w-full overflow-hidden rounded-[40px] p-6 sm:p-10 lg:w-[652px] lg:shrink-0',
+        // 652px is the comp's panel width and it does not shrink, so the
+        // side-by-side row only fits from `xl`. At `lg` (iPad landscape) the
+        // copy column plus this panel came to ~1230px in a 1024px window and
+        // both marquee stages bled off the edges (16.3).
+        'fk-marquee-stage w-full overflow-hidden rounded-[40px] p-6 sm:p-10 xl:w-[652px] xl:shrink-0',
         block.panelTone === 'mint' ? 'bg-panel-mint' : 'bg-panel-grey',
         'dark:bg-background-subtle',
       )}
@@ -2002,8 +2006,8 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
     <section id={block.anchor ?? undefined} className="section">
       <div
         className={cn(
-          'container-site flex flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-16',
-          copyRight && 'lg:flex-row-reverse',
+          'container-site flex flex-col items-center gap-12 xl:flex-row xl:justify-between xl:gap-16',
+          copyRight && 'xl:flex-row-reverse',
         )}
       >
         {copy}

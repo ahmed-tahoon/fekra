@@ -14,7 +14,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const dict = await getDictionary(locale)
-  return buildMetadata({ title: dict.nav.services, path: '/services', locale })
+  return buildMetadata({
+    title: dict.nav.services,
+    description: dict.services.subtitle,
+    path: '/services',
+    locale,
+  })
 }
 
 export default async function ServicesIndex({ params }: { params: Promise<{ locale: string }> }) {

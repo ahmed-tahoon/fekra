@@ -19,3 +19,7 @@ next-env.d.ts
 coverage
 playwright-report
 test-results
+
+# Measurement output — regenerate with `pnpm perf` / `pnpm check:viewports`
+.lighthouse/
+viewport-shots/

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { ContactSection } from '@/components/blocks/ContactSection'
 import { RenderBlocks } from '@/components/blocks/RenderBlocks'
 import { getDictionary } from '@/i18n/getDictionary'
-import { isLocale } from '@/i18n/routing'
+import { isLocale, LOCALES } from '@/i18n/routing'
 import { findDoc, getGlobal } from '@/lib/payload'
 import { buildMetadata } from '@/lib/seo'
 
@@ -20,7 +20,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: page?.meta?.description ?? dict.contact.subtitle,
     path: '/contact',
     locale,
-    availableLocales: page?.availableLocales,
+    // The route is localized by the dictionary and by localized CMS fields, so
+    // it exists in every language whatever the CMS page happens to declare —
+    // taking availableLocales from the document here made hreflang list only
+    // `en` while the sitemap listed all five (1.11 / 18.5).
+    availableLocales: [...LOCALES],
   })
 }
 

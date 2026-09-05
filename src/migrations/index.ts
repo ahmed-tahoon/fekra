@@ -17,6 +17,7 @@ import * as migration_20260818_114905_link_route_about_fika from './20260818_114
 import * as migration_20260825_235511_about_page_blocks from './20260825_235511_about_page_blocks';
 import * as migration_20260826_145238_stats_item_icon from './20260826_145238_stats_item_icon';
 import * as migration_20260829_202349_fika_page_blocks from './20260829_202349_fika_page_blocks';
+import * as migration_20260831_133059_shared_section_block from './20260831_133059_shared_section_block';
 
 export const migrations = [
   {
@@ -112,6 +113,11 @@ export const migrations = [
   {
     up: migration_20260829_202349_fika_page_blocks.up,
     down: migration_20260829_202349_fika_page_blocks.down,
-    name: '20260829_202349_fika_page_blocks'
+    name: '20260829_202349_fika_page_blocks',
+  },
+  {
+    up: migration_20260831_133059_shared_section_block.up,
+    down: migration_20260831_133059_shared_section_block.down,
+    name: '20260831_133059_shared_section_block'
   },
 ];
