@@ -69,7 +69,7 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
     errors[field] ? (dict.form.errors[errors[field] as keyof typeof dict.form.errors] ?? errors[field]) : undefined
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+    <form onSubmit={onSubmit} noValidate className="@container flex flex-col gap-5">
       {/* Honeypot — hidden from users and screen readers, irresistible to bots. */}
       <div aria-hidden className="sr-only">
         <label htmlFor="contact-website">Website</label>

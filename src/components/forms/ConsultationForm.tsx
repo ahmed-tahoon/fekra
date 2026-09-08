@@ -85,7 +85,7 @@ export function ConsultationForm({
           {dict.form.success}
         </p>
       ) : (
-        <form onSubmit={onSubmit} noValidate className="mt-4 flex flex-col gap-2">
+        <form onSubmit={onSubmit} noValidate className="@container mt-4 flex flex-col gap-2">
           {/* Honeypot — hidden from users and screen readers, irresistible to bots. */}
           <div aria-hidden className="sr-only">
             <label htmlFor="consult-website">Website</label>

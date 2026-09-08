@@ -4,6 +4,7 @@ import { seedJobs } from './jobs'
 
 import { getPayload } from 'payload'
 import config from '../payload.config'
+import { TEAM } from './team'
 
 /**
  * Seeds a working English site that matches the approved Figma Home layout, so
@@ -319,21 +320,17 @@ const run = async () => {
     ),
   )
 
-  // Shared by both talent panels — the comp shows the same four engineers in
-  // each, in a different order, which the component derives by rotating.
+  // Shared by both talent panels — the comp shows the same engineers in each,
+  // in a different order, which the component derives by rotating. The list
+  // lives in src/seed/team.ts so `pnpm seed` and scripts/seed-team.ts cannot
+  // disagree about who is on the team.
   const talentPeople = await Promise.all(
-    [
-      ['Emma Williams', 'UX Designer', '3+ Years', 74, 'emma-williams'],
-      ['Priya Sharma', 'Data Scientist', '5+ Years', 85, 'priya-sharma'],
-      ['James Chen', 'DevOps Engineer', '10+ Years', 91, 'james-chen'],
-      ['Alex Rivera', 'Full Stack Developer', '6+ Years', 88, 'alex-rivera'],
-    ].map(async ([name, role, experience, match, file]) => ({
-      name: name as string,
-      role: role as string,
-      experience: experience as string,
-      match: match as number,
+    TEAM.map(async (person) => ({
+      name: person.name,
+      role: person.role,
+      experience: person.experience,
       evaluated: true,
-      avatar: (await upsertMedia(payload, `${file}.png`, '', 'people'))?.id,
+      avatar: person.file ? ((await upsertMedia(payload, person.file, person.name, 'people'))?.id ?? null) : null,
     })),
   )
 

@@ -169,3 +169,32 @@ Transfer to FEKRA before sign-off:
 | `pnpm check:links https://<domain>` | after any content migration or nav change |
 | Search Console coverage and Core Web Vitals review | monthly |
 | Review `contact-submissions` / `job-applications` retention | quarterly |
+
+## 11. Search and AI visibility — what is committed (19.12)
+
+**This project commits to technical readiness and quality. It does not commit to rankings,
+traffic, or citations in AI answers.** Those are decided by third-party systems — Google,
+Bing, ChatGPT, Perplexity, Claude, AI Overviews — whose ranking and citation criteria are
+undisclosed, change without notice, and weigh competition, domain authority, brand signals
+and content depth that no amount of code can supply. Any supplier who guarantees a position
+or a citation is guessing.
+
+What was built and is verifiable today:
+
+| Delivered | How to re-verify |
+| --- | --- |
+| Server-rendered content — every page's copy, headings and schema are in the raw HTML with no JavaScript required (19.2) | `curl` any URL and read it |
+| Semantic HTML: real `<ol>`, `<details>`, `<figure>`, `<dialog>`, heading hierarchy (19.1, 19.3) | `pnpm lint`, manual audit |
+| Organization, WebSite, Service, BlogPosting, FAQPage, JobPosting, BreadcrumbList structured data (19.4) | Rich Results Test |
+| One canonical per page, reciprocal hreflang across 5 locales, sitemap `<loc>` == canonical == schema `url` (19.11, 18.3) | `pnpm check:i18n`, `pnpm check:links` |
+| Search and AI-search crawlers allowed at both robots.txt and the network layer; training crawlers separately controlled (19.6–19.10) | `curl -A "OAI-SearchBot" https://<domain>/` → 200 |
+| Core Web Vitals budget enforced in the build (§17) | `pnpm perf` |
+
+What moves the outcomes, and belongs to FEKRA rather than to this codebase: publishing
+depth and cadence, subject-matter authority, earned links and mentions, brand search
+demand, and pricing/competitive position. The technical layer removes the obstacles; it
+does not create the demand.
+
+**Timing.** Even where the technical work is correct, discovery, indexing and re-evaluation
+by AI systems take weeks to months after go-live. An absence of results in the first weeks
+is not evidence of a technical defect — check Search Console coverage first (§10).

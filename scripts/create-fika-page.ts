@@ -109,6 +109,23 @@ const run = async () => {
     },
   }
 
+  /*
+   * Rewriting `layout` mints fresh row ids, and Payload keys localized values
+   * off those ids — so a re-run would orphan every ar/de/fr/es translation and
+   * reset availableLocales to English-only. Nothing would error; /ar/fika would
+   * just quietly serve English again (13.6). Refuse instead.
+   */
+  if (existing.docs[0] && !process.argv.includes('--force')) {
+    const ar = await payload.findByID({ collection: 'pages', id: existing.docs[0].id, depth: 0, locale: 'ar' })
+    if (ar.title && ar.title !== existing.docs[0].title) {
+      throw new Error(
+        '/fika already carries ar/de/fr/es translations — rewriting the layout would discard them.\n' +
+          'Intentional? Re-run with --force, then re-apply:\n' +
+          '  pnpm tsx scripts/translate-page.ts fika --write',
+      )
+    }
+  }
+
   const page = existing.docs[0]
     ? await payload.update({ collection: 'pages', id: existing.docs[0].id, data: data as never })
     : await payload.create({ collection: 'pages', data: { ...data, slug: 'fika' } as never })

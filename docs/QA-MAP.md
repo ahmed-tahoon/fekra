@@ -51,6 +51,14 @@ globals finds no lorem ipsum, placeholder, dummy or TODO copy, and the source tr
 `href="#"`, stray `console.log` or `TODO`. The one remaining leftover was a missing
 favicon — every page logged a `/favicon.ico` 404 — now `src/app/icon.svg`.
 
+The four seeded engineers in the home page's talent marquees (Emma Williams, Priya Sharma,
+James Chen, Alex Rivera, with stock headshots and demo match percentages) are gone: both
+marquees now carry the twelve real FEKRA engineers with their own photos. The roster lives
+in `src/seed/team.ts` and is shared by `pnpm seed` and `pnpm seed:team`, so a re-seed cannot
+put the demo people back. Their `experience` values were also stored in Arabic
+("+٣ سنوات") on a field that is not localized, so Arabic numerals were rendering on the
+English home page; the real list is in English.
+
 2.10 ✅ — `docs/DESIGN-CONFLICTS.md` is the register: seven conflicts between the approved
 design and accessibility, responsiveness or performance, each with the measurement behind
 it and a recommended solution. One is resolved (the navigation breakpoint), one is decided
@@ -87,6 +95,27 @@ rendering a dead `#`.
 Templates, blocks and structured data are built. Content entry is the remaining work.
 Services support a parent/child hierarchy for SEO landing pages with breadcrumbs (7.4, 18.9).
 
+**9.4 international readability — ✅.** `/about` carries ar/de/fr/es translations
+(`scripts/translations/about.json`, applied by `scripts/translate-page.ts`); its four
+`sharedSection` blocks resolve against home in the reader's locale, so they were already
+covered. Verified two ways: `pnpm check:locale about` asserts every translation is on the
+page, no English original survives in a translated locale, and English itself is intact;
+`PAGES=/about,/ar/about,/de/about,/fr/about,/es/about pnpm check:viewports` sweeps 9
+viewports (360–1536) in both themes. German — the longest translation — matches English at
+every width, and Arabic renders `dir="rtl"` with no RTL-specific break.
+
+One finding is **not** a 9.4 failure: at 360px the header logo row and burger overflow by
+8px. It reproduces on English, so it is locale-independent (16.2), and `overflow-x: clip`
+hides it. Sub-44px tap targets (16–18 depending on word length) are likewise present in
+every locale including English (16.6).
+
+**13.6 Fika across languages, themes and devices — ✅.** Same treatment and same result for
+`/fika`: 18 own strings translated (`scripts/translations/fika.json`), three `sharedSection`
+blocks inherited from home, `pnpm check:locale fika` green, and a second 90-combination
+sweep with no locale-specific break. The persona copy survives the longest translation
+(German) and reads correctly in RTL. The 360px header overflow and the tap-target counts are
+the same locale-independent findings as above, not Fika-specific.
+
 ## 10. Careers & applications — ✅
 
 Job collection with schema-ready fields; listing filters to open roles; detail page renders
@@ -109,7 +138,20 @@ submission is stored.
 
 Calendly embed loads only after marketing consent, with a direct link as the always-available
 fallback. `calendly.event_scheduled` is tracked separately from the CTA click.
-⬜ Needs the real Calendly URL in Site Settings.
+
+✅ The booking URL is configured: Site Settings `calendlyUrl` =
+`https://calendly.com/fekra-egy-info/30min`. The dashboard link's `?back=1` was dropped —
+`CalendlyEmbed` appends its own `embed_domain`/`embed_type`/`hide_gdpr_banner` params, and the
+same URL is the direct link shown when consent is refused. Verified in a real browser in both
+states: no consent cookie renders the fallback panel and no iframe; consent granted loads the
+live "30 Minute Meeting" calendar with Calendly's timezone control.
+
+⬜ The consent banner is disabled for launch (`<ConsentBanner enabled={false} />` in
+`src/app/(site)/[locale]/layout.tsx`), so no visitor can grant marketing consent and everyone
+gets the fallback link instead of the calendar. Re-enable it — the restore line is in the
+comment above it — or accept that the booking page ships as a link-out.
+⬜ 24.4: an end-to-end test booking on the final domain.
+⬜ FEKRA: the Calendly account name shows as "Ferka Tech" in the widget.
 
 ## 14. Multilingual (5 locales) — ✅
 
@@ -194,6 +236,8 @@ JS. Organization / WebSite / BlogPosting / Service / JobPosting / BreadcrumbList
 schema. `robots.txt` treats search bots, AI-search bots and AI-training bots as three
 separate decisions, editable in Site Settings. `/llms.txt` returns 404 until explicitly enabled.
 
+**19.12 scope of commitment — ✅.** `docs/HANDOVER.md` §11 states in writing that the project commits to technical readiness and quality, not to rankings, traffic or citations in AI answers, and lists what was delivered against how to re-verify each item. It also names the levers that actually move those outcomes — publishing depth, authority, earned links, brand demand — as FEKRA's, not the codebase's, and warns that discovery and re-evaluation take weeks to months after go-live.
+
 ## 20. WordPress migration — 🔧
 
 `redirects.json` compiles into the router: one hop, no runtime lookup. Internal links render
@@ -246,6 +290,10 @@ pnpm typecheck                                     clean
 pnpm lint                                          clean
 pnpm inventory                                     35 live pages, no duplicate URLs
 pnpm check:viewports                               42/42 combinations, no overflow
+pnpm check:locale about                            ar/de/fr/es translated, en intact
+pnpm check:locale fika                             ar/de/fr/es translated, en intact
+PAGES=/about,/{ar,de,fr,es}/about check:viewports  90 combos (9 viewports x 2 themes),
+                                                   no locale-specific break
 pnpm perf                                          5/12 within budget (see docs/PERFORMANCE.md)
 pnpm check:i18n                                    5 locales, 94 keys each
 pnpm build                                         46 static pages generated

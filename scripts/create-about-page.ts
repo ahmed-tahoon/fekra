@@ -10,8 +10,9 @@
  *
  * Copy notes: the Figma frame carried template leftovers reading "CMARIX" in
  * two headings; those render as FEKRA here, per the page's own body copy.
- * English only for now — availableLocales says so, which keeps the language
- * switcher honest until translations are approved.
+ *
+ * This writes ENGLISH. ar/de/fr/es come from scripts/translate-page.ts, and a
+ * re-run here refuses to clobber them unless you pass --force (see below).
  */
 import { getPayload } from 'payload'
 
@@ -211,6 +212,22 @@ const run = async () => {
   }
 
   const existing = (await payload.find({ collection: 'pages', where: { slug: { equals: 'about' } }, limit: 1, depth: 0 })).docs[0]
+  /*
+   * Rewriting `layout` mints fresh row ids, and Payload keys localized values
+   * off those ids — so a re-run would orphan every ar/de/fr/es translation and
+   * reset availableLocales to English-only. Nothing would error; /ar/about
+   * would just quietly serve English again (9.4). Refuse instead.
+   */
+  if (existing && !process.argv.includes('--force')) {
+    const ar = await payload.findByID({ collection: 'pages', id: existing.id, depth: 0, locale: 'ar' })
+    if (ar.title && ar.title !== existing.title) {
+      throw new Error(
+        '/about already carries ar/de/fr/es translations — rewriting the layout would discard them.\n' +
+          'Intentional? Re-run with --force, then re-apply:\n' +
+          '  pnpm tsx scripts/translate-page.ts about --write',
+      )
+    }
+  }
   const page = existing
     ? await payload.update({ collection: 'pages', id: existing.id, data: data as never })
     : await payload.create({ collection: 'pages', data: { ...data, slug: 'about' } as never })

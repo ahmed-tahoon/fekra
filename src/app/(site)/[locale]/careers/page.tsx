@@ -8,7 +8,7 @@ import { findDocs } from '@/lib/payload'
 import { buildMetadata } from '@/lib/seo'
 
 import type { JobDoc } from '../page-types'
-import { CareersCta, HiringProcess, RoleRow, SectionLabel } from './parts'
+import { CareersCta, RoleRow, SectionLabel } from './parts'
 
 export const revalidate = 900
 
@@ -46,12 +46,6 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
     else byTeam.set(team, [job])
   }
   const grouped = docs.length >= 5 && byTeam.size > 1
-
-  const why = [
-    { title: dict.careers.why1Title, body: dict.careers.why1Body },
-    { title: dict.careers.why2Title, body: dict.careers.why2Body },
-    { title: dict.careers.why3Title, body: dict.careers.why3Body },
-  ]
 
   return (
     <>
@@ -118,22 +112,6 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
         </div>
       </section>
 
-      {/* Three plain claims, no cards. */}
-      <section className="section pt-0">
-        <div className="container-site">
-          <SectionLabel eyebrow={dict.careers.whyEyebrow} heading={dict.careers.whyTitle} />
-          <ul className="mt-10 grid gap-8 sm:grid-cols-3 sm:gap-10">
-            {why.map((item) => (
-              <li key={item.title}>
-                <h3 className="font-display text-base font-bold text-navy-800 dark:text-foreground">{item.title}</h3>
-                <p className="mt-2 text-sm/6 text-ink-500 dark:text-muted-foreground">{item.body}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <HiringProcess dict={dict} />
       <CareersCta dict={dict} locale={locale} />
     </>
   )

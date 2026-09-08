@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/Button'
+import { cn } from '@/lib/cn'
 import { Field, Input, Textarea } from '@/components/ui/Field'
 import type { Dictionary } from '@/i18n/getDictionary'
 import type { Locale } from '@/i18n/routing'
@@ -95,13 +96,18 @@ export function ApplicationForm({
     errors[field] ? (dict.form.errors[errors[field] as keyof typeof dict.form.errors] ?? errors[field]) : undefined
 
   return (
-    <form onSubmit={onSubmit} noValidate encType="multipart/form-data" className="flex flex-col gap-5">
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      encType="multipart/form-data"
+      className="@container flex flex-col gap-4 @md:gap-5"
+    >
       <div aria-hidden className="sr-only">
         <label htmlFor="apply-website">Website</label>
         <input id="apply-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-4 @md:grid-cols-2 @md:gap-5">
         <Field label={dict.form.name} required error={messageFor('fullName')}>
           {(props) => <Input {...props} name="fullName" autoComplete="name" />}
         </Field>
@@ -123,7 +129,12 @@ export function ApplicationForm({
             name="cv"
             type="file"
             accept={[...CV.mimeTypes, ...CV.extensions].join(',')}
-            className="w-full rounded-card border border-input bg-card p-3 text-sm file:me-4 file:rounded-pill file:border-0 file:bg-primary file:px-4 file:py-2 file:text-primary-foreground"
+            className={cn(
+              props.className,
+              'cursor-pointer px-2 py-2 text-sm @md:px-3 @md:py-3 @md:text-base',
+              'file:me-3 file:cursor-pointer file:rounded-pill file:border-0 file:bg-primary',
+              'file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-foreground',
+            )}
           />
         )}
       </Field>
@@ -143,7 +154,7 @@ export function ApplicationForm({
         </p>
       ) : null}
 
-      <Button type="submit" size="lg" disabled={status === 'sending'} className="self-start">
+      <Button type="submit" size="lg" disabled={status === 'sending'} className="w-full @md:w-auto @md:self-start">
         {status === 'sending' ? dict.form.submitting : dict.form.apply}
       </Button>
     </form>

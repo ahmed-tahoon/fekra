@@ -10,6 +10,7 @@ import { Footer, type FooterData } from '@/components/layout/Footer'
 import { Header, type HeaderData } from '@/components/layout/Header'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { ScrollReveal } from '@/components/ScrollReveal'
+import { BookingDrawer } from '@/components/booking/BookingDrawer'
 import { TalkToFika } from '@/components/layout/TalkToFika'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { getDictionary } from '@/i18n/getDictionary'
@@ -217,6 +218,8 @@ export default async function SiteLayout({
           />
 
           <TalkToFika locale={locale} dict={dict} />
+          {/* Intercepts the meeting CTAs site-wide; /meeting stays a real page. */}
+          <BookingDrawer url={settings.calendlyUrl} dict={dict} />
           {/* Hidden for launch. Restore: enabled={(settings.consentMode ?? 'opt-in') === 'opt-in'} */}
           <ConsentBanner dict={dict} locale={locale} enabled={false} />
           <Analytics

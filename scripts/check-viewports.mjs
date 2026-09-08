@@ -25,9 +25,12 @@ const OUT = process.argv[3] ?? 'viewport-shots'
 const CHROME =
   process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
-// 16.3 tablets, 16.4 laptops. deviceScaleFactor 1 keeps the PNGs small; the
-// layout, not the pixel density, is what is under test.
+// 16.2 phones, 16.3 tablets, 16.4 laptops. deviceScaleFactor 1 keeps the PNGs
+// small; the layout, not the pixel density, is what is under test.
 const VIEWPORTS = [
+  { name: 'mobile-360', width: 360, height: 800, mobile: true, group: '16.2', note: 'small Android' },
+  { name: 'mobile-390', width: 390, height: 844, mobile: true, group: '16.2', note: 'iPhone 14 / 15' },
+  { name: 'mobile-430', width: 430, height: 932, mobile: true, group: '16.2', note: 'iPhone Pro Max' },
   { name: 'tablet-portrait-768', width: 768, height: 1024, group: '16.3', note: 'iPad / iPad mini portrait' },
   { name: 'tablet-landscape-1024', width: 1024, height: 768, group: '16.3', note: 'iPad landscape' },
   { name: 'tablet-portrait-834', width: 834, height: 1194, group: '16.3', note: 'iPad Pro 11" portrait' },
@@ -36,7 +39,15 @@ const VIEWPORTS = [
   { name: 'laptop-1536', width: 1536, height: 864, group: '16.4', note: '15" Windows, most common desktop width' },
 ]
 
-const PAGES = ['/', '/services', '/blog', '/about', '/careers', '/contact', '/services/hire-front-end-developers']
+// Default sweep. PAGES=/ar/about,/de/about narrows it to one page in several
+// locales, which is how the RTL and long-translation pass (9.4) is run.
+const PAGES = process.env.PAGES
+  ? process.env.PAGES.split(',').map((p) => p.trim()).filter(Boolean)
+  : ['/', '/services', '/blog', '/about', '/careers', '/contact', '/services/hire-front-end-developers']
+
+// Both themes have to hold the same layout (9.4). Light by default because the
+// comps are light; SCHEME=dark runs the other half.
+const SCHEME = process.env.SCHEME === 'dark' ? 'dark' : 'light'
 
 /** The page-side probe. Returns plain data; anything DOM-ish stays in here. */
 const PROBE = `(() => {
@@ -59,7 +70,10 @@ const PROBE = `(() => {
   }
   for (const el of document.querySelectorAll('body *')) {
     const r = el.getBoundingClientRect()
-    if (!r.width || !r.height) continue
+    // A 1px box is the sr-only pattern (clipped skip link), not a layout break.
+    // It sits at the inline-start edge, so in RTL it lands 1px past the right
+    // of the viewport and reads as overflow in Arabic and nowhere else.
+    if (r.width <= 1 || r.height <= 1) continue
     const cs = getComputedStyle(el)
     if (cs.visibility === 'hidden' || cs.opacity === '0') continue
     // Overflow: sticks out past the viewport by more than a rounding error.
@@ -79,9 +93,14 @@ const PROBE = `(() => {
     }
     if (el.children.length === 0 && el.innerText && parseFloat(cs.fontSize) < 12) out.tiny++
   }
-  const burger = document.querySelector('[aria-controls*="menu" i], button[aria-label*="menu" i]')
+  // aria-expanded, not the aria-label: the burger's label is localized
+  // ("Menü", "menú", "القائمة"), so a label match reports "unknown" on exactly
+  // the locales an RTL/i18n pass exists to check.
+  const burger = document.querySelector('button[aria-controls*="menu" i], button[aria-label*="menu" i]')
   const desktopNav = [...document.querySelectorAll('header nav, [class*="header"] nav')].find((n) => n.offsetParent !== null && n.getBoundingClientRect().width > 200)
   out.nav = burger && burger.offsetParent !== null ? 'burger' : desktopNav ? 'desktop' : 'unknown'
+  out.dir = document.documentElement.getAttribute('dir') || getComputedStyle(document.documentElement).direction
+  out.lang = document.documentElement.lang
   out.overflow = out.overflow.slice(0, 8)
   out.small = out.small.slice(0, 20)
   return out
@@ -140,7 +159,7 @@ const run = async () => {
       try {
         await cdp.send('Page.enable')
         await cdp.send('Emulation.setDeviceMetricsOverride', {
-          width: vp.width, height: vp.height, deviceScaleFactor: 1, mobile: false,
+          width: vp.width, height: vp.height, deviceScaleFactor: 1, mobile: Boolean(vp.mobile),
         })
         // Two emulated media settings, both deliberate:
         //  - light, because the comps are light and headless Chrome reports
@@ -150,7 +169,7 @@ const run = async () => {
         //    opacity-0 start state and the shot comes out blank below the fold.
         await cdp.send('Emulation.setEmulatedMedia', {
           features: [
-            { name: 'prefers-color-scheme', value: 'light' },
+            { name: 'prefers-color-scheme', value: SCHEME },
             { name: 'prefers-reduced-motion', value: 'reduce' },
           ],
         })
@@ -175,7 +194,7 @@ const run = async () => {
         const evaluated = await cdp.send('Runtime.evaluate', { expression: PROBE, returnByValue: true })
         if (evaluated.exceptionDetails) throw new Error(evaluated.exceptionDetails.exception?.description ?? 'probe failed')
         const { result } = evaluated
-        const name = `${vp.name}${path === '/' ? '-home' : path.replace(/\//g, '-')}`
+        const name = `${SCHEME}-${vp.name}${path === '/' ? '-home' : path.replace(/\//g, '-')}`
         const shot = await cdp.send('Page.captureScreenshot', {
           format: 'png', captureBeyondViewport: true, optimizeForSpeed: true,
         })
@@ -183,7 +202,7 @@ const run = async () => {
         results.push({ viewport: vp.name, group: vp.group, size: `${vp.width}x${vp.height}`, path, ...result.value })
         const r = result.value
         console.log(
-          `${vp.name.padEnd(22)} ${path.padEnd(38)} nav=${String(r.nav).padEnd(8)} overflow=${r.overflow.length} small-targets=${r.small.length} tiny-text=${r.tiny}`,
+          `${vp.name.padEnd(22)} ${path.padEnd(24)} dir=${String(r.dir).padEnd(4)} nav=${String(r.nav).padEnd(8)} overflow=${r.overflow.length} small-targets=${r.small.length} tiny-text=${r.tiny}`,
         )
       } finally {
         cdp.close()

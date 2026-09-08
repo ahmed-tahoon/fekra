@@ -1228,17 +1228,17 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
   const stats = block.stats ?? []
 
   /*
-   * TL-1 — the section stays in the CMS as a placeholder, but it does not go
-   * public until there is real content to show.
+   * TL-1 — attribution here is role + country, never a personal name or a face.
    *
-   * A testimonial names a person, their job title and their employer, and puts
-   * words in their mouth. Invented ones are not neutral filler the way lorem
-   * ipsum is: on a live commercial site they read as genuine endorsements from
-   * real people at real companies. FEKRA will supply ten real profiles, and
-   * until then rendering nothing is the only honest state.
+   * A testimonial that names a person and shows their photo reads as a real,
+   * checkable endorsement; when the name and the portrait are generated, that
+   * is a fabricated reference, not neutral filler. Dropping both keeps the
+   * quote's substance and drops the claim that a specific identifiable person
+   * said it. `authorName` therefore carries the ROLE (the emphasised line) and
+   * `authorRole` the country.
    *
-   * Empty means "not ready", not "broken" — the heading and eyebrow are held in
-   * the CMS and reappear the moment items exist.
+   * Empty still means "not ready", not "broken" — the heading and eyebrow live
+   * in the CMS and the section reappears the moment items exist.
    */
   if (!items.length) return null
 
@@ -1263,12 +1263,14 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
         </div>
 
         {/* Three across, then a narrow card beside a wide one — the comp's
-            rhythm. A six-column grid expresses it without per-row markup: the
-            first three span two each, then two and four. */}
+            rhythm. A six-column grid expresses it without per-row markup: four
+            cards span two columns each, the fifth spans four. The pattern
+            repeats every five so any number of quotes keeps full rows; the
+            original fixed indices only tiled correctly for exactly five. */}
         <ul className="grid gap-6 md:grid-cols-6">
           {items.map((item, i) => {
             const avatar = item.avatar as MediaDoc | undefined
-            const span = i < 3 ? 'md:col-span-2' : i === 3 ? 'md:col-span-2' : 'md:col-span-4'
+            const span = i % 5 === 4 ? 'md:col-span-4' : 'md:col-span-2'
             return (
               <li
                 key={i}
@@ -1861,7 +1863,12 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
             <span className="block truncate font-display text-base font-bold text-navy-800 dark:text-foreground">
               {person.name}
             </span>
-            <span className="block truncate text-xs text-ink-500 dark:text-muted-foreground">
+            {/* The name truncates, the role wraps. 130px of text column fits
+                nine of the twelve role titles; "Senior Backend Engineer" and
+                friends need 143px, and a cut-off job title reads worse than a
+                second line. Cards in a row stretch to the tallest, so the row
+                stays level. */}
+            <span className="block text-xs text-ink-500 dark:text-muted-foreground">
               {person.role}
             </span>
           </span>

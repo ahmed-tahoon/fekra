@@ -51,12 +51,14 @@ export function MobileNav({
         onClick={() => setOpen(true)}
         aria-label={dict.nav.openMenu}
         aria-expanded={open}
+        aria-controls="mobile-menu"
         className="grid size-11 place-items-center rounded-pill text-foreground hover:bg-background-subtle xl:hidden"
       >
         <Menu className="size-6" aria-hidden />
       </button>
 
       <dialog
+        id="mobile-menu"
         ref={dialogRef}
         onClose={() => setOpen(false)}
         onCancel={() => setOpen(false)}
