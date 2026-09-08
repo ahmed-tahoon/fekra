@@ -1898,7 +1898,7 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
   }
 
   const copy = (
-    <div className="flex w-full flex-col gap-8 lg:w-[480px] lg:shrink-0">
+    <div className="flex w-full flex-col gap-8 lg:w-[420px] lg:shrink-0 xl:w-[480px]">
       {block.eyebrow ? (
         <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
           {block.eyebrow}
@@ -2013,8 +2013,12 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
     <section id={block.anchor ?? undefined} className="section">
       <div
         className={cn(
-          'container-site flex flex-col items-center gap-12 xl:flex-row xl:justify-between xl:gap-16',
-          copyRight && 'xl:flex-row-reverse',
+          // Two columns from lg, not xl. The copy column is a fixed 480px, so
+          // between 1024 and 1280 the old rule left it stranded in the middle
+          // of a wide viewport with the panel stacked underneath — the tablet
+          // "not using the full width" complaint. 480 + gap + panel fits 1024.
+          'container-site flex flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-10 xl:gap-16',
+          copyRight && 'lg:flex-row-reverse',
         )}
       >
         {copy}

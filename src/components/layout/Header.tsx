@@ -84,7 +84,7 @@ export function Header({
           "Contact Us" and "Meet Fika AI" wrapped onto two and three lines,
           leaving a broken two-storey header (16.3). 1280px fits it.
         */}
-        <nav aria-label="Main" className="hidden xl:block">
+        <nav aria-label="Main" className="hidden lg:block">
           <ul className="flex items-center gap-4">
             {items.map((item) => {
               const mega = item.children.length && servicesMenu?.length ? servicesMenu : null
@@ -184,7 +184,7 @@ export function Header({
 
           <ThemeToggle label={dict.theme.toggle} />
 
-          <div className="hidden xl:flex xl:items-center xl:gap-2 xl:ps-1">
+          <div className="hidden lg:flex lg:items-center lg:gap-2 lg:ps-1">
             {ctas.map((cta) => (
               <LinkButton
                 key={cta.link!.href}
