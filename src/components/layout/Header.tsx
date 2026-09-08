@@ -83,8 +83,13 @@ export function Header({
           seven links, the language and theme controls and the CTA — and
           "Contact Us" and "Meet Fika AI" wrapped onto two and three lines,
           leaving a broken two-storey header (16.3). 1280px fits it.
+
+          Re-measured: the seven labels need ~560px even with nowrap, plus a
+          205px lockup and ~290px of controls — ~1055px against 942 available.
+          Tightening the gap and the CTA does not close a 113px deficit, so this
+          stays at `xl` until the nav loses an item.
         */}
-        <nav aria-label="Main" className="hidden lg:block">
+        <nav aria-label="Main" className="hidden xl:block">
           <ul className="flex items-center gap-4">
             {items.map((item) => {
               const mega = item.children.length && servicesMenu?.length ? servicesMenu : null
@@ -184,7 +189,7 @@ export function Header({
 
           <ThemeToggle label={dict.theme.toggle} />
 
-          <div className="hidden lg:flex lg:items-center lg:gap-2 lg:ps-1">
+          <div className="hidden xl:flex xl:items-center xl:gap-2 xl:ps-1">
             {ctas.map((cta) => (
               <LinkButton
                 key={cta.link!.href}

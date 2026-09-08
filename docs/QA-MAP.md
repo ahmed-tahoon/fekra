@@ -167,8 +167,9 @@ normalisation, 94 keys × 5 locales). `/ar` renders `lang="ar" dir="rtl"` with A
 
 ## 15. Dark / light mode — ✅
 
-`next-themes` writes the class before paint, so no theme flash. System default on first
-visit, manual choice remembered. Full semantic token set for both themes; the dark primary
+`next-themes` writes the class before paint, so no theme flash. **Light** on first visit —
+the comps are light, so a dark-mode device still lands on the signed-off design; `enableSystem`
+is off, which is what stops the OS preference winning. Manual choice remembered thereafter. Full semantic token set for both themes; the dark primary
 uses a dark foreground to stay above 4.5:1. Logo has separate light/dark slots.
 
 ## 16. Responsive — 🔧
