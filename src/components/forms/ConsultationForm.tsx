@@ -135,7 +135,7 @@ export function ConsultationForm({
             <legend className="text-base text-ink-900 dark:text-foreground">Choose one hiring model</legend>
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
               {MODELS.map((model) => (
-                <label key={model} className="flex items-center gap-2 text-sm text-ink-900 dark:text-foreground">
+                <label key={model} className="flex min-h-11 items-center gap-2 text-sm text-ink-900 dark:text-foreground">
                   <input type="radio" name="model" value={model} className="size-[18px] accent-primary" />
                   {model}
                 </label>
@@ -143,8 +143,8 @@ export function ConsultationForm({
             </div>
           </fieldset>
 
-          <label className="mt-4 flex items-start gap-3 text-xs text-muted-foreground">
-            <input type="checkbox" name="consent" required className="mt-0.5 size-4" />
+          <label className="mt-4 flex min-h-11 items-start gap-3 text-sm text-muted-foreground">
+            <input type="checkbox" name="consent" required className="mt-0.5 size-5" />
             <span>{dict.form.consent}</span>
           </label>
 

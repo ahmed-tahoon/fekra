@@ -20,7 +20,11 @@ export type HeaderData = {
   announcement?: { enabled?: boolean; text?: string; link?: PayloadLink } | null
 }
 
-export type ServicesMenu = { title: string; slug: string; roles: string[] }[]
+export type ServicesMenu = {
+  title: string
+  slug: string
+  roles: { title: string; slug: string }[]
+}[]
 
 export function Header({
   data,
@@ -48,7 +52,9 @@ export function Header({
     .map((c) => ({ variant: c.variant ?? 'primary', link: resolveLink(c.link, locale) }))
     .filter((c) => c.link)
 
-  const announcement = data.announcement?.enabled ? resolveLink(data.announcement.link, locale) : null
+  const announcement = data.announcement?.enabled
+    ? resolveLink(data.announcement.link, locale)
+    : null
 
   return (
     <>
@@ -73,7 +79,11 @@ export function Header({
 
       <HeaderShell>
         {/* The Figma lockup (1:14126); the CMS logo uploads are no longer used. */}
-        <Link href={localeHref(locale, '/')} className="flex shrink-0 items-center gap-2" aria-label={siteName}>
+        <Link
+          href={localeHref(locale, '/')}
+          className="flex min-h-11 shrink-0 items-center gap-2"
+          aria-label={siteName}
+        >
           <BrandLogo />
         </Link>
 
@@ -100,7 +110,10 @@ export function Header({
                     <>
                       {/* Invisible bridge so the pointer can travel from the link
                           down to the panel without leaving the hover group. */}
-                      <span aria-hidden className="invisible absolute -inset-x-10 top-full h-8 group-hover:visible" />
+                      <span
+                        aria-hidden
+                        className="invisible absolute -inset-x-10 top-full h-8 group-hover:visible"
+                      />
                       {/*
                        * The pill's backdrop-blur makes it the containing block
                        * for fixed descendants, so `fixed inset-x-0 top-full`
@@ -132,12 +145,12 @@ export function Header({
                                   </Link>
                                   <ul className="mt-2 flex flex-col gap-1.5 border-s border-border ps-3">
                                     {svc.roles.map((role) => (
-                                      <li key={role}>
+                                      <li key={`${role.slug}:${role.title}`}>
                                         <Link
-                                          href={href}
+                                          href={localeHref(locale, `/services/${role.slug}`)}
                                           className="block text-[13px]/5 text-muted-foreground transition-colors hover:text-primary"
                                         >
-                                          {role}
+                                          {role.title}
                                         </Link>
                                       </li>
                                     ))}
@@ -146,7 +159,9 @@ export function Header({
                               )
                             })}
                             <div className="break-inside-avoid rounded-xl border border-brand-200 p-4 text-center dark:border-border">
-                              <p className="text-sm/6 font-medium text-navy-800 dark:text-foreground">{dict.nav.buildTeam}</p>
+                              <p className="text-sm/6 font-medium text-navy-800 dark:text-foreground">
+                                {dict.nav.buildTeam}
+                              </p>
                               <Link
                                 href={localeHref(locale, '/services/hire-dedicated-developers')}
                                 className="mt-3 inline-block rounded-pill bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
@@ -168,7 +183,9 @@ export function Header({
                           >
                             <span className="block text-sm font-medium">{child.link!.label}</span>
                             {child.description ? (
-                              <span className="block text-xs text-muted-foreground">{child.description}</span>
+                              <span className="block text-xs text-muted-foreground">
+                                {child.description}
+                              </span>
                             ) : null}
                           </Link>
                         </li>

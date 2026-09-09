@@ -202,6 +202,7 @@ function SplitHero({ block, locale, isFirst }: { block: BlockProps; locale: Loca
           width={384}
           height={417}
           priority={isFirst}
+          style={{ height: 'auto' }}
           className="mx-auto h-auto w-[clamp(240px,28.5vw,410px)] object-contain md:mx-0"
         />
       </div>
@@ -621,6 +622,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                     alt={badge.name}
                     width={296}
                     height={125}
+                    style={{ width: 'auto' }}
                     className="h-[92px] w-auto object-contain sm:h-[125px]"
                   />
                 </li>
@@ -844,6 +846,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                           width={120}
                           height={120}
                           aria-hidden
+                          style={{ width: 'auto' }}
                           className="max-h-[120px] w-auto object-contain"
                         />
                       </span>
@@ -1223,23 +1226,139 @@ export function ProcessSection({ block }: { block: BlockProps }) {
   )
 }
 
+/*
+ * The supplied testimonial artwork contains finished cards rather than loose
+ * headshots. Keeping those full-size screenshots in the page would duplicate
+ * the quote text and make it unreadably small, so their portraits are cropped
+ * into compact, local WebP avatars. Quote matching lets the existing CMS data
+ * stay authoritative while enriching this known set with its supplied person.
+ */
+const TESTIMONIAL_PROFILES = [
+  {
+    quoteKey: 'fekra transformed our legacy platform',
+    name: 'Omar Khalid',
+    role: 'CTO',
+    country: 'UAE',
+    avatar: '/images/testimonials/omar-khalid.webp',
+  },
+  {
+    quoteKey: 'fekra quickly understood our needs',
+    name: 'Emily Carter',
+    role: 'VP of Product',
+    country: 'Canada',
+    avatar: '/images/testimonials/emily-carter.webp',
+  },
+  {
+    quoteKey: 'working with fekra has been a game changer',
+    name: 'Lukas Weber',
+    role: 'Head of Engineering',
+    country: 'Germany',
+    avatar: '/images/testimonials/lukas-weber.webp',
+  },
+  {
+    quoteKey: 'fekra has been a trusted partner for us',
+    name: 'Abdullah Al Saud',
+    role: 'IT Director',
+    country: 'Saudi Arabia',
+    avatar: '/images/testimonials/abdullah-al-saud.webp',
+  },
+  {
+    quoteKey: 'fekra has consistently delivered highly skilled talent',
+    name: 'Jessica Brown',
+    role: 'Talent Acquisition Manager',
+    country: 'United Kingdom',
+    avatar: '/images/testimonials/jessica-brown.webp',
+  },
+  {
+    quoteKey: 'the fekra team brought a level of commitment',
+    name: 'Michael Turner',
+    role: 'Chief Technology Officer',
+    country: 'United States',
+    avatar: '/images/testimonials/michael-turner.webp',
+  },
+  {
+    quoteKey: 'fekra brought a strong mix of professionalism',
+    name: 'Aiko Tanaka',
+    role: 'Operations Director',
+    country: 'Japan',
+    avatar: '/images/testimonials/aiko-tanaka.webp',
+  },
+  {
+    quoteKey: 'fekra has been instrumental in helping us scale',
+    name: 'Sofia Martinez',
+    role: 'Product Manager',
+    country: 'Spain',
+    avatar: '/images/testimonials/sofia-martinez.webp',
+  },
+  {
+    quoteKey: 'fekra brought strong ownership',
+    name: 'Priya Nair',
+    role: 'Director of Delivery',
+    country: 'India',
+    avatar: '/images/testimonials/priya-nair.webp',
+  },
+  {
+    quoteKey: 'fekra consistently brought strong technical judgment',
+    name: 'Daniel Okafor',
+    role: 'Engineering Director',
+    country: 'Nigeria',
+    avatar: '/images/testimonials/daniel-okafor.webp',
+  },
+  {
+    quoteKey: 'fekra stands out for their deep technical expertise',
+    name: 'Daniel Tan',
+    role: 'Engineering Manager',
+    country: 'Singapore',
+    avatar: '/images/testimonials/daniel-tan.webp',
+  },
+  {
+    quoteKey: 'working with fekra has been a seamless experience. they are organized',
+    name: 'James Carter',
+    role: 'Head of Product',
+    country: 'Canada',
+    avatar: '/images/testimonials/james-carter.webp',
+  },
+  {
+    quoteKey: 'working with fekra has been a seamless experience. they quickly understood',
+    name: 'Lina Haddad',
+    role: 'Operations Manager',
+    country: 'UAE',
+    avatar: '/images/testimonials/lina-haddad.webp',
+  },
+  {
+    quoteKey: 'fekra understands our technical needs',
+    name: 'Omar Khalil',
+    role: 'CTO',
+    country: 'Egypt',
+    avatar: '/images/testimonials/omar-khalil.webp',
+  },
+  {
+    quoteKey: 'fekra consistently delivers high-quality work',
+    name: 'Rafael Costa',
+    role: 'Chief Technology Officer',
+    country: 'Brazil',
+    avatar: '/images/testimonials/rafael-costa.webp',
+  },
+] as const
+
+function testimonialProfile(quote?: string) {
+  const normalized = quote
+    ?.toLowerCase()
+    .replace(/[“”"]/g, '')
+    .replace(/[’]/g, "'")
+    .trim()
+
+  return TESTIMONIAL_PROFILES.find((profile) => normalized?.includes(profile.quoteKey))
+}
+
 export function TestimonialsSection({ block }: { block: BlockProps }) {
-  const items = block.items ?? []
+  // The approved composition is a single five-card set. Extra CMS entries stay
+  // available for future rotation without lengthening this section.
+  const items = (block.items ?? []).slice(0, 5)
   const stats = block.stats ?? []
 
-  /*
-   * TL-1 — attribution here is role + country, never a personal name or a face.
-   *
-   * A testimonial that names a person and shows their photo reads as a real,
-   * checkable endorsement; when the name and the portrait are generated, that
-   * is a fabricated reference, not neutral filler. Dropping both keeps the
-   * quote's substance and drops the claim that a specific identifiable person
-   * said it. `authorName` therefore carries the ROLE (the emphasised line) and
-   * `authorRole` the country.
-   *
-   * Empty still means "not ready", not "broken" — the heading and eyebrow live
-   * in the CMS and the section reappears the moment items exist.
-   */
+  /* Empty still means "not ready", not "broken" — the section reappears as
+     soon as the CMS contains at least one testimonial. */
   if (!items.length) return null
 
   return (
@@ -1263,14 +1382,15 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
         </div>
 
         {/* Three across, then a narrow card beside a wide one — the comp's
-            rhythm. A six-column grid expresses it without per-row markup: four
-            cards span two columns each, the fifth spans four. The pattern
-            repeats every five so any number of quotes keeps full rows; the
-            original fixed indices only tiled correctly for exactly five. */}
+            exact five-card rhythm. */}
         <ul className="grid gap-6 md:grid-cols-6">
           {items.map((item, i) => {
             const avatar = item.avatar as MediaDoc | undefined
-            const span = i % 5 === 4 ? 'md:col-span-4' : 'md:col-span-2'
+            const profile = testimonialProfile(item.quote)
+            const avatarSrc = profile?.avatar ?? (avatar?.url ? mediaUrl(avatar) : undefined)
+            const authorName = profile?.name ?? item.authorName
+            const authorRole = profile ? `${profile.role} · ${profile.country}` : item.authorRole
+            const span = i === 4 ? 'md:col-span-4' : 'md:col-span-2'
             return (
               <li
                 key={i}
@@ -1293,22 +1413,23 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
                   </blockquote>
                 </figure>
                 <figcaption className="flex items-center gap-3">
-                  {avatar ? (
+                  {avatarSrc ? (
                     <Image
-                      src={mediaUrl(avatar)}
+                      src={avatarSrc}
                       alt=""
                       width={40}
                       height={40}
                       aria-hidden
+                      sizes="40px"
                       className="size-10 shrink-0 rounded-pill object-cover"
                     />
                   ) : null}
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold text-navy-800 dark:text-foreground">
-                      {item.authorName}
+                      {authorName}
                     </span>
                     <span className="block truncate text-xs text-ink-500 dark:text-muted-foreground">
-                      {item.authorRole}
+                      {authorRole}
                     </span>
                   </span>
                 </figcaption>
@@ -1469,6 +1590,7 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
               alt={mediaAlt(media)}
               width={384}
               height={417}
+              style={{ height: 'auto' }}
               className="h-auto w-[280px] rounded-[30px] object-contain sm:w-[384px]"
             />
           ) : null}
@@ -1540,6 +1662,7 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
                 alt={mediaAlt(media)}
                 width={300}
                 height={326}
+                style={{ height: 'auto' }}
                 className="mx-auto h-auto w-[clamp(180px,22vw,300px)] object-contain"
               />
             ) : null}
@@ -1816,12 +1939,12 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
   const people = block.people ?? []
   const copyRight = block.side === 'copyRight'
 
-  /*
-   * The comp runs two rows of the same engineers in a different order. Rotating
-   * the list gives that for free, so a second panel never needs its people
-   * entered twice in the CMS.
-   */
-  const rows = people.length ? [people, [...people.slice(1), ...people.slice(0, 1)]] : []
+  // Each person belongs to one row. Only the hidden animation copy repeats
+  // the row, so different cards never share the same profile.
+  const rows = [
+    people.filter((_, index) => index % 2 === 0),
+    people.filter((_, index) => index % 2 === 1),
+  ].filter((row) => row.length)
 
   const card = (
     person: NonNullable<BlockProps['people']>[number],
@@ -1910,8 +2033,10 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
           Other locales keep the comp's two-line break. */}
       <h2
         className={cn(
-          'font-display leading-[1.05] font-bold',
-          locale === 'ar' ? 'text-[clamp(1.75rem,3vw,2.375rem)]' : 'text-[clamp(2rem,4vw,3rem)]',
+          'font-display font-bold',
+          locale === 'ar' ? 'text-[clamp(1.75rem,3vw,2.375rem)]' : 'text-[clamp(2rem,4vw,2.5rem)]',
+          // Keep leading after the arbitrary font size so cn retains it.
+          'leading-[1.05]',
         )}
       >
         {/* Teal to indigo clipped to the text — the hero's treatment. */}
@@ -1966,7 +2091,7 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
         // side-by-side row only fits from `xl`. At `lg` (iPad landscape) the
         // copy column plus this panel came to ~1230px in a 1024px window and
         // both marquee stages bled off the edges (16.3).
-        'fk-marquee-stage w-full overflow-hidden rounded-[40px] p-6 sm:p-10 xl:w-[652px] xl:shrink-0',
+        'fk-marquee-stage w-full max-w-[652px] overflow-hidden rounded-[40px] p-6 sm:p-10 xl:w-[652px] xl:shrink-0',
         block.panelTone === 'mint' ? 'bg-panel-mint' : 'bg-panel-grey',
         'dark:bg-background-subtle',
       )}

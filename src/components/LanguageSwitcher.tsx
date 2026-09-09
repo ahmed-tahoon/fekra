@@ -3,7 +3,7 @@
 import { Check, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { LOCALES, PUBLIC_LOCALES, LOCALE_META, type Locale, localeHref, splitLocale } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
@@ -29,19 +29,59 @@ export function LanguageSwitcher({
   const router = useRouter()
 
   /*
-   * The moment the menu opens, warm every switch target. Links inside a
-   * closed dropdown are never in the viewport, so automatic prefetch cannot
-   * help here — by the time the user has read the options, the RSC payloads
-   * are already in the router cache and the switch is a swap, not a reload.
-   * (Prefetch is a no-op in dev; production is where this lands.)
+   * Links inside a closed dropdown are never in the viewport, so automatic
+   * prefetch cannot help here. Warm language targets when the browser is idle,
+   * again on visible user intent, and immediately when the menu opens. In
+   * production this gets the RSC payloads into the router cache before the
+   * click; in dev, Next.js keeps prefetch intentionally limited.
    */
+  const approved = useMemo(
+    () => new Set<Locale>(available?.length ? (available as Locale[]) : [...PUBLIC_LOCALES]),
+    [available],
+  )
+  const enabled = useMemo(
+    () => new Set<Locale>([...PUBLIC_LOCALES].filter((l) => approved.has(l))),
+    [approved],
+  )
+  const switchTargets = useMemo(
+    () =>
+      [...PUBLIC_LOCALES]
+        .filter((l) => enabled.has(l) && l !== current)
+        .map((locale) => localeHref(locale, rest)),
+    [current, enabled, rest],
+  )
+  const prefetchTargets = useCallback(() => {
+    for (const href of switchTargets) router.prefetch(href)
+  }, [router, switchTargets])
+
+  useEffect(() => {
+    if (!switchTargets.length) return
+
+    let cancelled = false
+    const warm = () => {
+      if (cancelled) return
+      prefetchTargets()
+    }
+
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(warm, { timeout: 1500 })
+      return () => {
+        cancelled = true
+        window.cancelIdleCallback(id)
+      }
+    }
+
+    const id = globalThis.setTimeout(warm, 750)
+    return () => {
+      cancelled = true
+      globalThis.clearTimeout(id)
+    }
+  }, [prefetchTargets, switchTargets.length])
+
   useEffect(() => {
     if (!open) return
-    const approved = new Set<Locale>(available?.length ? (available as Locale[]) : [...PUBLIC_LOCALES])
-    for (const l of PUBLIC_LOCALES) {
-      if (approved.has(l) && l !== current) router.prefetch(localeHref(l, rest))
-    }
-  }, [open, available, current, rest, router])
+    prefetchTargets()
+  }, [open, prefetchTargets])
 
   useEffect(() => {
     if (!open) return
@@ -70,14 +110,13 @@ export function LanguageSwitcher({
    * unserved locale stays visibly disabled rather than silently handing the
    * visitor translated chrome wrapped around English content (14.9).
    */
-  const approved = new Set<Locale>(available?.length ? (available as Locale[]) : [...PUBLIC_LOCALES])
-  const enabled = new Set<Locale>([...PUBLIC_LOCALES].filter((l) => approved.has(l)))
-
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        onFocus={prefetchTargets}
+        onPointerEnter={prefetchTargets}
         aria-label={labels.switch}
         aria-expanded={open}
         aria-haspopup="menu"

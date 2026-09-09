@@ -9,7 +9,7 @@ const ACTIVE_PILL =
 const IDLE_PILL =
   'border-slate-200 bg-white/70 text-slate-600 hover:border-blog-500/50 hover:text-blog-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'
 
-const BASE = 'rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap transition-all'
+const BASE = 'min-h-11 rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap transition-all'
 
 function Pill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (

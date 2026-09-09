@@ -48,7 +48,9 @@ export function ContactSection({
               {block.heading ?? dict.contact.title}
             </span>
           </Heading>
-          {block.body ? <p className="max-w-2xl text-lg text-muted-foreground">{block.body}</p> : null}
+          {block.body ? (
+            <p className="max-w-2xl text-lg text-muted-foreground">{block.body}</p>
+          ) : null}
         </div>
 
         <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,489fr)_minmax(0,655fr)]">
@@ -82,5 +84,4 @@ export function ContactSection({
       </div>
     </section>
   )
-
 }

@@ -63,7 +63,7 @@ export function NewsletterPanel({ dict, locale }: { dict: Dictionary; locale: Lo
               required
               autoComplete="email"
               placeholder={dict.form.email}
-              className="h-12 flex-1 rounded-full border border-white/30 bg-white/15 px-5 text-sm text-white backdrop-blur outline-none placeholder:text-white/70 focus:border-white focus:bg-white/20"
+              className="h-12 w-full rounded-full border border-white/30 bg-white/15 px-5 text-sm text-white backdrop-blur outline-none placeholder:text-white/70 focus:border-white focus:bg-white/20 sm:flex-1"
             />
             <button
               type="submit"

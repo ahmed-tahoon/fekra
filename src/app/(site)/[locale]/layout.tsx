@@ -9,7 +9,6 @@ import { JsonLd } from '@/components/JsonLd'
 import { Footer, type FooterData } from '@/components/layout/Footer'
 import { Header, type HeaderData } from '@/components/layout/Header'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
-import { ScrollReveal } from '@/components/ScrollReveal'
 import { BookingDrawer } from '@/components/booking/BookingDrawer'
 import { TalkToFika } from '@/components/layout/TalkToFika'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
@@ -123,21 +122,49 @@ export default async function SiteLayout({
     getGlobal<HeaderData>('header', locale),
     getGlobal<FooterData>('footer', locale),
     getGlobal<SiteSettings>('site-settings', locale),
-    findDocs<{ title: string; slug: string; menuRoles?: { label: string }[] | null }>({
+    findDocs<{
+      id: string | number
+      title: string
+      slug: string
+      parent?: string | number | { id: string | number } | null
+      menuRoles?: { label: string }[] | null
+    }>({
       collection: 'services',
       locale,
-      limit: 24,
+      limit: 100,
       depth: 0,
       sort: 'order',
-      // Runs on every page — keep it to the three columns the menu shows.
-      select: { title: true, slug: true, menuRoles: true, order: true },
+      // Runs on every page — keep it to the fields the menu and its child
+      // destinations need. Role links point at their SEO pages, not the parent.
+      select: { title: true, slug: true, parent: true, menuRoles: true, order: true },
     }),
   ])
 
+  const parentId = (service: (typeof servicesDocs.docs)[number]) =>
+    typeof service.parent === 'object' ? service.parent?.id : service.parent
+
   // Only services with roles form groups in the header's Services mega-menu.
-  const servicesMenu = servicesDocs.docs
+  // A CMS role without a child document still falls back to the parent page,
+  // so editors can stage a label before its landing page is published.
+  const uniqueServices = Array.from(
+    new Map(servicesDocs.docs.map((service) => [service.slug, service])).values(),
+  )
+
+  const servicesMenu = uniqueServices
     .filter((s) => s.menuRoles?.length)
-    .map((s) => ({ title: s.title, slug: s.slug, roles: (s.menuRoles ?? []).map((r) => r.label) }))
+    .map((service) => {
+      const children = uniqueServices.filter((candidate) => parentId(candidate) === service.id)
+      return {
+        title: service.title,
+        slug: service.slug,
+        roles: (service.menuRoles ?? []).map((role) => {
+          const child = children.find(
+            (candidate) => candidate.title.toLowerCase() === role.label.toLowerCase(),
+          )
+          return { title: role.label, slug: child?.slug ?? service.slug }
+        }),
+      }
+    })
 
   const siteName = settings.siteName ?? 'FEKRA'
   const logoUrl = settings.logoLight?.url ? mediaUrl(settings.logoLight) : null
@@ -148,6 +175,7 @@ export default async function SiteLayout({
       lang={locale}
       dir={dir(locale)}
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
       className={`${urbanist.variable} ${inter.variable} ${tajawal.variable} ${plexArabic.variable}`}
     >
       <head>
@@ -162,49 +190,21 @@ export default async function SiteLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;" +
+              'window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;' +
               "gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});",
           }}
         />
       </head>
       <body className="min-h-dvh antialiased">
-        {/*
-          Splash. Emitted as raw HTML so React never hydrates its contents: the
-          inline script deletes the splash node, and a React-managed node that
-          vanishes mid-hydration gets resurrected by React's mismatch recovery
-          — a splash that then never disappears. The outer div stays; only its
-          (opaque to React) children are removed. The script fades the splash
-          out on `load`, caps the wait at 2.5s, and skips repeat views in the
-          same tab; <noscript> hides it when the script will never run.
-        */}
-        <div
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html:
-              '<div id="fk-splash" aria-hidden="true">' +
-              // width/height so the pulse has a box before the bytes land.
-              // Both logos are eager: `loading="lazy"` on the dark one was meant
-              // to spare light-mode visitors its 23 KiB, but Chrome fetches a
-              // lazy image it cannot position (display:none) anyway — the
-              // 05 Sep 2026 Lighthouse trace shows both files downloaded, with
-              // the deferred one becoming the LCP element on /about at 6.5 s.
-              '<img src="/images/fekra-logo.webp" alt="" width="663" height="198" fetchpriority="high" class="fk-splash-logo dark:hidden"/>' +
-              '<img src="/images/fekra-logo-white.webp" alt="" width="680" height="199" fetchpriority="high" class="fk-splash-logo hidden dark:block"/>' +
-              '</div>' +
-              '<noscript><style>#fk-splash{display:none}</style></noscript>' +
-              "<script>(function(){var s=document.getElementById('fk-splash');if(!s)return;" +
-              "try{if(sessionStorage.getItem('fk-splash')){s.remove();return}sessionStorage.setItem('fk-splash','1')}catch(e){}" +
-              'var t=Date.now(),done=false;' +
-              'function hide(){if(done)return;done=true;var d=Math.max(0,700-(Date.now()-t));' +
-              "setTimeout(function(){s.classList.add('is-done');setTimeout(function(){s.remove()},500)},d)}" +
-              "if(document.readyState==='complete')hide();else window.addEventListener('load',hide);" +
-              'setTimeout(hide,2500)})();</script>',
-          }}
-        />
         <SmoothScroll />
-        <ScrollReveal />
         <ThemeProvider>
-          <Header data={header} locale={locale} dict={dict} siteName={siteName} servicesMenu={servicesMenu} />
+          <Header
+            data={header}
+            locale={locale}
+            dict={dict}
+            siteName={siteName}
+            servicesMenu={servicesMenu}
+          />
 
           <main id="main">{children}</main>
 

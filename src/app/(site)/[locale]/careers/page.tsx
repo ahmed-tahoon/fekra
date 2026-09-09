@@ -8,7 +8,7 @@ import { findDocs } from '@/lib/payload'
 import { buildMetadata } from '@/lib/seo'
 
 import type { JobDoc } from '../page-types'
-import { CareersCta, RoleRow, SectionLabel } from './parts'
+import { CareersCta, HiringProcess, RoleRow, SectionLabel } from './parts'
 
 export const revalidate = 900
 
@@ -16,7 +16,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const dict = await getDictionary(locale)
-  return buildMetadata({ title: dict.careers.title, description: dict.careers.heroBody, path: '/careers', locale })
+  return buildMetadata({
+    title: dict.careers.title,
+    description: dict.careers.heroBody,
+    path: '/careers',
+    locale,
+  })
 }
 
 export default async function CareersIndex({ params }: { params: Promise<{ locale: string }> }) {
@@ -58,7 +63,9 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
         />
         <div className="container-site">
           <div className="max-w-[680px]">
-            <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{dict.careers.eyebrow}</p>
+            <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
+              {dict.careers.eyebrow}
+            </p>
             <h1 className="mt-4 font-display text-[clamp(2rem,4.8vw,3.5rem)] leading-[1.08] font-bold tracking-[-0.5px] text-balance text-navy-800 md:tracking-[-1px] dark:text-foreground">
               {dict.careers.heroTitle}
             </h1>
@@ -102,7 +109,7 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
               <p className="text-ink-500 dark:text-muted-foreground">{dict.careers.empty}</p>
               <Link
                 href={localeHref(locale, '/contact')}
-                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+                className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
               >
                 {dict.careers.noFitCta}
                 <ArrowRight className="icon-flip size-4" aria-hidden />
@@ -112,6 +119,34 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
         </div>
       </section>
 
+      <section className="section bg-background-subtle">
+        <div className="container-site">
+          <SectionLabel eyebrow={dict.careers.whyEyebrow} heading={dict.careers.whyTitle} />
+          <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              [dict.careers.why1Title, dict.careers.why1Body],
+              [dict.careers.why2Title, dict.careers.why2Body],
+              [dict.careers.why3Title, dict.careers.why3Body],
+              [dict.careers.why4Title, dict.careers.why4Body],
+            ].map(([title, body], index) => (
+              <article
+                key={title}
+                className="rounded-panel border border-border bg-card p-6 shadow-card"
+              >
+                <span aria-hidden className="font-display text-sm font-bold text-primary/60">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <h3 className="mt-6 font-display text-lg font-bold text-navy-800 dark:text-foreground">
+                  {title}
+                </h3>
+                <p className="mt-3 text-sm/6 text-ink-500 dark:text-muted-foreground">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <HiringProcess dict={dict} />
       <CareersCta dict={dict} locale={locale} />
     </>
   )

@@ -84,7 +84,7 @@ export function Footer({
     <footer className="border-t border-border bg-brand-50 dark:bg-background-subtle">
       <div className="container-site grid gap-12 py-16 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:gap-20">
         <div className="max-w-[340px]">
-          <Link href={localeHref(locale, '/')} aria-label={siteName}>
+          <Link href={localeHref(locale, '/')} className="inline-flex min-h-11 items-center" aria-label={siteName}>
             <BrandLogo />
           </Link>
           {data.blurb ? <p className="mt-5 text-sm text-muted-foreground">{data.blurb}</p> : null}
@@ -100,7 +100,7 @@ export function Footer({
                       target="_blank"
                       rel="noopener noreferrer me"
                       aria-label={s.platform}
-                      className="inline-grid size-9 place-items-center rounded-lg bg-card text-navy-800 shadow-card transition-colors hover:text-primary dark:text-foreground"
+                      className="inline-grid size-11 place-items-center rounded-lg bg-card text-navy-800 shadow-card transition-colors hover:text-primary dark:text-foreground"
                     >
                       {path ? (
                         <svg viewBox={viewBoxFor(s.platform)} fill="currentColor" className="size-[18px]" aria-hidden>
@@ -141,14 +141,14 @@ export function Footer({
             <ul className="mt-4 flex flex-col gap-3 text-sm text-muted-foreground">
               {contact.phone ? (
                 <li>
-                  <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="transition-colors hover:text-foreground">
+                  <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="inline-flex min-h-11 items-center transition-colors hover:text-foreground">
                     <span dir="ltr">{contact.phone}</span>
                   </a>
                 </li>
               ) : null}
               {contact.email ? (
                 <li>
-                  <a href={`mailto:${contact.email}`} className="transition-colors hover:text-foreground">
+                  <a href={`mailto:${contact.email}`} className="inline-flex min-h-11 items-center transition-colors hover:text-foreground">
                     <span dir="ltr">{contact.email}</span>
                   </a>
                 </li>
@@ -166,7 +166,7 @@ export function Footer({
                 if (!link) return null
                 return (
                   <li key={link.href}>
-                    <Link href={link.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                    <Link href={link.href} className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground">
                       {link.label}
                     </Link>
                   </li>
@@ -217,7 +217,7 @@ export function Footer({
             <ul className="flex flex-wrap gap-4">
               {legal.map((link) => (
                 <li key={link!.href}>
-                  <Link href={link!.href} className="transition-colors hover:text-foreground">
+                  <Link href={link!.href} className="inline-flex min-h-11 items-center transition-colors hover:text-foreground">
                     {link!.label}
                   </Link>
                 </li>
@@ -235,7 +235,7 @@ export function Footer({
                         target="_blank"
                         rel="noopener noreferrer me"
                         aria-label={s.platform}
-                        className="transition-colors hover:text-foreground"
+                        className="inline-grid size-11 place-items-center transition-colors hover:text-foreground"
                       >
                         <svg viewBox={viewBoxFor(s.platform)} fill="currentColor" className="size-4" aria-hidden>
                           <path d={path} />

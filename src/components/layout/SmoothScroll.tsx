@@ -1,57 +1,33 @@
 'use client'
 
-import type Lenis from 'lenis'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 
-/** Lerp-based smooth scrolling. Renders nothing; native scroll stays the source
- *  of truth, so scroll-driven CSS animations keep working. */
+/** Keeps route changes deterministic: every page opens at its beginning. */
 export function SmoothScroll() {
-  const lenisRef = useRef<Lenis | null>(null)
   const pathname = usePathname()
 
   useEffect(() => {
-    // 17.8 / 23.5 — someone who asked for less motion gets untouched scrolling.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    // Imported here, not at module scope: nothing needs the library until after
-    // hydration, and reduced-motion visitors never need it at all.
-    let cancelled = false
-    void import('lenis').then(({ default: LenisCtor }) => {
-      if (cancelled) return
-      lenisRef.current = new LenisCtor({
-        autoRaf: true,
-        anchors: true,
-        allowNestedScroll: true,
-        // Calmer than the 0.1 default: the page keeps gliding a beat after the
-        // wheel stops. Much below this and it reads as lag, not smoothness.
-        lerp: 0.075,
-        wheelMultiplier: 0.9,
-      })
-    })
+    const previous = history.scrollRestoration
+    history.scrollRestoration = 'manual'
     return () => {
-      cancelled = true
-      lenisRef.current?.destroy()
-      lenisRef.current = null
+      history.scrollRestoration = previous
     }
   }, [])
 
-  /*
-   * Next resets window scroll on soft navigation, but Lenis would lerp right
-   * back to where it was — resync it to the top explicitly. Skips the initial
-   * render (deep links, back/forward restore) and anchor navigations.
-   */
-  const firstRender = useRef(true)
-  useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false
-      return
+  useLayoutEffect(() => {
+    const reset = () => {
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+      window.scrollTo(0, 0)
     }
-    if (window.location.hash) return
-    // Reset natively too, not only through Lenis: on a fast navigation the
-    // library may still be loading, which left the reset depending on Next's
-    // own behaviour rather than on anything this component guarantees.
-    window.scrollTo(0, 0)
-    lenisRef.current?.scrollTo(0, { immediate: true, force: true })
+
+    // Reset before paint, then once more after Next commits the destination.
+    // The second pass handles pages whose streamed content changes the scroll
+    // range during the same navigation without producing a visible glide.
+    reset()
+    const frame = requestAnimationFrame(reset)
+    return () => cancelAnimationFrame(frame)
   }, [pathname])
 
   return null

@@ -1,14 +1,16 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 import { Field, Input, Textarea } from '@/components/ui/Field'
 import type { Dictionary } from '@/i18n/getDictionary'
 import type { Locale } from '@/i18n/routing'
+import { localeHref } from '@/i18n/routing'
 import { EVENTS, captureAttribution, track } from '@/lib/analytics'
-import { CV, validateCv } from '@/lib/validation'
+import { applicationSchema, CV, validateCv } from '@/lib/validation'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
@@ -45,15 +47,43 @@ export function ApplicationForm({
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
+    const values = Object.fromEntries(formData)
+
+    const parsed = applicationSchema.safeParse({
+      ...values,
+      jobId: String(jobId),
+      consent: values.consent === 'on',
+    })
+    const nextErrors: Record<string, string> = {}
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        const field = String(issue.path[0] ?? 'form')
+        nextErrors[field] =
+          field === 'email' ? 'email' : field === 'phone' ? 'phone' : field === 'linkedin' ? 'url' : 'required'
+      }
+    }
 
     // 10.4 — reject bad files before uploading 5 MB the server will discard.
     const file = formData.get('cv')
     if (file instanceof File) {
-      const problem = validateCv(file)
-      if (problem) {
-        setErrors({ cv: problem })
-        return
+      if (file.size === 0) {
+        nextErrors.cv = 'required'
+      } else {
+        const problem = validateCv(file)
+        if (problem) nextErrors.cv = problem
       }
+    } else {
+      nextErrors.cv = 'required'
+    }
+
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors)
+      setStatus('idle')
+      const firstField = Object.keys(nextErrors)[0]
+      requestAnimationFrame(() =>
+        form.querySelector<HTMLElement>(`[name="${firstField}"]`)?.focus(),
+      )
+      return
     }
 
     formData.set('jobId', String(jobId))
@@ -71,8 +101,13 @@ export function ApplicationForm({
       const res = await fetch('/api/apply', { method: 'POST', body: formData })
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { fields?: Record<string, string> }
-        setErrors(body.fields ?? {})
-        setStatus('error')
+        const nextErrors = body.fields ?? {}
+        setErrors(nextErrors)
+        setStatus(Object.keys(nextErrors).length ? 'idle' : 'error')
+        requestAnimationFrame(() => {
+          const firstField = Object.keys(nextErrors)[0]
+          if (firstField) form.querySelector<HTMLElement>(`[name="${firstField}"]`)?.focus()
+        })
         return
       }
       // 22.7 — no candidate PII in the event payload, only the role.
@@ -86,20 +121,35 @@ export function ApplicationForm({
 
   if (status === 'success') {
     return (
-      <div role="status" className="rounded-card border border-primary/40 bg-primary/5 p-6">
-        <p className="font-medium">{dict.form.applicationSuccess}</p>
+      <div
+        role="status"
+        aria-live="polite"
+        className="rounded-card border border-primary/40 bg-primary/5 p-6"
+      >
+        <p className="font-display text-xl font-bold text-navy-800 dark:text-foreground">
+          {dict.form.applicationSuccess}
+        </p>
+        <Link
+          href={localeHref(locale, '/careers')}
+          className="mt-5 inline-flex min-h-11 items-center rounded-pill border border-navy-800 px-5 text-sm font-semibold text-navy-800 transition-colors hover:bg-navy-800/5 dark:border-foreground dark:text-foreground"
+        >
+          {dict.careers.backToRoles}
+        </Link>
       </div>
     )
   }
 
   const messageFor = (field: string) =>
-    errors[field] ? (dict.form.errors[errors[field] as keyof typeof dict.form.errors] ?? errors[field]) : undefined
+    errors[field]
+      ? (dict.form.errors[errors[field] as keyof typeof dict.form.errors] ?? errors[field])
+      : undefined
 
   return (
     <form
       onSubmit={onSubmit}
       noValidate
       encType="multipart/form-data"
+      aria-busy={status === 'sending'}
       className="@container flex flex-col gap-4 @md:gap-5"
     >
       <div aria-hidden className="sr-only">
@@ -118,7 +168,9 @@ export function ApplicationForm({
           {(props) => <Input {...props} name="phone" type="tel" autoComplete="tel" dir="ltr" />}
         </Field>
         <Field label={dict.form.linkedin} error={messageFor('linkedin')}>
-          {(props) => <Input {...props} name="linkedin" type="url" dir="ltr" placeholder="https://" />}
+          {(props) => (
+            <Input {...props} name="linkedin" type="url" dir="ltr" placeholder="https://" />
+          )}
         </Field>
       </div>
 
@@ -143,9 +195,27 @@ export function ApplicationForm({
         {(props) => <Textarea {...props} name="coverNote" rows={4} />}
       </Field>
 
-      <label className="flex items-start gap-3 text-sm text-muted-foreground">
-        <input type="checkbox" name="consent" required className="mt-1 size-4" />
-        <span>{dict.form.consent}</span>
+      <label className="flex min-h-11 items-start gap-3 text-sm text-muted-foreground">
+        <input
+          type="checkbox"
+          name="consent"
+          required
+          aria-invalid={Boolean(errors.consent)}
+          aria-describedby={errors.consent ? 'application-consent-error' : undefined}
+          className="mt-0.5 size-5 accent-primary"
+        />
+        <span>
+          {dict.form.consent}
+          {errors.consent ? (
+            <span
+              id="application-consent-error"
+              role="alert"
+              className="mt-1 block text-xs font-medium text-danger-600"
+            >
+              {messageFor('consent')}
+            </span>
+          ) : null}
+        </span>
       </label>
 
       {status === 'error' ? (
@@ -154,9 +224,17 @@ export function ApplicationForm({
         </p>
       ) : null}
 
-      <Button type="submit" size="lg" disabled={status === 'sending'} className="w-full @md:w-auto @md:self-start">
+      <Button
+        type="submit"
+        size="lg"
+        disabled={status === 'sending'}
+        className="w-full @md:w-auto @md:self-start"
+      >
         {status === 'sending' ? dict.form.submitting : dict.form.apply}
       </Button>
+      <p className="sr-only" role="status" aria-live="polite">
+        {status === 'sending' ? dict.form.submitting : ''}
+      </p>
     </form>
   )
 }

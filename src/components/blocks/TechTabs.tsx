@@ -67,7 +67,7 @@ export function TechTabs({ groups }: { groups: TechGroup[] }) {
               onClick={() => setActive(i)}
               onKeyDown={(e) => move(e, i)}
               className={cn(
-                'shrink-0 border-b-2 px-1 pb-4 text-sm font-semibold whitespace-nowrap transition-colors',
+                'min-h-11 shrink-0 border-b-2 px-1 pb-4 text-sm font-semibold whitespace-nowrap transition-colors',
                 i === active
                   ? 'border-brand-500 text-brand-500'
                   : 'border-transparent text-ink-500 hover:text-foreground dark:text-muted-foreground',

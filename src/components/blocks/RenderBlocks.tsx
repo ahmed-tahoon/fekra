@@ -72,14 +72,6 @@ export async function RenderBlocks({
         const key = block.id ?? `${block.blockType}-${index}`
         const isFirst = index === 0
 
-        /*
-         * Everything below the hero rises as it enters the viewport. Wrapping
-         * here rather than in each section keeps the behaviour in one place —
-         * and the hero is excluded because it already has its own entrance.
-         */
-        const reveal = (node: React.ReactNode) =>
-          isFirst ? node : <div key={key} className="fk-reveal">{node}</div>
-
         switch (block.blockType) {
           case 'hero':
             return <HeroSection key={key} block={block} locale={locale} isFirst={isFirst} />
@@ -88,51 +80,51 @@ export async function RenderBlocks({
               <ServiceHeroSection key={key} block={block} locale={locale} dict={dict} isFirst={isFirst} />
             )
           case 'hiringModels':
-            return reveal(<HiringModelsSection key={key} block={block} locale={locale} />)
+            return <HiringModelsSection key={key} block={block} locale={locale} />
           case 'logoCloud':
-            return reveal(<LogoCloudSection key={key} block={block} />)
+            return <LogoCloudSection key={key} block={block} />
           case 'talentShowcase':
-            return reveal(<TalentShowcaseSection key={key} block={block} locale={locale} />)
+            return <TalentShowcaseSection key={key} block={block} locale={locale} />
           case 'cardGrid':
-            return reveal(<CardGridSection key={key} block={block} locale={locale} />)
+            return <CardGridSection key={key} block={block} locale={locale} />
           case 'stats':
-            return reveal(<StatsSection key={key} block={block} />)
+            return <StatsSection key={key} block={block} />
           case 'process':
-            return reveal(<ProcessSection key={key} block={block} />)
+            return <ProcessSection key={key} block={block} />
           case 'testimonials':
-            return reveal(<TestimonialsSection key={key} block={block} />)
+            return <TestimonialsSection key={key} block={block} />
           case 'faq':
-            return reveal(<FaqSection key={key} block={block} locale={locale} />)
+            return <FaqSection key={key} block={block} locale={locale} />
           case 'postsTeaser':
-            return reveal(<PostsTeaser key={key} block={block} locale={locale} />)
+            return <PostsTeaser key={key} block={block} locale={locale} />
           case 'industries':
-            return reveal(<IndustriesSection key={key} block={block} />)
+            return <IndustriesSection key={key} block={block} />
           case 'techStack':
-            return reveal(<TechStackSection key={key} block={block} />)
+            return <TechStackSection key={key} block={block} />
           case 'cta':
-            return reveal(<CtaSection key={key} block={block} locale={locale} />)
+            return <CtaSection key={key} block={block} locale={locale} />
           case 'richText':
-            return reveal(<RichTextSection key={key} block={block} />)
+            return <RichTextSection key={key} block={block} />
           case 'mediaBlock':
-            return reveal(<MediaSection key={key} block={block} />)
+            return <MediaSection key={key} block={block} />
           case 'contact':
-            return reveal(
+            return (
               <ContactSection
                 key={key}
                 block={block}
                 locale={locale}
                 dict={dict}
                 offices={context?.offices as never}
-              />,
+              />
             )
           case 'booking':
-            return reveal(
+            return (
               <BookingSection
                 key={key}
                 block={block}
                 dict={dict}
                 fallbackUrl={context?.calendlyUrl ?? undefined}
-              />,
+              />
             )
           default:
             if (process.env.NODE_ENV !== 'production') {

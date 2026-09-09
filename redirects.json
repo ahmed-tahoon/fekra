@@ -1,5 +1,28 @@
 [
   { "from": "/home", "to": "/", "permanent": true },
+  { "from": "/contact-us", "to": "/contact", "permanent": true },
+  { "from": "/book-a-call", "to": "/meeting", "permanent": true },
+  { "from": "/hire-web-developers", "to": "/services/hire-web-developers", "permanent": true },
+  {
+    "from": "/hire-javascript-developers",
+    "to": "/services/hire-javascript-developers",
+    "permanent": true
+  },
+  {
+    "from": "/hire-mobile-app-developers",
+    "to": "/services/hire-mobile-app-developers",
+    "permanent": true
+  },
+  {
+    "from": "/hire-quality-assurance-testers",
+    "to": "/services/hire-quality-assurance-testers",
+    "permanent": true
+  },
+  {
+    "from": "/hire-microsoft-developers",
+    "to": "/services/hire-microsoft-developers",
+    "permanent": true
+  },
   { "from": "/blog/page/:n", "to": "/blog?page=:n", "permanent": true },
   { "from": "/category/:slug", "to": "/blog?category=:slug", "permanent": true }
 ]

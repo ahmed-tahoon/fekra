@@ -34,7 +34,14 @@ export async function POST(request: Request) {
     const fields: Record<string, string> = {}
     for (const issue of parsed.error.issues) {
       const key = String(issue.path[0] ?? 'form')
-      fields[key] = issue.message === 'phone' ? 'phone' : issue.code === 'invalid_format' ? 'email' : 'required'
+      fields[key] =
+        issue.message === 'phone'
+          ? 'phone'
+          : key === 'email'
+            ? 'email'
+            : key === 'linkedin'
+              ? 'url'
+              : 'required'
     }
     return NextResponse.json({ error: 'invalid', fields }, { status: 422 })
   }
@@ -55,6 +62,7 @@ export async function POST(request: Request) {
 
   const payload = await payloadClient()
 
+  let uploadedId: string | number | null = null
   try {
     const job = await payload.findByID({ collection: 'jobs', id: jobId, depth: 0 })
     if (!job || job.roleStatus !== 'open' || job._status !== 'published') {
@@ -62,7 +70,9 @@ export async function POST(request: Request) {
     }
 
     // 10.7 — the unique index rejects a duplicate; no read-then-write race.
-    const dedupeKey = createHash('sha256').update(`${data.email.toLowerCase()}:${jobId}`).digest('hex')
+    const dedupeKey = createHash('sha256')
+      .update(`${data.email.toLowerCase()}:${jobId}`)
+      .digest('hex')
 
     const buffer = Buffer.from(await file.arrayBuffer())
     // Never trust the client filename on disk — Payload gets a safe, derived name.
@@ -74,6 +84,7 @@ export async function POST(request: Request) {
       data: { originalName: file.name },
       file: { data: buffer, name: safeName, mimetype: file.type, size: file.size },
     })
+    uploadedId = uploaded.id
 
     await payload.create({
       collection: 'job-applications',
@@ -113,6 +124,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true })
   } catch (error) {
     const message = error instanceof Error ? error.message : ''
+    // If the application record fails after the private upload succeeds, do
+    // not leave an orphaned CV in storage. Notification failures never reach
+    // this branch because notify() deliberately logs and resolves.
+    if (uploadedId !== null) {
+      await payload
+        .delete({ collection: 'applicant-files', id: uploadedId, overrideAccess: true })
+        .catch((cleanupError) => {
+          payload.logger.error(
+            { err: cleanupError, uploadedId },
+            'failed to clean up orphaned applicant file',
+          )
+        })
+    }
     // A duplicate is a success from the candidate's point of view (10.7).
     if (message.includes('dedupeKey') || message.includes('duplicate key')) {
       return NextResponse.json({ ok: true, duplicate: true })

@@ -150,7 +150,7 @@ export function CareersCta({ dict, locale }: { dict: Dictionary; locale: Locale 
           </p>
           <Link
             href={localeHref(locale, '/contact')}
-            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
           >
             {dict.careers.noFitCta}
             <ArrowRight className="icon-flip size-4" aria-hidden />

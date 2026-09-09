@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const fields: Record<string, string> = {}
     for (const issue of parsed.error.issues) {
       const key = String(issue.path[0] ?? 'form')
-      fields[key] = issue.message === 'phone' ? 'phone' : issue.code === 'invalid_format' ? 'email' : 'required'
+      fields[key] = issue.message === 'phone' ? 'phone' : key === 'email' ? 'email' : 'required'
     }
     return NextResponse.json({ error: 'invalid', fields }, { status: 422 })
   }

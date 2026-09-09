@@ -45,14 +45,27 @@ async function isDraft(): Promise<boolean> {
  * production never touches it (ISR is the one cache layer there).
  */
 const devCache = new Map<string, { t: number; v: unknown }>()
-const DEV_TTL_MS = 60_000
+const devInflight = new Map<string, Promise<unknown>>()
+const DEV_TTL_MS = 300_000
 async function devMemo<T>(key: string | null, fn: () => Promise<T>): Promise<T> {
   if (process.env.NODE_ENV !== 'development' || key === null) return fn()
   const hit = devCache.get(key)
   if (hit && Date.now() - hit.t < DEV_TTL_MS) return hit.v as T
-  const v = await fn()
-  devCache.set(key, { t: Date.now(), v })
-  return v
+
+  // React can request the page HTML and RSC payload at the same time. Share a
+  // single cold database read instead of making both requests compete for the
+  // small remote Postgres pool.
+  const pending = devInflight.get(key)
+  if (pending) return pending as Promise<T>
+
+  const request = fn()
+    .then((value) => {
+      devCache.set(key, { t: Date.now(), v: value })
+      return value
+    })
+    .finally(() => devInflight.delete(key))
+  devInflight.set(key, request)
+  return request
 }
 
 /**
@@ -72,7 +85,7 @@ export async function findDocs<T = unknown>({
   page = 1,
   where = {} as Where,
   sort,
-  depth = 2,
+  depth = 1,
   select,
 }: FindArgs): Promise<{ docs: T[]; totalPages: number; totalDocs: number }> {
   const draft = await isDraft()
@@ -110,16 +123,15 @@ export async function findDocs<T = unknown>({
  * primitive-arg identity, which is why findDoc/getGlobal are wrapped and the
  * object-arg findDocs is not.
  *
- * Depth 2, not 3: the deepest chain any renderer follows is block -> media (or
- * block -> category.slug), one level. resolveLink reads reference.value.slug,
- * also one level. Each extra depth fans out into per-relationship queries
- * against a remote database.
+ * Depth 1: block media, categories, authors and internal-link targets are each
+ * a single relationship hop. Loading their own relationships and layouts adds
+ * large joins without providing anything the renderers use.
  */
 export const findDoc = cache(async function findDoc<T = unknown>(
   collection: FindArgs['collection'],
   slug: string,
   locale: Locale,
-  depth = 2,
+  depth = 1,
 ): Promise<T | null> {
   const { docs } = await findDocs<T>({
     collection,

@@ -121,7 +121,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
           const on = i === active
           const width = BARS[i] ?? BARS[BARS.length - 1]!
           return (
-            <li key={s.title} className="flex h-10 justify-center sm:h-14">
+            <li key={s.title} className="flex h-11 justify-center sm:h-14">
               <div className="relative h-full" style={{ width: `calc(var(--fs) * ${width}px)` }}>
                 {/*
                  * Step number in the 96px zone butted against the bar. The

@@ -589,52 +589,6 @@
     }
   }
 
-  /*
-   * Section content reveals as it scrolls into view: a tiny observer
-   * (ScrollReveal.tsx) stamps `.is-in` on the wrapper and the content
-   * transitions in as a cascade — container blocks first, their children
-   * ~80ms apart after. Works in every browser, reveals once, and never
-   * touches the section or wrapper itself: moving a painted section
-   * background reads as a white seam between two tinted sections.
-   *
-   * Gated on `scripting: enabled` — a browser that will never run the
-   * observer must not start from the hidden state.
-   */
-  @media (scripting: enabled) {
-    .fk-reveal section > *,
-    .fk-reveal section > * > * {
-      transition:
-        opacity 0.85s var(--ease-out-soft),
-        transform 0.85s var(--ease-out-soft);
-    }
-
-    .fk-reveal:not(.is-in) section > * {
-      opacity: 0;
-      transform: translate3d(0, 24px, 0);
-    }
-
-    .fk-reveal:not(.is-in) section > * > * {
-      opacity: 0;
-      transform: translate3d(0, 16px, 0);
-    }
-
-    .fk-reveal.is-in section > * > *:nth-child(2) {
-      transition-delay: 110ms;
-    }
-
-    .fk-reveal.is-in section > * > *:nth-child(3) {
-      transition-delay: 220ms;
-    }
-
-    .fk-reveal.is-in section > * > *:nth-child(4) {
-      transition-delay: 330ms;
-    }
-
-    .fk-reveal.is-in section > * > *:nth-child(n + 5) {
-      transition-delay: 440ms;
-    }
-  }
-
   /* Clicking a link inside a nav dropdown closes it even though the pointer
      still hovers it; leaving or refocusing re-arms the hover (NavItem.tsx). */
   li.nav-closed > div,
@@ -723,48 +677,6 @@
   }
 }
 
-/* ── Splash ──────────────────────────────────────────────────────────────
- *
- * First-visit loading screen. Server-rendered in the site layout so it covers
- * the page before any JS or hydration; an inline script fades it out on
- * `load` (capped at 2.5s) and skips it on repeat views in the same tab.
- */
-#fk-splash {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.75rem;
-  background: var(--background);
-  transition:
-    opacity 0.5s ease,
-    visibility 0.5s ease;
-}
-
-#fk-splash.is-done {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.fk-splash-logo {
-  height: 3.5rem;
-  width: auto;
-  animation: fk-splash-pulse 1.8s ease-in-out infinite;
-}
-
-@keyframes fk-splash-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.55;
-  }
-}
-
 /* 17.8 / 23.5 — honour the OS setting instead of shipping motion nobody asked for. */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -784,9 +696,6 @@
    * Scroll-linked animations ignore duration, so they have to be switched off
    * by name or the page would still move under someone who asked it not to.
    */
-  .fk-reveal,
-  .fk-reveal section > *,
-  .fk-reveal section > * > *,
   .fk-drift,
   .fk-enter,
   .fk-tile-enter,

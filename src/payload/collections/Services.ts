@@ -55,7 +55,9 @@ export const Services: CollectionConfig = {
               name: 'parent',
               type: 'relationship',
               relationTo: 'services',
-              filterOptions: ({ id }) => ({ id: { not_equals: id } }),
+              // New SEO pages have no ID until after validation. Passing
+              // `not_equals: undefined` makes every parent invalid on create.
+              filterOptions: ({ id }) => (id ? { id: { not_equals: id } } : true),
               admin: {
                 description:
                   'Set for SEO landing pages under a parent service. Drives breadcrumbs (18.9) and internal linking (18.10).',
@@ -66,7 +68,7 @@ export const Services: CollectionConfig = {
               type: 'relationship',
               relationTo: 'services',
               hasMany: true,
-              filterOptions: ({ id }) => ({ id: { not_equals: id } }),
+              filterOptions: ({ id }) => (id ? { id: { not_equals: id } } : true),
             },
             {
               name: 'order',

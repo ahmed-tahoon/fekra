@@ -6,6 +6,27 @@ import { isComingSoon } from '@/lib/site-mode'
 const LOCALE_COOKIE = 'NEXT_LOCALE'
 
 /**
+ * Remember the locale the visitor is actually looking at — but only on a real
+ * page load. The language switcher warms every other locale with
+ * router.prefetch(), and those background requests come through here too: when
+ * they write the cookie, the last prefetch to land decides where "/" goes, so
+ * an explicit language choice is silently overwritten a moment after the click.
+ *
+ * `sec-fetch-dest` is the only signal that can tell them apart — Next strips
+ * its own flight headers (rsc, next-router-prefetch) before the proxy runs. A
+ * navigation is `document`; a prefetch or client-side RSC fetch is `empty`.
+ * Clients that send no such header (curl, pre-16.4 Safari) count as
+ * navigations, which is the old behaviour. Switching still sticks without a
+ * document request: LanguageSwitcher writes the cookie itself on click.
+ */
+function remember(response: NextResponse, locale: string, request: NextRequest) {
+  const dest = request.headers.get('sec-fetch-dest')
+  if (dest && dest !== 'document') return response
+  response.cookies.set(LOCALE_COOKIE, locale, { path: '/', sameSite: 'lax', maxAge: 31536000 })
+  return response
+}
+
+/**
  * Holding-page mode. Opt-in via env so it can never switch itself on at launch:
  * an unset variable means the real site. The CMS (/admin, /cms-api) and the API
  * routes are already excluded by the matcher below, so editors keep working
@@ -51,9 +72,7 @@ export default function proxy(request: NextRequest) {
 
   // Already a prefixed locale (/ar/..., /de/...) — render as-is.
   if (isLocale(segment) && segment !== DEFAULT_LOCALE) {
-    const response = NextResponse.next()
-    response.cookies.set(LOCALE_COOKIE, segment, { path: '/', sameSite: 'lax', maxAge: 31536000 })
-    return withGuards(response, request)
+    return withGuards(remember(NextResponse.next(), segment, request), request)
   }
 
   // Bare "/" with a remembered or negotiated non-default locale -> send there once.
@@ -68,11 +87,10 @@ export default function proxy(request: NextRequest) {
   }
 
   // Unprefixed path -> render the English tree without changing the visible URL.
-  const response = NextResponse.rewrite(new URL(`/${DEFAULT_LOCALE}${pathname}${search}`, request.url))
   // Remember the default locale too — otherwise a stale /ar cookie bounces "/"
   // back to Arabic forever and switching to English never sticks.
-  response.cookies.set(LOCALE_COOKIE, DEFAULT_LOCALE, { path: '/', sameSite: 'lax', maxAge: 31536000 })
-  return withGuards(response, request)
+  const response = NextResponse.rewrite(new URL(`/${DEFAULT_LOCALE}${pathname}${search}`, request.url))
+  return withGuards(remember(response, DEFAULT_LOCALE, request), request)
 }
 
 /** Staging must never be indexable (3.4) — enforced at the edge, not in a meta tag. */

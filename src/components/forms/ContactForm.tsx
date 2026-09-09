@@ -43,8 +43,14 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
 
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { fields?: Record<string, string> }
-        setErrors(body.fields ?? {})
-        setStatus('error')
+        const nextErrors = body.fields ?? {}
+        setErrors(nextErrors)
+        setStatus(Object.keys(nextErrors).length ? 'idle' : 'error')
+        const firstInvalid = Object.keys(nextErrors)[0]
+        if (firstInvalid) {
+          const control = form.elements.namedItem(firstInvalid) as HTMLElement | null
+          requestAnimationFrame(() => control?.focus())
+        }
         return
       }
 
@@ -66,10 +72,17 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
   }
 
   const messageFor = (field: string) =>
-    errors[field] ? (dict.form.errors[errors[field] as keyof typeof dict.form.errors] ?? errors[field]) : undefined
+    errors[field]
+      ? (dict.form.errors[errors[field] as keyof typeof dict.form.errors] ?? errors[field])
+      : undefined
 
   return (
-    <form onSubmit={onSubmit} noValidate className="@container flex flex-col gap-5">
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      aria-busy={status === 'sending'}
+      className="@container flex flex-col gap-5"
+    >
       {/* Honeypot — hidden from users and screen readers, irresistible to bots. */}
       <div aria-hidden className="sr-only">
         <label htmlFor="contact-website">Website</label>
@@ -83,7 +96,9 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
       </Field>
 
       <Field hideLabel label={dict.form.email} required error={messageFor('email')}>
-        {(props) => <Input {...props} name="email" type="email" autoComplete="email" inputMode="email" />}
+        {(props) => (
+          <Input {...props} name="email" type="email" autoComplete="email" inputMode="email" />
+        )}
       </Field>
 
       <Field hideLabel label={dict.form.subject} required error={messageFor('subject')}>
@@ -94,10 +109,24 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
         {(props) => <Textarea {...props} name="message" rows={6} />}
       </Field>
 
-      <label className="flex items-start gap-3 text-sm text-muted-foreground">
-        <input type="checkbox" name="consent" required className="mt-1 size-4" />
-        <span>{dict.form.consent}</span>
-      </label>
+      <div>
+        <label className="flex min-h-11 items-start gap-3 text-sm text-muted-foreground">
+          <input
+            type="checkbox"
+            name="consent"
+            required
+            aria-invalid={Boolean(errors.consent)}
+            aria-describedby={errors.consent ? 'contact-consent-error' : undefined}
+            className="mt-0.5 size-5"
+          />
+          <span>{dict.form.consent}</span>
+        </label>
+        {errors.consent ? (
+          <p id="contact-consent-error" role="alert" className="text-sm text-danger-600">
+            {messageFor('consent')}
+          </p>
+        ) : null}
+      </div>
 
       {status === 'error' ? (
         <p role="alert" className="text-sm font-medium text-danger-600">
@@ -105,7 +134,12 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
         </p>
       ) : null}
 
-      <Button type="submit" size="lg" disabled={status === 'sending'} className="w-full justify-center">
+      <Button
+        type="submit"
+        size="lg"
+        disabled={status === 'sending'}
+        className="w-full justify-center"
+      >
         {status === 'sending' ? dict.form.submitting : dict.form.submit}
       </Button>
     </form>

@@ -90,11 +90,14 @@ const nextConfig: NextConfig = {
    * Same pooler budget: it holds ~15 backend connections for the whole
    * project, and each build worker opens its own Payload pool (max 4). Nine
    * workers = 36 clients fighting for 15 slots → ECHECKOUTTIMEOUT after 60s.
-   * Three workers (12 clients) leave room for a dev server alongside.
+   * Two workers with one static page per worker keeps builds deterministic
+   * against the transaction pooler. Three workers compiled, but the 08 Sep
+   * 2026 QA run still saw intermittent authentication/check-out timeouts while
+   * prerendering several CMS pages in parallel.
    */
-  // staleTimes: the client router keeps visited pages for 3 min, so switching
-  // BACK to a language is instant instead of a full re-render round trip.
-  experimental: { cpus: 3, staleTimes: { dynamic: 180, static: 300 } },
+  // Keep prerendered routes in the client cache for five minutes. Dynamic
+  // routes use Next's default so the Payload CMS does not delay transitions or its admin.
+  experimental: { cpus: 2, staticGenerationMaxConcurrency: 1, staleTimes: { static: 300 } },
   // Trailing-slash policy is a canonical signal — keep it fixed forever (18.1/18.3).
   trailingSlash: false,
 

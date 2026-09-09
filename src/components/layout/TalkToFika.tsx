@@ -33,7 +33,7 @@ export function TalkToFika({ locale, dict }: { locale: Locale; dict: Dictionary 
     // Bottom corner on phones — parked mid-viewport it sat on top of the hero
     // CTA. Desktop sits 50px above centre, which is what clears the hero
     // collage instead of crowding the tile directly beneath it.
-    'fixed end-4 bottom-4 z-40 rounded-2xl bg-white p-2.5 shadow-[0_0_20px_rgba(0,0,0,0.08)] sm:top-1/2 sm:bottom-auto sm:end-6 sm:translate-y-[calc(-50%-50px)] sm:p-4 dark:bg-card'
+    'fixed end-4 bottom-4 z-40 rounded-2xl bg-white p-2.5 shadow-[0_0_20px_rgba(0,0,0,0.08)] lg:top-1/2 lg:bottom-auto lg:end-6 lg:translate-y-[calc(-50%-50px)] lg:p-4 dark:bg-card'
 
   if (!open) {
     return (
@@ -54,13 +54,15 @@ export function TalkToFika({ locale, dict }: { locale: Locale; dict: Dictionary 
         type="button"
         onClick={() => setOpen(false)}
         aria-label={dict.chat.close}
-        className="absolute -end-2 -top-2 grid size-6 cursor-pointer place-items-center rounded-full bg-[#8fd0dd] text-white transition-colors hover:bg-primary"
+        className="absolute -end-4 -top-4 hidden size-11 cursor-pointer place-items-center rounded-full text-white lg:grid"
       >
-        <X className="size-3.5" aria-hidden />
+        <span className="grid size-6 place-items-center rounded-full bg-[#8fd0dd] transition-colors hover:bg-primary">
+          <X className="size-3.5" aria-hidden />
+        </span>
       </button>
-      <Link href={localeHref(locale, '/meeting')} className="flex items-center gap-2.5 sm:gap-[15px]">
+      <Link href={localeHref(locale, '/meeting')} className="flex min-h-11 items-center gap-2.5 sm:gap-[15px]">
         {avatar}
-        <span className="pe-1 font-display text-sm font-bold text-navy-800 sm:text-lg dark:text-foreground">
+        <span className="hidden pe-1 font-display text-lg font-bold text-navy-800 lg:inline dark:text-foreground">
           {dict.chat.talk}
         </span>
       </Link>

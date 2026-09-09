@@ -26,7 +26,7 @@ export type SampleJob = {
   benefits?: Line[]
 }
 
-export const sampleJobs: SampleJob[] = [
+const retiredSampleJobs: SampleJob[] = [
   {
     slug: 'senior-full-stack-engineer',
     title: 'Senior Full-Stack Engineer',
@@ -52,12 +52,18 @@ export const sampleJobs: SampleJob[] = [
     requirements: [
       ['h2', 'What we are looking for'],
       ['p', '5+ years building and shipping web applications in production.'],
-      ['p', 'Strong TypeScript, and comfort moving between React on the front and Node or Python on the back.'],
+      [
+        'p',
+        'Strong TypeScript, and comfort moving between React on the front and Node or Python on the back.',
+      ],
       ['p', 'Clear written English — most of our client communication happens in writing.'],
     ],
     benefits: [
       ['h2', 'What we offer'],
-      ['p', 'Private medical cover, an annual learning budget, and hybrid working from our Cairo office.'],
+      [
+        'p',
+        'Private medical cover, an annual learning budget, and hybrid working from our Cairo office.',
+      ],
     ],
   },
   {
@@ -85,7 +91,10 @@ export const sampleJobs: SampleJob[] = [
     requirements: [
       ['h2', 'What we are looking for'],
       ['p', '3+ years applying machine learning to real products, not only research.'],
-      ['p', 'Strong Python, plus hands-on experience with PyTorch or TensorFlow and a cloud platform.'],
+      [
+        'p',
+        'Strong Python, plus hands-on experience with PyTorch or TensorFlow and a cloud platform.',
+      ],
       ['p', 'A habit of measuring things before and after you change them.'],
     ],
   },
@@ -158,7 +167,10 @@ export const sampleJobs: SampleJob[] = [
     requirements: [
       ['h2', 'What we are looking for'],
       ['p', '3+ years building batch and streaming pipelines in production.'],
-      ['p', 'Strong SQL and Python, plus a modern warehouse such as BigQuery, Snowflake or Redshift.'],
+      [
+        'p',
+        'Strong SQL and Python, plus a modern warehouse such as BigQuery, Snowflake or Redshift.',
+      ],
       ['p', 'Based in Riyadh, or willing to relocate.'],
     ],
   },
@@ -231,7 +243,237 @@ export const sampleJobs: SampleJob[] = [
     requirements: [
       ['h2', 'What we are looking for'],
       ['p', '3+ years in test automation with Playwright, Cypress or similar.'],
-      ['p', 'An eye for the test that would have caught the bug, rather than the one that is easy to write.'],
+      [
+        'p',
+        'An eye for the test that would have caught the bug, rather than the one that is easy to write.',
+      ],
+    ],
+  },
+]
+
+/** Current openings published on fekra-egy.com/careers on 9 Sep 2026. */
+export const sampleJobs: SampleJob[] = [
+  {
+    slug: 'ai-engineer',
+    title: 'AI Engineer',
+    summary:
+      'Design, train, and deploy advanced AI systems for real-world products and production environments.',
+    department: 'AI & Data',
+    location: 'Remote — Dubai business hours',
+    city: 'Dubai',
+    countryCode: 'AE',
+    workModel: 'remote',
+    employmentType: 'FULL_TIME',
+    about: [
+      ['h2', 'About the role'],
+      [
+        'p',
+        'Join FEKRA’s engineering team to design, train, and deliver advanced AI and machine-learning solutions for real-world applications.',
+      ],
+      ['h3', 'What you will do'],
+      [
+        'p',
+        'Research and prototype deep-learning, NLP, LLM, and multimodal solutions; build scalable data and training workflows; collaborate with product and engineering teams; and support the full AI product lifecycle from ideation to production.',
+      ],
+      [
+        'p',
+        'You will also help ensure responsible AI practices, including fairness, transparency, and bias reduction, while keeping current with the latest AI advances.',
+      ],
+    ],
+    requirements: [
+      ['h2', 'What we are looking for'],
+      [
+        'p',
+        '5+ years of professional AI or machine-learning experience and a record of delivering AI systems in production.',
+      ],
+      [
+        'p',
+        'Strong Python plus practical experience with PyTorch, TensorFlow, or JAX; NLP, LLM, or multimodal architectures; MLOps; distributed training; and AWS, GCP, or Azure AI services.',
+      ],
+      [
+        'p',
+        'Strong analytical, problem-solving, communication, data-engineering, deployment, and model-optimization skills.',
+      ],
+    ],
+    benefits: [
+      ['h2', 'Why join FEKRA'],
+      [
+        'p',
+        'Work remotely on modern fintech and cloud-based products with flexible work options, competitive pay, continuous learning, and a collaborative international team.',
+      ],
+    ],
+  },
+  {
+    slug: 'senior-wordpress-developer',
+    title: 'Senior WordPress Developer',
+    summary:
+      'Own WordPress websites end to end, with a focus on Elementor, performance, and clean plugin management.',
+    department: 'Engineering',
+    location: 'Remote — USA time zone',
+    city: 'Cairo',
+    countryCode: 'EG',
+    workModel: 'remote',
+    employmentType: 'FULL_TIME',
+    about: [
+      ['h2', 'About the role'],
+      [
+        'p',
+        'FEKRA is looking for a senior developer who can own WordPress websites from implementation through optimization, release, and ongoing maintenance.',
+      ],
+      ['h3', 'What you will do'],
+      [
+        'p',
+        'Build and maintain Elementor experiences, improve Core Web Vitals and site performance, manage plugins carefully, diagnose production issues, and keep the implementation clean and maintainable.',
+      ],
+    ],
+    requirements: [
+      ['h2', 'What we are looking for'],
+      [
+        'p',
+        '5+ years of WordPress development experience, strong Elementor delivery, and demonstrated performance-optimization work.',
+      ],
+      [
+        'p',
+        'Fluent English, a fully updated CV, and availability for full-time work aligned with the USA time zone.',
+      ],
+    ],
+  },
+  {
+    slug: 'devops-engineer',
+    title: 'Senior DevOps Engineer',
+    summary:
+      'Own CI/CD, cloud infrastructure, security, and reliable delivery for enterprise-level systems.',
+    department: 'Platform',
+    location: 'Remote — USA time zone',
+    city: 'Cairo',
+    countryCode: 'EG',
+    workModel: 'remote',
+    employmentType: 'FULL_TIME',
+    about: [
+      ['h2', 'About the role'],
+      [
+        'p',
+        'Join a dynamic engineering team to build and operate the cloud foundations, delivery pipelines, observability, and security controls behind production products.',
+      ],
+      ['h3', 'What you will do'],
+      [
+        'p',
+        'Design and improve CI/CD pipelines, cloud environments, infrastructure automation, monitoring, incident response, and practical security guardrails for enterprise delivery.',
+      ],
+    ],
+    requirements: [
+      ['h2', 'What we are looking for'],
+      [
+        'p',
+        'Proven production DevOps experience across cloud platforms, CI/CD pipelines, containers, infrastructure as code, security, and enterprise projects.',
+      ],
+      [
+        'p',
+        'Fluent English, a fully updated CV, and availability for full-time work aligned with the USA time zone.',
+      ],
+    ],
+  },
+  {
+    slug: 'product-owner-qa',
+    title: 'Product Owner / QA',
+    summary:
+      'Shape product features and personally validate their quality across mobile and web releases.',
+    department: 'Product & Quality',
+    location: 'Remote — Egypt',
+    city: 'Cairo',
+    countryCode: 'EG',
+    workModel: 'remote',
+    employmentType: 'FULL_TIME',
+    about: [
+      ['h2', 'About the role'],
+      [
+        'p',
+        'This is a hands-on hybrid role combining product ownership with manual quality assurance for a fast-growing consumer technology product.',
+      ],
+      [
+        'p',
+        'You will shape features, clarify requirements, work closely with design and engineering, and personally test mobile and web experiences before release. This is not a coordination-only role.',
+      ],
+    ],
+    requirements: [
+      ['h2', 'What we are looking for'],
+      [
+        'p',
+        '6+ years of product, quality, or closely related delivery experience, with strong hands-on manual testing skills.',
+      ],
+      [
+        'p',
+        'Deep product judgment, clear English communication, and comfort turning user and business needs into testable, release-ready work.',
+      ],
+    ],
+  },
+  {
+    slug: 'business-development-specialist',
+    title: 'Business Development Specialist',
+    summary:
+      'Open new relationships with companies that need software outsourcing and remote engineering teams.',
+    department: 'Growth',
+    location: 'Remote',
+    city: 'Cairo',
+    countryCode: 'EG',
+    workModel: 'remote',
+    employmentType: 'FULL_TIME',
+    about: [
+      ['h2', 'About the role'],
+      [
+        'p',
+        'Join FEKRA’s growth team in a fully outbound role serving software outsourcing clients across Europe and the GCC.',
+      ],
+      ['h3', 'What you will do'],
+      [
+        'p',
+        'Identify relevant companies, research decision-makers, initiate thoughtful cold conversations, qualify outsourcing and team-augmentation needs, and turn strong opportunities into discovery calls.',
+      ],
+    ],
+    requirements: [
+      ['h2', 'What we are looking for'],
+      [
+        'p',
+        'Real experience selling IT services, software outsourcing, or remote engineering teams and a track record of opening cold conversations.',
+      ],
+      [
+        'p',
+        'Business-fluent English is mandatory. An additional European language is a strong advantage.',
+      ],
+    ],
+  },
+  {
+    slug: 'internship-program',
+    title: 'FEKRA Internship Program',
+    summary:
+      'Build real-world experience in software development, design, testing, AI, or business analysis.',
+    department: 'Early Careers',
+    location: 'Cairo, Egypt',
+    city: 'Cairo',
+    countryCode: 'EG',
+    workModel: 'hybrid',
+    employmentType: 'INTERN',
+    about: [
+      ['h2', 'About the program'],
+      [
+        'p',
+        'FEKRA’s internship program is for passionate learners who want practical experience across software development, design, testing, AI, and business analysis.',
+      ],
+      [
+        'p',
+        'You will contribute to real work, learn from experienced teammates, receive feedback, and build skills that transfer into a professional technology role.',
+      ],
+    ],
+    requirements: [
+      ['h2', 'What we are looking for'],
+      [
+        'p',
+        'Students and recent graduates with a strong learning mindset, clear communication, and evidence of interest in their chosen technology or business discipline.',
+      ],
+      [
+        'p',
+        'Include your university or major, graduation year, location, area of interest, and an up-to-date CV in your application.',
+      ],
     ],
   },
 ]
@@ -242,10 +484,36 @@ export const sampleJobs: SampleJob[] = [
  * module stays free of the seed's lexical helpers and clock.
  */
 export async function seedJobs(
-  payload: { find: (a: never) => Promise<{ docs: { id: number }[] }>; create: (a: never) => Promise<unknown>; update: (a: never) => Promise<unknown> },
+  payload: {
+    find: (a: never) => Promise<{ docs: { id: number }[] }>
+    create: (a: never) => Promise<unknown>
+    update: (a: never) => Promise<unknown>
+  },
   article: (lines: Line[]) => unknown,
   now: number,
 ): Promise<void> {
+  // Close the original demo-only roles without deleting their URLs. Closed
+  // pages remain available for bookmarks, drop out of the index and no longer
+  // accept applications or emit JobPosting schema.
+  await Promise.all(
+    retiredSampleJobs.map(async (job) => {
+      const existing = await payload.find({
+        collection: 'jobs',
+        where: { slug: { equals: job.slug } },
+        limit: 1,
+        depth: 0,
+      } as never)
+      const first = existing.docs[0]
+      if (first)
+        await payload.update({
+          collection: 'jobs',
+          id: first.id,
+          context: { disableRevalidate: true },
+          data: { roleStatus: 'closed' },
+        } as never)
+    }),
+  )
+
   await Promise.all(
     sampleJobs.map(async (job, index) => {
       const data = {
@@ -267,7 +535,12 @@ export async function seedJobs(
         _status: 'published',
       }
       const args = { collection: 'jobs', context: { disableRevalidate: true } }
-      const existing = await payload.find({ ...args, where: { slug: { equals: job.slug } }, limit: 1, depth: 0 } as never)
+      const existing = await payload.find({
+        ...args,
+        where: { slug: { equals: job.slug } },
+        limit: 1,
+        depth: 0,
+      } as never)
       const first = existing.docs[0]
       if (first) await payload.update({ ...args, id: first.id, data } as never)
       else await payload.create({ ...args, data: { ...data, slug: job.slug } } as never)

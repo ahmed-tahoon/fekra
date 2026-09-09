@@ -49,12 +49,17 @@ export function buildMetadata({
   if (published.includes(DEFAULT_LOCALE)) languages['x-default'] = absoluteUrl(path, DEFAULT_LOCALE)
 
   const canonical = canonicalOverride || absoluteUrl(path, locale)
+  const unbrandedTitle = title.replace(/(?:\s*\|\s*FEKRA)+$/i, '').trim()
+  const brandedTitle = `${unbrandedTitle} | FEKRA`
   const ogImage = image?.url
     ? [{ url: image.url, width: image.width ?? 1200, height: image.height ?? 630, alt: image.alt ?? title }]
     : undefined
 
   return {
-    title,
+    // CMS editors may include the brand suffix while the root layout also has
+    // a title template. Emit one absolute title so it can never become
+    // "... | FEKRA | FEKRA" on any CMS-backed route.
+    title: { absolute: brandedTitle },
     description,
     metadataBase: new URL(base),
     alternates: { canonical, languages },
@@ -63,7 +68,7 @@ export function buildMetadata({
       : { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
     openGraph: {
       type,
-      title,
+      title: brandedTitle,
       description,
       url: canonical,
       siteName: 'FEKRA',
@@ -71,12 +76,12 @@ export function buildMetadata({
       images: ogImage,
       ...(type === 'article' ? { publishedTime, modifiedTime } : {}),
     },
-    twitter: { card: 'summary_large_image', title, description, images: ogImage?.map((i) => i.url) },
+    twitter: { card: 'summary_large_image', title: brandedTitle, description, images: ogImage?.map((i) => i.url) },
   }
 }
 
 /** Fallback metadata for a route whose document is missing — never a soft 404 (18.12). */
 export const notFoundMetadata: Metadata = {
-  title: 'Page not found | FEKRA',
+  title: { absolute: 'Page not found | FEKRA' },
   robots: { index: false, follow: false },
 }

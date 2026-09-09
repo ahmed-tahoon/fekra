@@ -1,10 +1,11 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { seedJobs } from './jobs'
+import { seedApprovedServices } from './services'
 
 import { getPayload } from 'payload'
 import config from '../payload.config'
-import { TEAM } from './team'
+import { TEAM, splitTalentPanels } from './team'
 
 /**
  * Seeds a working English site that matches the approved Figma Home layout, so
@@ -52,14 +53,21 @@ const block = (type: 'paragraph' | 'heading', text: string, tag?: 'h2' | 'h3') =
 })
 
 const doc = (children: ReturnType<typeof block>[]) => ({
-  root: { type: 'root', format: '' as const, indent: 0, version: 1, direction: 'ltr' as const, children },
+  root: {
+    type: 'root',
+    format: '' as const,
+    indent: 0,
+    version: 1,
+    direction: 'ltr' as const,
+    children,
+  },
 })
 
 /** Single paragraph — used for short fields like FAQ answers. */
 const rich = (text: string) => doc([block('paragraph', text)])
 
 /** `['h2', 'Heading']` / `['p', 'Body copy']` -> a lexical document. */
-const article = (lines: [('h2' | 'h3' | 'p'), string][]) =>
+const article = (lines: ['h2' | 'h3' | 'p', string][]) =>
   doc(
     lines.map(([kind, text]) =>
       kind === 'p' ? block('paragraph', text) : block('heading', text, kind),
@@ -74,13 +82,25 @@ async function upsert<T extends { id: number; title?: string }>(
   slug: string,
   data: Record<string, unknown>,
 ): Promise<T> {
-  const existing = await payload.find({ collection, where: { slug: { equals: slug } }, limit: 1, depth: 0 })
+  const existing = await payload.find({
+    collection,
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+  })
   const first = existing.docs[0]
   const args = { collection, context: { disableRevalidate: true } } as never
   if (first) {
-    return (await payload.update({ ...(args as object), id: first.id, data } as never)) as unknown as T
+    return (await payload.update({
+      ...(args as object),
+      id: first.id,
+      data,
+    } as never)) as unknown as T
   }
-  return (await payload.create({ ...(args as object), data: { ...data, slug } } as never)) as unknown as T
+  return (await payload.create({
+    ...(args as object),
+    data: { ...data, slug },
+  } as never)) as unknown as T
 }
 
 /**
@@ -143,7 +163,7 @@ const run = async () => {
       console.error(
         '\n  Refusing to create the first admin on a remote database with the default password.\n' +
           '  Re-run with your own credentials:\n\n' +
-          '    SEED_ADMIN_EMAIL=you@fekra-egy.com SEED_ADMIN_PASSWORD=\'<strong password>\' pnpm seed\n',
+          "    SEED_ADMIN_EMAIL=you@fekra-egy.com SEED_ADMIN_PASSWORD='<strong password>' pnpm seed\n",
       )
       process.exit(1)
     }
@@ -185,11 +205,21 @@ const run = async () => {
           city: 'Cairo',
           country: 'Egypt',
           countryCode: 'EG',
+          addressLine: 'Cairo, Egypt',
           phone: '+20 110 113 3572',
           email: 'info@fekra-egy.com',
+          mapUrl: 'https://maps.app.goo.gl/zzophdB6vNaMQvRJ7',
           isHeadquarters: true,
         },
-        { city: 'Riyadh', country: 'Saudi Arabia', countryCode: 'SA' },
+        {
+          city: 'Riyadh',
+          country: 'Saudi Arabia',
+          countryCode: 'SA',
+          addressLine: 'Riyadh, Saudi Arabia',
+          phone: '+966 56 161 6057',
+          email: 'info@fekra-egy.com',
+          mapUrl: 'https://maps.app.goo.gl/tpqavwfxtpXZdG4U8',
+        },
         { city: 'Dubai', country: 'United Arab Emirates', countryCode: 'AE' },
         { city: 'London', country: 'United Kingdom', countryCode: 'GB' },
         { city: 'New York', country: 'United States', countryCode: 'US' },
@@ -252,7 +282,10 @@ const run = async () => {
   // Figma 1:11493 — the comp reuses two portraits across five quotes.
   const testimonialAvatars = Object.fromEntries(
     await Promise.all(
-      ['sarah-chen', 'marcus-rivera'].map(async (n) => [n, await upsertMedia(payload, `${n}.png`, '', 'people')]),
+      ['sarah-chen', 'marcus-rivera'].map(async (n) => [
+        n,
+        await upsertMedia(payload, `${n}.png`, '', 'people'),
+      ]),
     ),
   )
 
@@ -320,24 +353,41 @@ const run = async () => {
     ),
   )
 
-  // Shared by both talent panels — the comp shows the same engineers in each,
-  // in a different order, which the component derives by rotating. The list
-  // lives in src/seed/team.ts so `pnpm seed` and scripts/seed-team.ts cannot
-  // disagree about who is on the team.
+  // Upload once, then give each talent panel its own distinct roster.
   const talentPeople = await Promise.all(
     TEAM.map(async (person) => ({
       name: person.name,
       role: person.role,
       experience: person.experience,
+      match: person.match,
       evaluated: true,
-      avatar: person.file ? ((await upsertMedia(payload, person.file, person.name, 'people'))?.id ?? null) : null,
+      avatar: person.file
+        ? ((await upsertMedia(payload, person.file, person.name, 'people'))?.id ?? null)
+        : null,
     })),
   )
+  const [buildTeamPeople, confidencePeople] = splitTalentPanels(talentPeople)
 
-  const photoNames = ['team', 'office', 'desk', 'code', 'meeting', 'laptop', 'server', 'design', 'data', 'ai', 'review', 'ship']
+  const photoNames = [
+    'team',
+    'office',
+    'desk',
+    'code',
+    'meeting',
+    'laptop',
+    'server',
+    'design',
+    'data',
+    'ai',
+    'review',
+    'ship',
+  ]
   const photos = Object.fromEntries(
     await Promise.all(
-      photoNames.map(async (n) => [n, await upsertMedia(payload, `${n}.jpg`, 'FEKRA team at work', 'samples')]),
+      photoNames.map(async (n) => [
+        n,
+        await upsertMedia(payload, `${n}.jpg`, 'FEKRA team at work', 'samples'),
+      ]),
     ),
   ) as Record<string, { id: number } | null>
 
@@ -347,10 +397,26 @@ const run = async () => {
 
   const services = await Promise.all<{ id: number; title: string; summary: string }>(
     [
-      { slug: 'ai-engineers', title: 'AI Engineers', summary: 'Vetted AI and machine-learning engineers.' },
-      { slug: 'software-developers', title: 'Software Developers', summary: 'Front-end, back-end and full-stack engineers.' },
-      { slug: 'qa-engineers', title: 'QA Engineers', summary: 'Manual, automation and performance testing.' },
-      { slug: 'devops-cloud', title: 'DevOps & Cloud', summary: 'Platform, SRE and cloud infrastructure engineers.' },
+      {
+        slug: 'ai-engineers',
+        title: 'AI Engineers',
+        summary: 'Vetted AI and machine-learning engineers.',
+      },
+      {
+        slug: 'software-developers',
+        title: 'Software Developers',
+        summary: 'Front-end, back-end and full-stack engineers.',
+      },
+      {
+        slug: 'qa-engineers',
+        title: 'QA Engineers',
+        summary: 'Manual, automation and performance testing.',
+      },
+      {
+        slug: 'devops-cloud',
+        title: 'DevOps & Cloud',
+        summary: 'Platform, SRE and cloud infrastructure engineers.',
+      },
     ].map((service, index) =>
       upsert<{ id: number; title: string; summary: string }>(payload, 'services', service.slug, {
         ...service,
@@ -384,7 +450,7 @@ const run = async () => {
     category: string
     tags: string[]
     featured?: boolean
-    body: [('h2' | 'h3' | 'p'), string][]
+    body: ['h2' | 'h3' | 'p', string][]
   }[] = [
     {
       slug: 'software-outsourcing-in-2026',
@@ -395,19 +461,40 @@ const run = async () => {
       tags: ['Outsourcing', 'Delivery'],
       featured: true,
       body: [
-        ['p', 'Outsourcing works when the boundary between teams is a contract about outcomes, not a queue of tickets. It fails when the vendor owns the code but nobody owns the problem.'],
+        [
+          'p',
+          'Outsourcing works when the boundary between teams is a contract about outcomes, not a queue of tickets. It fails when the vendor owns the code but nobody owns the problem.',
+        ],
         ['h2', 'Where outsourcing actually works'],
-        ['p', 'The strongest engagements share one trait: the external team is accountable for a slice of the product a customer can see, end to end. Give a team a feature and a definition of done, and it will organise itself around shipping.'],
+        [
+          'p',
+          'The strongest engagements share one trait: the external team is accountable for a slice of the product a customer can see, end to end. Give a team a feature and a definition of done, and it will organise itself around shipping.',
+        ],
         ['h3', 'Clear surface area'],
-        ['p', 'A well-drawn boundary is usually a page, a service, or a workflow — something with its own tests and its own users. Boundaries drawn along skills instead ("they do frontend") create handoffs at exactly the point where context is expensive to transfer.'],
+        [
+          'p',
+          'A well-drawn boundary is usually a page, a service, or a workflow — something with its own tests and its own users. Boundaries drawn along skills instead ("they do frontend") create handoffs at exactly the point where context is expensive to transfer.',
+        ],
         ['h3', 'A real definition of done'],
-        ['p', 'Done means merged, tested, observable in production, and documented well enough that the next person does not need a call. Anything short of that pushes work back onto your own team later.'],
+        [
+          'p',
+          'Done means merged, tested, observable in production, and documented well enough that the next person does not need a call. Anything short of that pushes work back onto your own team later.',
+        ],
         ['h2', 'Where it fails'],
-        ['p', 'Two failure modes account for most of it: treating the vendor as a ticket queue, and never planning the handover. Both are avoidable, and both are decided in the first two weeks.'],
+        [
+          'p',
+          'Two failure modes account for most of it: treating the vendor as a ticket queue, and never planning the handover. Both are avoidable, and both are decided in the first two weeks.',
+        ],
         ['h3', 'The ticket queue trap'],
-        ['p', 'When every task arrives fully specified, you pay for hands and lose the judgement you were buying. Engineers who cannot ask "should we build this at all?" produce exactly what was written, including the parts that were wrong.'],
+        [
+          'p',
+          'When every task arrives fully specified, you pay for hands and lose the judgement you were buying. Engineers who cannot ask "should we build this at all?" produce exactly what was written, including the parts that were wrong.',
+        ],
         ['h2', 'How to do it right'],
-        ['p', 'Start with one bounded slice. Insist on the same code review, CI and on-call standards you hold internally. Plan the handover on day one, not at the end — the documentation you would need if the team disappeared tomorrow is the documentation you need anyway.'],
+        [
+          'p',
+          'Start with one bounded slice. Insist on the same code review, CI and on-call standards you hold internally. Plan the handover on day one, not at the end — the documentation you would need if the team disappeared tomorrow is the documentation you need anyway.',
+        ],
       ],
     },
     {
@@ -418,17 +505,35 @@ const run = async () => {
       category: 'hiring',
       tags: ['Hiring', 'Process'],
       body: [
-        ['p', 'Every engineer we place goes through the same five stages. The order matters more than the content: the cheapest signals come first.'],
+        [
+          'p',
+          'Every engineer we place goes through the same five stages. The order matters more than the content: the cheapest signals come first.',
+        ],
         ['h2', 'Profile screening'],
-        ['p', 'We shortlist on demonstrated ownership rather than years or logos. Someone who took a system from prototype to production tells us more than someone who spent longer next to one.'],
+        [
+          'p',
+          'We shortlist on demonstrated ownership rather than years or logos. Someone who took a system from prototype to production tells us more than someone who spent longer next to one.',
+        ],
         ['h2', 'Language and communication'],
-        ['p', 'A structured interview in English confirms the engineer can disagree clearly, ask for missing context, and write an update somebody else can act on. This stage removes more candidates than the technical one.'],
+        [
+          'p',
+          'A structured interview in English confirms the engineer can disagree clearly, ask for missing context, and write an update somebody else can act on. This stage removes more candidates than the technical one.',
+        ],
         ['h2', 'Commitment and reliability'],
-        ['p', 'Availability, notice periods and overlap hours are boring questions that prevent expensive surprises. We ask them before anyone invests in a technical assessment.'],
+        [
+          'p',
+          'Availability, notice periods and overlap hours are boring questions that prevent expensive surprises. We ask them before anyone invests in a technical assessment.',
+        ],
         ['h2', 'Technical assessment'],
-        ['p', 'A practical task drawn from the role, not a puzzle. We review the commit history as closely as the result — how someone works through a problem predicts collaboration better than the final diff.'],
+        [
+          'p',
+          'A practical task drawn from the role, not a puzzle. We review the commit history as closely as the result — how someone works through a problem predicts collaboration better than the final diff.',
+        ],
         ['h2', 'Technical interview'],
-        ['p', 'Last, and deliberately so. By this point we already know the person communicates and delivers, so the conversation can go deep on architecture instead of re-checking basics.'],
+        [
+          'p',
+          'Last, and deliberately so. By this point we already know the person communicates and delivers, so the conversation can go deep on architecture instead of re-checking basics.',
+        ],
       ],
     },
     {
@@ -439,13 +544,25 @@ const run = async () => {
       category: 'ai',
       tags: ['AI', 'Engineering'],
       body: [
-        ['p', 'AI tooling changes the cost of writing code. It does not change the cost of understanding it — and understanding is where teams were already bottlenecked.'],
+        [
+          'p',
+          'AI tooling changes the cost of writing code. It does not change the cost of understanding it — and understanding is where teams were already bottlenecked.',
+        ],
         ['h2', 'What compounds'],
-        ['p', 'Test scaffolding, migrations, boilerplate translation, and first-draft documentation. All are verifiable in seconds and boring to write, which is exactly the right profile.'],
+        [
+          'p',
+          'Test scaffolding, migrations, boilerplate translation, and first-draft documentation. All are verifiable in seconds and boring to write, which is exactly the right profile.',
+        ],
         ['h2', 'What adds review load'],
-        ['p', 'Large speculative refactors and unfamiliar subsystems. Generated code arrives without the reasoning that produced it, so the reviewer reconstructs it from scratch — often slower than writing it.'],
+        [
+          'p',
+          'Large speculative refactors and unfamiliar subsystems. Generated code arrives without the reasoning that produced it, so the reviewer reconstructs it from scratch — often slower than writing it.',
+        ],
         ['h2', 'A rule that holds up'],
-        ['p', 'Let AI write anything you can verify faster than you can write. Everything else still needs a human who will be on call for it.'],
+        [
+          'p',
+          'Let AI write anything you can verify faster than you can write. Everything else still needs a human who will be on call for it.',
+        ],
       ],
     },
     {
@@ -456,13 +573,25 @@ const run = async () => {
       category: 'quality',
       tags: ['Quality', 'Testing', 'Delivery'],
       body: [
-        ['p', 'Most QA processes fail in one of two directions: too thin to catch anything, or so heavy that teams route around them.'],
+        [
+          'p',
+          'Most QA processes fail in one of two directions: too thin to catch anything, or so heavy that teams route around them.',
+        ],
         ['h2', 'Gate on severity, not on count'],
-        ['p', 'A blocker stops a release. A cosmetic issue does not. Writing that distinction down before launch week is what keeps the conversation technical instead of political.'],
+        [
+          'p',
+          'A blocker stops a release. A cosmetic issue does not. Writing that distinction down before launch week is what keeps the conversation technical instead of political.',
+        ],
         ['h2', 'Automate the regressions, review the rest'],
-        ['p', 'Anything that broke once should be a test. Everything else is better served by a short, honest manual pass on the flows that make money.'],
+        [
+          'p',
+          'Anything that broke once should be a test. Everything else is better served by a short, honest manual pass on the flows that make money.',
+        ],
         ['h2', 'Re-test before you call it passed'],
-        ['p', 'A fixed defect is not a passed defect. The re-test is the cheapest step in the process and the one most often skipped.'],
+        [
+          'p',
+          'A fixed defect is not a passed defect. The re-test is the cheapest step in the process and the one most often skipped.',
+        ],
       ],
     },
     {
@@ -473,13 +602,25 @@ const run = async () => {
       category: 'outsourcing',
       tags: ['Outsourcing', 'Hiring'],
       body: [
-        ['p', 'The nearshore/offshore debate is really a debate about how many hours a day your teams can talk to each other.'],
+        [
+          'p',
+          'The nearshore/offshore debate is really a debate about how many hours a day your teams can talk to each other.',
+        ],
         ['h2', 'Overlap is the real variable'],
-        ['p', 'Four hours of overlap is enough for a team that owns a bounded slice. One hour is not enough for anyone, at any price.'],
+        [
+          'p',
+          'Four hours of overlap is enough for a team that owns a bounded slice. One hour is not enough for anyone, at any price.',
+        ],
         ['h2', 'When offshore wins'],
-        ['p', 'Deep, specialised skills that are simply not available nearby, and work that is asynchronous by nature — data pipelines, migrations, long-running platform work.'],
+        [
+          'p',
+          'Deep, specialised skills that are simply not available nearby, and work that is asynchronous by nature — data pipelines, migrations, long-running platform work.',
+        ],
         ['h2', 'When nearshore wins'],
-        ['p', 'Product work with frequent direction changes, anything customer-facing, and any team still finding its architecture.'],
+        [
+          'p',
+          'Product work with frequent direction changes, anything customer-facing, and any team still finding its architecture.',
+        ],
       ],
     },
   ]
@@ -487,22 +628,22 @@ const run = async () => {
   const now = Date.now()
   if (WITH_DEMO_CONTENT)
     await Promise.all(
-    posts.map((post, index) =>
-      upsert(payload, 'posts', post.slug, {
-        title: post.title,
-        excerpt: post.excerpt,
-        heroImage: photos[photoNames[index % photoNames.length]!]?.id,
-        content: article(post.body),
-        category: categories[post.category]!.id,
-        tags: post.tags,
-        featured: Boolean(post.featured),
-        availableLocales: ['en'],
-        // Spread the dates so the listing has a believable order.
-        publishedAt: new Date(now - index * 6 * 864e5).toISOString(),
-        _status: 'published',
-      }),
-    ),
-  )
+      posts.map((post, index) =>
+        upsert(payload, 'posts', post.slug, {
+          title: post.title,
+          excerpt: post.excerpt,
+          heroImage: photos[photoNames[index % photoNames.length]!]?.id,
+          content: article(post.body),
+          category: categories[post.category]!.id,
+          tags: post.tags,
+          featured: Boolean(post.featured),
+          availableLocales: ['en'],
+          // Spread the dates so the listing has a believable order.
+          publishedAt: new Date(now - index * 6 * 864e5).toISOString(),
+          _status: 'published',
+        }),
+      ),
+    )
 
   if (WITH_DEMO_CONTENT) await seedJobs(payload, article, now)
 
@@ -640,7 +781,8 @@ const run = async () => {
     eyebrow: 'Your assistant',
     heading: 'Meet Fika',
     body: 'Fika is Fekra’s AI-powered hiring assistant, built to help our team organize candidate data, accelerate screening, and support faster, more structured hiring decisions.',
-    media: (await upsertMedia(payload, 'fika.png', 'Fika, the FEKRA hiring assistant', 'decor'))?.id,
+    media: (await upsertMedia(payload, 'fika.png', 'Fika, the FEKRA hiring assistant', 'decor'))
+      ?.id,
     ctas: [{ variant: 'primary', link: route('Meet Fika', '/contact') }],
   }
 
@@ -662,15 +804,21 @@ const run = async () => {
     items: [
       {
         question: 'What makes Fekra different?',
-        answer: rich('Access to vetted senior talent, rapid start, and a structured process that removes weeks of screening.'),
+        answer: rich(
+          'Access to vetted senior talent, rapid start, and a structured process that removes weeks of screening.',
+        ),
       },
       {
         question: 'What is the estimated cost of hiring a dedicated development team?',
-        answer: rich('Cost depends on seniority, stack and engagement length. Book a 30-minute call for a concrete estimate.'),
+        answer: rich(
+          'Cost depends on seniority, stack and engagement length. Book a 30-minute call for a concrete estimate.',
+        ),
       },
       {
         question: 'How does Fekra protect client rights and data confidentiality?',
-        answer: rich('Every engagement is covered by NDAs and IP assignment, with access controls agreed before onboarding.'),
+        answer: rich(
+          'Every engagement is covered by NDAs and IP assignment, with access controls agreed before onboarding.',
+        ),
       },
     ],
   }
@@ -725,7 +873,9 @@ const run = async () => {
           { text: 'Structured technical evaluation', icon: icons[1]?.id },
           { text: 'Transparent delivery process', icon: icons[2]?.id },
         ],
-        ctas: [{ variant: 'primary', link: route('Schedule a Call', '/meeting', 'booking_cta_click') }],
+        ctas: [
+          { variant: 'primary', link: route('Schedule a Call', '/meeting', 'booking_cta_click') },
+        ],
         // Order matters: each entry maps to a fixed slot in MOSAIC_LAYOUT,
         // which mirrors the Figma collage tile for tile.
         mosaic: [
@@ -767,7 +917,7 @@ const run = async () => {
         panelTitle: 'Build your remote team',
         panelTone: 'grey',
         side: 'copyLeft',
-        people: talentPeople,
+        people: buildTeamPeople,
       },
       {
         // Same block, mirrored and tinted — Figma 1:10318 lower half.
@@ -784,7 +934,7 @@ const run = async () => {
         panelTitle: 'Build your remote team',
         panelTone: 'mint',
         side: 'copyRight',
-        people: talentPeople,
+        people: confidencePeople,
       },
       {
         blockType: 'cardGrid',
@@ -796,32 +946,27 @@ const run = async () => {
           {
             icon: bizIcons.startups?.id,
             title: 'Startups Business',
-            body:
-              'At Fekra, we empower startups to transform their ideas into scalable digital products. Our expertise in MVP development, rapid prototyping, and agile delivery helps founders move fast from concept to market-ready solutions. Acting as your extended tech team, we provide the technical foundation while you focus on growth, investment, and customer traction.\nWe make innovation simple — you dream it, we build it.',
+            body: 'At Fekra, we empower startups to transform their ideas into scalable digital products. Our expertise in MVP development, rapid prototyping, and agile delivery helps founders move fast from concept to market-ready solutions. Acting as your extended tech team, we provide the technical foundation while you focus on growth, investment, and customer traction.\nWe make innovation simple — you dream it, we build it.',
           },
           {
             icon: bizIcons.small?.id,
             title: 'Small Business',
-            body:
-              'Small and mid-sized businesses trust Fekra to drive efficiency, scalability, and digital transformation. We deliver end-to-end technology services — from UI/UX design and web or mobile development to QA, cloud deployment, and ongoing support.\nOur flexible outsourcing models ensure you get enterprise-grade results without enterprise-level costs.',
+            body: 'Small and mid-sized businesses trust Fekra to drive efficiency, scalability, and digital transformation. We deliver end-to-end technology services — from UI/UX design and web or mobile development to QA, cloud deployment, and ongoing support.\nOur flexible outsourcing models ensure you get enterprise-grade results without enterprise-level costs.',
           },
           {
             icon: bizIcons.enterprise?.id,
             title: 'Enterprise Business',
-            body:
-              'For large enterprises, Fekra provides robust, secure, and scalable enterprise-grade software solutions that deliver measurable impact. Our teams specialize in complex system integrations, custom platforms, ERP/CRM implementations, and long-term dedicated resources.\nWe enable global organizations to innovate faster and scale confidently through our reliable offshore delivery centers in Egypt and Saudi Arabia.',
+            body: 'For large enterprises, Fekra provides robust, secure, and scalable enterprise-grade software solutions that deliver measurable impact. Our teams specialize in complex system integrations, custom platforms, ERP/CRM implementations, and long-term dedicated resources.\nWe enable global organizations to innovate faster and scale confidently through our reliable offshore delivery centers in Egypt and Saudi Arabia.',
           },
           {
             icon: bizIcons.agency?.id,
             title: 'Agency Business',
-            body:
-              'We collaborate with agencies worldwide — providing the technical execution that transforms creative visions into real products. Through 360° technology consulting, flexible engagement models, and a skilled in-house team, we help agencies extend their capabilities, meet deadlines, and scale seamlessly.\nPartnering with Fekra means gaining a trusted technical backbone for your client projects.',
+            body: 'We collaborate with agencies worldwide — providing the technical execution that transforms creative visions into real products. Through 360° technology consulting, flexible engagement models, and a skilled in-house team, we help agencies extend their capabilities, meet deadlines, and scale seamlessly.\nPartnering with Fekra means gaining a trusted technical backbone for your client projects.',
           },
           {
             icon: bizIcons.innovation?.id,
             title: 'Bringing Innovation Together',
-            body:
-              'Innovation is at the heart of Fekra.\nOur R&D and engineering teams stay ahead of emerging technologies — from AI and automation to cloud and data-driven platforms — ensuring our clients always benefit from the latest innovations, security standards, and global best practices. Let\u2019s build the future, together.',
+            body: 'Innovation is at the heart of Fekra.\nOur R&D and engineering teams stay ahead of emerging technologies — from AI and automation to cloud and data-driven platforms — ensuring our clients always benefit from the latest innovations, security standards, and global best practices. Let\u2019s build the future, together.',
           },
         ],
         ctas: [{ variant: 'secondary', link: route('Get in Touch', '/contact') }],
@@ -835,7 +980,8 @@ const run = async () => {
       faqBlock,
       postsTeaserBlock,
       contactBlock,
-      ctaBandBlock],
+      ctaBandBlock,
+    ],
   })
 
   const contact = await upsert<{ id: number }>(payload, 'pages', 'contact', {
@@ -860,7 +1006,9 @@ const run = async () => {
    * band tint.
    */
   const consultIcons = await Promise.all(
-    ['icon-cost.svg', 'icon-speed.png', 'icon-talent.svg'].map((f) => upsertMedia(payload, f, '', 'services')),
+    ['icon-cost.svg', 'icon-speed.png', 'icon-talent.svg'].map((f) =>
+      upsertMedia(payload, f, '', 'services'),
+    ),
   )
 
   const hiringModelsBlock = {
@@ -918,8 +1066,14 @@ const run = async () => {
       blockType: 'serviceHero',
       ...hero,
       highlights: [
-        { icon: consultIcons[0]?.id, text: '30% to 60% Cost savings per talent hired through Fekra' },
-        { icon: consultIcons[1]?.id, text: "Hire an individual or team in 6 to 14 days with Fekra's fast staffing solutions." },
+        {
+          icon: consultIcons[0]?.id,
+          text: '30% to 60% Cost savings per talent hired through Fekra',
+        },
+        {
+          icon: consultIcons[1]?.id,
+          text: "Hire an individual or team in 6 to 14 days with Fekra's fast staffing solutions.",
+        },
         { icon: consultIcons[2]?.id, text: "Access Fekra's top-rated, highly skilled talent pool" },
       ],
       formTitle: 'Get Free Consultation',
@@ -957,9 +1111,18 @@ const run = async () => {
         summary: 'Hire the skills your business needs today and stay ready for what comes next.',
         heroTone: 'blue' as const,
         roles: [
-          'AI Developer', 'MEAN Stack Developers', 'Data Engineers', 'Full Stack Developers',
-          'MERN Stack Developers', 'Python Developers', 'Javascript Developers', 'AWS Developers',
-          'CRM Developers', 'Graphics Designers', 'Odoo Developers', 'Blockchain Developers',
+          'AI Developer',
+          'MEAN Stack Developers',
+          'Data Engineers',
+          'Full Stack Developers',
+          'MERN Stack Developers',
+          'Python Developers',
+          'Javascript Developers',
+          'AWS Developers',
+          'CRM Developers',
+          'Graphics Designers',
+          'Odoo Developers',
+          'Blockchain Developers',
         ],
         body:
           'Access experienced developers across today\u2019s most in-demand technologies and build the technical capabilities your business needs to grow.\n' +
@@ -969,11 +1132,16 @@ const run = async () => {
       {
         slug: 'hire-full-stack-developers',
         title: 'Hire Full-Stack Developers',
-        summary: 'Hire versatile full-stack talent and move your product from idea to production with confidence.',
+        summary:
+          'Hire versatile full-stack talent and move your product from idea to production with confidence.',
         heroTone: 'blush' as const,
         roles: [
-          'Full-Stack Developers', 'MERN Stack Developers', 'MEAN Stack Developers',
-          'Java Full-Stack Developers', '.NET Full-Stack Developers', 'Python Full-Stack Developers',
+          'Full-Stack Developers',
+          'MERN Stack Developers',
+          'MEAN Stack Developers',
+          'Java Full-Stack Developers',
+          '.NET Full-Stack Developers',
+          'Python Full-Stack Developers',
         ],
         body:
           'Build complete, scalable digital products with experienced full-stack developers who can work across both front-end and back-end technologies.\n' +
@@ -983,11 +1151,16 @@ const run = async () => {
       {
         slug: 'hire-mobile-app-developers',
         title: 'Hire Mobile App Developers',
-        summary: 'Hire the right mobile development talent and turn your product vision into an app users enjoy and trust.',
+        summary:
+          'Hire the right mobile development talent and turn your product vision into an app users enjoy and trust.',
         heroTone: 'amber' as const,
         roles: [
-          'iOS Developers', 'Android Developers', 'React Native Developers',
-          'Flutter Developers', 'Kotlin Developers', 'Swift Developers',
+          'iOS Developers',
+          'Android Developers',
+          'React Native Developers',
+          'Flutter Developers',
+          'Kotlin Developers',
+          'Swift Developers',
         ],
         body:
           'Build fast, reliable, and user-friendly mobile applications with experienced developers who understand how to create seamless experiences across iOS and Android.\n' +
@@ -997,11 +1170,18 @@ const run = async () => {
       {
         slug: 'hire-devops-cloud-engineers',
         title: 'Hire DevOps & Cloud Engineers',
-        summary: 'Hire the right DevOps and cloud talent to build faster, operate reliably, and scale with confidence.',
+        summary:
+          'Hire the right DevOps and cloud talent to build faster, operate reliably, and scale with confidence.',
         heroTone: 'sky' as const,
         roles: [
-          'DevOps Engineers', 'Cloud Engineers', 'AWS Engineers', 'Azure Engineers',
-          'Google Cloud Engineers', 'Site Reliability Engineers', 'Platform Engineers', 'Kubernetes Engineers',
+          'DevOps Engineers',
+          'Cloud Engineers',
+          'AWS Engineers',
+          'Azure Engineers',
+          'Google Cloud Engineers',
+          'Site Reliability Engineers',
+          'Platform Engineers',
+          'Kubernetes Engineers',
         ],
         body:
           'Build secure, scalable, and reliable infrastructure with experienced DevOps and cloud engineers who can streamline delivery, improve system performance, and support long-term growth.\n' +
@@ -1011,11 +1191,16 @@ const run = async () => {
       {
         slug: 'hire-front-end-developers',
         title: 'Hire Front-End Developers',
-        summary: 'Hire the right front-end talent to create digital experiences that look exceptional, perform smoothly, and keep users engaged.',
+        summary:
+          'Hire the right front-end talent to create digital experiences that look exceptional, perform smoothly, and keep users engaged.',
         heroTone: 'coral' as const,
         roles: [
-          'React Developers', 'Angular Developers', 'Vue.js Developers',
-          'Next.js Developers', 'JavaScript Developers', 'TypeScript Developers',
+          'React Developers',
+          'Angular Developers',
+          'Vue.js Developers',
+          'Next.js Developers',
+          'JavaScript Developers',
+          'TypeScript Developers',
         ],
         body:
           'Build fast, responsive, and engaging digital experiences with experienced front-end developers who can turn complex requirements and designs into intuitive, high-performing interfaces.\n' +
@@ -1025,11 +1210,19 @@ const run = async () => {
       {
         slug: 'hire-back-end-developers',
         title: 'Hire Back-End Developers',
-        summary: 'Hire the right back-end talent to power your applications, support business growth, and scale with confidence.',
+        summary:
+          'Hire the right back-end talent to power your applications, support business growth, and scale with confidence.',
         heroTone: 'teal' as const,
         roles: [
-          'Python Developers', 'Node.js Developers', 'Java Developers', 'Spring Boot Developers',
-          '.NET Developers', 'ASP.NET Core Developers', 'PHP Developers', 'Laravel Developers', 'Golang Developers',
+          'Python Developers',
+          'Node.js Developers',
+          'Java Developers',
+          'Spring Boot Developers',
+          '.NET Developers',
+          'ASP.NET Core Developers',
+          'PHP Developers',
+          'Laravel Developers',
+          'Golang Developers',
         ],
         body:
           'Build secure, scalable, and high-performing applications with experienced back-end developers who can create the reliable systems, APIs, and databases behind your digital products.\n' +
@@ -1039,11 +1232,18 @@ const run = async () => {
       {
         slug: 'hire-ai-data-experts',
         title: 'Hire AI & Data Experts',
-        summary: 'Hire the right AI and data talent to unlock valuable insights, automate complex processes, and build intelligent solutions that drive business growth.',
+        summary:
+          'Hire the right AI and data talent to unlock valuable insights, automate complex processes, and build intelligent solutions that drive business growth.',
         heroTone: 'gold' as const,
         roles: [
-          'AI Engineers', 'Machine Learning Engineers', 'Data Scientists', 'Data Engineers',
-          'MLOps Engineers', 'NLP Engineers', 'Computer Vision Engineers', 'BI Developers',
+          'AI Engineers',
+          'Machine Learning Engineers',
+          'Data Scientists',
+          'Data Engineers',
+          'MLOps Engineers',
+          'NLP Engineers',
+          'Computer Vision Engineers',
+          'BI Developers',
         ],
         body:
           'Turn your data into smarter decisions and powerful digital products with experienced AI and data experts who can design, build, and deploy intelligent, scalable solutions.\n' +
@@ -1053,11 +1253,16 @@ const run = async () => {
       {
         slug: 'hire-qa-engineers',
         title: 'Hire QA Engineers',
-        summary: 'Hire the right QA talent to strengthen every release, reduce costly issues, and deliver software your users can trust.',
+        summary:
+          'Hire the right QA talent to strengthen every release, reduce costly issues, and deliver software your users can trust.',
         heroTone: 'lilac' as const,
         roles: [
-          'Manual QA Engineers', 'Automation QA Engineers', 'SDET Engineers',
-          'Performance Test Engineers', 'Mobile QA Engineers', 'API Test Engineers',
+          'Manual QA Engineers',
+          'Automation QA Engineers',
+          'SDET Engineers',
+          'Performance Test Engineers',
+          'Mobile QA Engineers',
+          'API Test Engineers',
         ],
         body:
           'Deliver reliable, secure, and high-performing software with experienced QA engineers who can identify risks early, improve product quality, and help your team release with confidence.\n' +
@@ -1072,9 +1277,27 @@ const run = async () => {
         availableLocales: ['en'],
         _status: 'published',
         menuRoles: svc.roles.map((label) => ({ label })),
-        layout: serviceLayout({ heading: svc.title, heroTone: svc.heroTone, body: svc.body, closer: svc.summary }),
+        layout: serviceLayout({
+          heading: svc.title,
+          heroTone: svc.heroTone,
+          body: svc.body,
+          closer: svc.summary,
+        }),
       }),
     ),
+  )
+
+  // The public FEKRA catalog includes delivery services, specialist families,
+  // and role-level SEO pages. Run this after the original hire pages so shared
+  // slugs (front-end, full-stack, mobile, QA) receive their approved parent
+  // relationships and metadata rather than being reset to top-level pages.
+  await seedApprovedServices(payload as never, (service) =>
+    serviceLayout({
+      heading: service.title,
+      heroTone: service.tone,
+      body: service.body,
+      closer: service.summary,
+    }),
   )
 
   await payload.updateGlobal({
@@ -1098,7 +1321,10 @@ const run = async () => {
         { link: page('Contact Us', contact.id) },
       ],
       ctas: [
-        { variant: 'primary', link: route('Book a 30-Min Meeting', '/meeting', 'booking_cta_click') },
+        {
+          variant: 'primary',
+          link: route('Book a 30-Min Meeting', '/meeting', 'booking_cta_click'),
+        },
       ],
     },
   })

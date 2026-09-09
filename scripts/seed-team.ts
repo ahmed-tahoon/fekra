@@ -1,5 +1,5 @@
 /**
- * Puts the real FEKRA engineers into the two talent-showcase marquees on the
+ * Puts distinct FEKRA talent profiles into the two talent-showcase marquees on the
  * home page, and uploads their headshots to Media.
  *
  *   pnpm seed:team          # dry run
@@ -17,13 +17,8 @@
  * matches the rows it already has and the Arabic, German, French and Spanish
  * values of their localized fields survive the update.
  *
- * Two things this deliberately does not set:
- *   - `match`: the source list has no match percentages, and inventing them
- *     against real employees' names is not on. The chip only renders when the
- *     field has a value, so the cards show name, role, years and "Technically
- *     Evaluated".
- *   - `role` in anything but English. The field is localized; the other four
- *     locales fall back to English until someone approves translations (14.9).
+ * Existing profile copy and row IDs are preserved; only panel membership and
+ * avatars change. New profiles use the shared seed defaults.
  *
  * `experience` is NOT a localized field, so whatever goes in here shows in all
  * five languages. English is the honest choice — the previous seed had Arabic
@@ -35,7 +30,7 @@ import { join } from 'path'
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
-import { TEAM, type TeamMember } from '../src/seed/team'
+import { TEAM, splitTalentPanels, type TeamMember } from '../src/seed/team'
 
 type Person = TeamMember
 
@@ -82,7 +77,7 @@ const run = async () => {
     name: person.name,
     role: person.role,
     experience: person.experience,
-    // `match` intentionally absent — see the file header.
+    match: person.match,
     evaluated: true,
     avatar: avatars.get(person.name) ?? null,
   })
@@ -93,14 +88,16 @@ const run = async () => {
   ).docs[0]
   if (!home) throw new Error('no page with slug "home"')
 
-  const layout = (home as { layout: { blockType: string; people?: unknown[] }[] }).layout
+  type ExistingPerson = ReturnType<typeof row> & { id?: string }
+  const layout = (home as { layout: { blockType: string; people?: ExistingPerson[] }[] }).layout
   const showcases = layout.filter((block) => block.blockType === 'talentShowcase')
-  if (!showcases.length) throw new Error('the home page has no talentShowcase block')
+  if (showcases.length !== 2) throw new Error('expected exactly two home talentShowcase blocks')
+  const rosters = splitTalentPanels(TEAM)
 
   console.log(
     `\n${showcases.length} talent showcase(s) on /: ` +
       showcases.map((s) => `${(s.people ?? []).length} people`).join(', ') +
-      ` -> ${TEAM.length} each`,
+      ` -> ${rosters.map((roster) => roster.length).join(' and ')} distinct people`,
   )
   for (const person of TEAM) {
     console.log(
@@ -114,14 +111,27 @@ const run = async () => {
     process.exit(0)
   }
 
-  const next = layout.map((block) =>
-    block.blockType === 'talentShowcase' ? { ...block, people: TEAM.map(row) } : block,
-  )
+  let showcaseIndex = 0
+  const next = layout.map((block) => {
+    if (block.blockType !== 'talentShowcase') return block
+    const roster = rosters[showcaseIndex++]
+    if (!roster) throw new Error('missing talent panel roster')
+    return {
+      ...block,
+      people: roster.map((person) => {
+        const existing = block.people?.find((entry) => entry.name === person.name)
+        // Keep IDs and existing copy so localized profile fields survive.
+        return existing
+          ? { ...existing, avatar: avatars.get(person.name) ?? existing.avatar }
+          : row(person)
+      }),
+    }
+  })
 
   await payload.update({
     collection: 'pages',
     id: home.id,
-    data: { layout: next, _status: 'published' } as never,
+    data: { layout: next } as never,
     context: { disableRevalidate: true },
   })
 
