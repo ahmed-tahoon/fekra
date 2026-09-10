@@ -59,11 +59,33 @@ console.log('  migrate: applying pending migrations…')
 const args = ['migrate']
 if (process.env.MIGRATE_ACCEPT_DATA_LOSS === 'true') args.push('--force-accept-warning')
 
-const result = spawnSync('payload', args, {
-  stdio: ['ignore', 'inherit', 'inherit'],
-  env: { ...process.env, NODE_OPTIONS: '--no-deprecation' },
-  shell: true,
-})
+/*
+ * Supavisor hands out a backend per transaction, and when it is saturated the
+ * checkout fails outright — `(ECHECKOUTTIMEOUT) unable to check out connection
+ * from the pool after 15000ms in Transaction mode`, a FATAL that kills the
+ * migrate step and so the whole deploy. Nothing is wrong with the migration or
+ * the schema; the pooler was busy for fifteen seconds. Applied migrations are
+ * recorded in payload_migrations, so re-running is a no-op for anything that
+ * already landed and a genuine failure still fails, three times, with its own
+ * error on the log.
+ *
+ * ponytail: fixed 30s backoff. The structural fix is to point migrations at the
+ * session pooler (port 5432), which is what Supabase recommends for them and
+ * what stayed responsive here while 6543 stalled — set DATABASE_URL to that for
+ * the build if these retries ever stop being enough.
+ */
+let result
+for (let attempt = 1; attempt <= 3; attempt++) {
+  result = spawnSync('payload', args, {
+    stdio: ['ignore', 'inherit', 'inherit'],
+    env: { ...process.env, NODE_OPTIONS: '--no-deprecation' },
+    shell: true,
+  })
+
+  if (result.status === 0 || attempt === 3) break
+  console.error(`  migrate: attempt ${attempt} failed — retrying in 30s…`)
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 30_000)
+}
 
 if (result.status !== 0) {
   console.error(

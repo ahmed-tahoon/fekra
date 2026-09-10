@@ -168,11 +168,30 @@ const nextConfig: NextConfig = {
    * with no runtime DB lookup. Regenerate with `pnpm check:links`.
    */
   async redirects() {
-    return redirectMap.map((r) => ({
-      source: r.from,
-      destination: r.to,
-      permanent: r.permanent !== false,
-    }))
+    return [
+      ...redirectMap.map((r) => ({
+        source: r.from,
+        destination: r.to,
+        permanent: r.permanent !== false,
+      })),
+      /*
+       * Media is served straight from the bucket now (see payload.config.ts), so
+       * Payload no longer answers on /cms-api/media/file/... — and every URL it
+       * handed out before still points there: pages held in the ISR cache, image
+       * results in Google, anything anyone hotlinked. Without this they 500.
+       * 307, not 308: turning S3_PUBLIC_HOST off has to put the old handler back
+       * without a permanent redirect stuck in browser caches pointing away.
+       */
+      ...(S3_HOST
+        ? [
+            {
+              source: '/cms-api/media/file/:filename',
+              destination: `https://${S3_HOST}/storage/v1/object/public/${process.env.S3_BUCKET}/media/:filename`,
+              permanent: false,
+            },
+          ]
+        : []),
+    ]
   },
 
   turbopack: { root: path.resolve(dirname) },
