@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 
 import { notify } from '@/lib/notify'
 import { payloadClient } from '@/lib/payload'
@@ -65,20 +65,37 @@ export async function POST(request: Request) {
       },
     })
 
-    const settings = await payload.findGlobal({ slug: 'site-settings' })
-    const to = (settings.notificationEmails as string[] | undefined) ?? []
-    await notify(payload, {
-      to,
-      subject: `New contact: ${data.subject}`,
-      rows: [
-        ['Name', data.fullName],
-        ['Email', data.email],
-        ['Phone', data.phone],
-        ['Company', data.company],
-        ['Message', data.message],
-        ['Page', data.sourcePath],
-        ['Campaign', data.utmCampaign],
-      ],
+    /*
+     * The record is stored — that is the whole of what the visitor is waiting
+     * for. Looking up the recipients and sending the email is internal
+     * follow-up, so it runs after the response: a slow database or mail
+     * provider then costs an email, not a form stuck on "Sending…". `select`
+     * keeps the lookup to the one column it needs instead of populating the
+     * whole of site-settings across every locale.
+     */
+    after(async () => {
+      try {
+        const settings = await payload.findGlobal({
+          slug: 'site-settings',
+          depth: 0,
+          select: { notificationEmails: true },
+        })
+        await notify(payload, {
+          to: (settings.notificationEmails as string[] | undefined) ?? [],
+          subject: `New contact: ${data.subject}`,
+          rows: [
+            ['Name', data.fullName],
+            ['Email', data.email],
+            ['Phone', data.phone],
+            ['Company', data.company],
+            ['Message', data.message],
+            ['Page', data.sourcePath],
+            ['Campaign', data.utmCampaign],
+          ],
+        })
+      } catch (error) {
+        payload.logger.error({ err: error }, 'contact notification failed')
+      }
     })
 
     return NextResponse.json({ ok: true })

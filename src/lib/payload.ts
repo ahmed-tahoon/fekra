@@ -87,7 +87,7 @@ export async function findDocs<T = unknown>({
   sort,
   depth = 1,
   select,
-}: FindArgs): Promise<{ docs: T[]; totalPages: number; totalDocs: number }> {
+}: FindArgs): Promise<{ docs: T[] }> {
   const draft = await isDraft()
   const payload = await payloadClient()
 
@@ -109,11 +109,23 @@ export async function findDocs<T = unknown>({
         page,
         sort,
         select,
+        /*
+         * Payload runs a second `select count(*)` per find purely to fill in
+         * totalDocs/totalPages. Nothing in this app reads either — the blog
+         * index pulls its whole list and filters on the client, and there is no
+         * pagination UI anywhere — so every list read was paying for two round
+         * trips to get one. That is also the query that surfaces as the
+         * intermittent `Failed query: select count(*) from "services"` when the
+         * database is slow, so dropping it halves both the cost and the
+         * exposure. Re-enable it (and return the counts) the day something
+         * actually paginates.
+         */
+        pagination: false,
         where: draft || !hasDrafts ? where : { ...where, _status: { equals: 'published' } },
       }),
   )
 
-  return { docs: result.docs as T[], totalPages: result.totalPages, totalDocs: result.totalDocs }
+  return { docs: result.docs as T[] }
 }
 
 /*

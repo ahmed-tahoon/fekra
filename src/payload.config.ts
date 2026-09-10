@@ -42,6 +42,16 @@ const generateURL: GenerateURL = ({ doc, collectionConfig }) =>
 
 const hasS3 = Boolean(process.env.S3_BUCKET)
 
+/**
+ * Public read URL for the media bucket, when one is configured. Supabase serves
+ * public objects from /storage/v1/object/public/<bucket>/, which is a different
+ * host and path from the S3 API endpoint uploads go through. Same variable
+ * next.config.ts allows in `images.remotePatterns`, so the two cannot drift.
+ */
+const MEDIA_PUBLIC_BASE = process.env.S3_PUBLIC_HOST
+  ? `https://${process.env.S3_PUBLIC_HOST}/storage/v1/object/public/${process.env.S3_BUCKET}`
+  : null
+
 /*
  * Supabase signs S3 requests against the project's real region. `auto` is a
  * Cloudflare R2 convention and it is the default in .env.example, so the wrong
@@ -183,6 +193,24 @@ export default buildConfig({
       // Give connections back to the pooler quickly once idle.
       idleTimeoutMillis: 10_000,
       /*
+       * When Supavisor stalls it can drop a backend without the FIN ever
+       * reaching us, leaving a half-open socket that pg still counts as a live
+       * client. Enough of those and the pool is permanently full of
+       * connections that will never answer: every query — read AND write —
+       * then fails on the connectionTimeoutMillis below, and the process stays
+       * broken until it is restarted. Observed on 09 Sep 2026, when a pooler
+       * stall left the dev server returning 500s for a quarter of an hour
+       * after Supabase itself had recovered.
+       *
+       * TCP keepalive makes the OS notice the dead peer and error the socket,
+       * so pg discards the client instead of holding a corpse; the lifetime
+       * cap retires long-lived connections that never went idle long enough
+       * for idleTimeoutMillis to reap them.
+       */
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10_000,
+      maxLifetimeSeconds: 1800,
+      /*
        * Without this pg waits FOREVER for a free connection, so a saturated
        * pool reads as a request that never returns — the admin spinning on
        * "Saving..." with no error anywhere. Fail loudly instead.
@@ -229,7 +257,30 @@ export default buildConfig({
       ? [
           s3Storage({
             collections: {
-              media: { prefix: 'media' },
+              /*
+               * Serve media straight from the bucket instead of streaming every
+               * byte back through this app. Payload's default keeps uploads
+               * behind /cms-api/media/file/..., so each of the ~70 images on the
+               * home page is a round trip that wakes a function, fetches the
+               * object from Supabase and re-emits it — measured at 2.5s per
+               * image against 0.75s for the same file fetched directly.
+               *
+               * Only `media` opts out. Supabase's default S3 URL is the signed
+               * API path (403 unencoded), so the public object path is built
+               * explicitly. Gated on S3_PUBLIC_HOST: unset — or a bucket that is
+               * not public — leaves the proxied behaviour exactly as it was
+               * rather than turning every image into a 403.
+               */
+              media: {
+                prefix: 'media',
+                ...(MEDIA_PUBLIC_BASE
+                  ? {
+                      disablePayloadAccessControl: true as const,
+                      generateFileURL: ({ filename, prefix }: { filename: string; prefix?: string }) =>
+                        `${MEDIA_PUBLIC_BASE}/${prefix ? `${prefix}/` : ''}${filename}`,
+                    }
+                  : {}),
+              },
               // 21.4 — CVs are never public objects; links expire.
               'applicant-files': { prefix: 'applications', signedDownloads: { expiresIn: 300 } },
             },

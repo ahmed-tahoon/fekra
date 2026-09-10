@@ -1,6 +1,6 @@
 import { createHash } from 'crypto'
 
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 
 import { notify } from '@/lib/notify'
 import { payloadClient } from '@/lib/payload'
@@ -107,18 +107,34 @@ export async function POST(request: Request) {
       },
     })
 
-    const settings = await payload.findGlobal({ slug: 'site-settings' })
-    await notify(payload, {
-      to: (settings.careersEmails as string[] | undefined) ?? [],
-      subject: `New application: ${job.title}`,
-      rows: [
-        ['Role', String(job.title)],
-        ['Name', data.fullName],
-        ['Email', data.email],
-        ['Phone', data.phone],
-        ['LinkedIn', data.linkedin],
-        ['Note', data.coverNote],
-      ],
+    /*
+     * Same as the contact route: the application is saved, so the candidate is
+     * done waiting. Notifying the team runs after the response — and outside
+     * the try, where a failed recipient lookup used to fall into the cleanup
+     * branch below and delete the CV of an application that had been stored.
+     */
+    after(async () => {
+      try {
+        const settings = await payload.findGlobal({
+          slug: 'site-settings',
+          depth: 0,
+          select: { careersEmails: true },
+        })
+        await notify(payload, {
+          to: (settings.careersEmails as string[] | undefined) ?? [],
+          subject: `New application: ${job.title}`,
+          rows: [
+            ['Role', String(job.title)],
+            ['Name', data.fullName],
+            ['Email', data.email],
+            ['Phone', data.phone],
+            ['LinkedIn', data.linkedin],
+            ['Note', data.coverNote],
+          ],
+        })
+      } catch (error) {
+        payload.logger.error({ err: error }, 'application notification failed')
+      }
     })
 
     return NextResponse.json({ ok: true })
