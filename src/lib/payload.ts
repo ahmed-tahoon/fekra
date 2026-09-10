@@ -38,17 +38,31 @@ async function isDraft(): Promise<boolean> {
 }
 
 /*
- * Dev-only memo. `next dev` re-renders every request — ISR is a production
- * mechanism — so each locale switch repaid ~1.2s of remote queries for data
- * that had not changed. 60s TTL: fresh enough while editing the CMS, long
- * enough to make hopping between locales instant. Draft reads bypass it, and
- * production never touches it (ISR is the one cache layer there).
+ * Process-lifetime memo for `next dev` and `next build`. Dev re-renders every
+ * request — ISR is a production mechanism — so each locale switch repaid ~1.2s
+ * of remote queries for data that had not changed.
+ *
+ * The build needs it for a different reason. Every page carrying a
+ * `sharedSection` block reads the whole home document to resolve it (see
+ * RenderBlocks.resolveShared), and that is Payload's widest query: a lateral
+ * join across all nineteen block tables and their locale tables. `findDoc` is
+ * wrapped in React `cache()`, which dedupes inside ONE render and does nothing
+ * across separate prerenders, so a 109-page export ran it 109 times. That is
+ * what put the deploy at the mercy of a busy pooler — `Export encountered an
+ * error on /services/[slug]`, cause `timeout exceeded when trying to connect`.
+ * Content cannot change mid-build, so one fetch per worker is not just an
+ * optimisation, it is the correct read.
+ *
+ * Draft reads bypass it, and serving production still never touches it: ISR is
+ * the one cache layer there.
  */
 const devCache = new Map<string, { t: number; v: unknown }>()
 const devInflight = new Map<string, Promise<unknown>>()
 const DEV_TTL_MS = 300_000
+const MEMOIZED_PHASE =
+  process.env.NODE_ENV === 'development' || process.env.NEXT_PHASE === 'phase-production-build'
 async function devMemo<T>(key: string | null, fn: () => Promise<T>): Promise<T> {
-  if (process.env.NODE_ENV !== 'development' || key === null) return fn()
+  if (!MEMOIZED_PHASE || key === null) return fn()
   const hit = devCache.get(key)
   if (hit && Date.now() - hit.t < DEV_TTL_MS) return hit.v as T
 

@@ -178,17 +178,30 @@ export default buildConfig({
        * dev server, a seed run and a Vercel build to coexist. Raise via
        * DATABASE_POOL_MAX if the pooler's limit is ever increased.
        *
-       * Build only: next build prerenders with several worker processes, each
-       * booting its own pool against that shared cap, so squeeze to 2 there.
        * At RUNTIME 2 is a deadlock: Fluid Compute runs many requests per
        * instance and every Payload write holds a connection for the length of
        * its transaction, so two concurrent saves park both connections and any
-       * third query stalls out the 15s connect timeout — the "Something went
+       * third query stalls out the connect timeout — the "Something went
        * wrong." 500 on /cms-api. Runtime needs real headroom.
+       *
+       * The build used to squeeze to 2 for fear of that shared cap, and it was
+       * strangling itself for exactly the reason the paragraph above gives.
+       * Every page render opens several queries at once — the document, the
+       * dictionary and site-settings go out under one Promise.all — so with two
+       * connections the third waits for a slot that only frees when a query
+       * finishes, and a wide one (Payload's page query laterals across all
+       * nineteen block tables) holds its slot for seconds. Past the timeout
+       * that is not a slow page, it is `Export encountered an error`, and the
+       * whole deploy dies on the first one.
+       *
+       * Measured 10 Sep 2026 on this database: at 2 the export died at 0/109,
+       * at 8 it completed 109/109 in 33.3s with no errors. The 15-client fear
+       * was about SESSION mode; DATABASE_URL points at the transaction pooler
+       * on 6543, which multiplexes and was sitting at 27 of 60 backends.
        */
       max: Number(
         process.env.DATABASE_POOL_MAX ??
-          (process.env.NEXT_PHASE === 'phase-production-build' ? 2 : process.env.VERCEL ? 10 : 4),
+          (process.env.NEXT_PHASE === 'phase-production-build' ? 8 : process.env.VERCEL ? 10 : 4),
       ),
       // Give connections back to the pooler quickly once idle.
       idleTimeoutMillis: 10_000,
@@ -214,8 +227,17 @@ export default buildConfig({
        * Without this pg waits FOREVER for a free connection, so a saturated
        * pool reads as a request that never returns — the admin spinning on
        * "Saving..." with no error anywhere. Fail loudly instead.
+       *
+       * Build gets four times the patience — not because that was the export
+       * failure (an undersized pool was; see `max`), but because Supavisor has
+       * been measured taking 17-54s to hand over a connection, and at 15s a
+       * stall like that still kills the deploy. The two limits answer to
+       * different people: at runtime someone is watching a spinner and 15s is
+       * already longer than they will wait, so failing fast is the kindness;
+       * during a prerender nobody is waiting and the cost of giving up is the
+       * whole deploy.
        */
-      connectionTimeoutMillis: 15_000,
+      connectionTimeoutMillis: process.env.NEXT_PHASE === 'phase-production-build' ? 60_000 : 15_000,
     },
     // Only ever auto-push against a local throwaway database (see isLocalDatabase).
     push: process.env.NODE_ENV !== 'production' && isLocalDatabase(),
