@@ -291,7 +291,7 @@ export function HeroSection({
     }
 
     return (
-      <div className={cn('relative size-full overflow-hidden bg-tile-mist', corner)}>
+      <div className={cn('relative size-full overflow-hidden bg-tile-mist dark:bg-card', corner)}>
         {image?.url ? (
           <Image
             src={mediaUrl(image)}
@@ -837,7 +837,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                         style={{ '--fk-tint': tint.disc } as React.CSSProperties}
                         className={cn(
                           'grid size-[120px] shrink-0 place-items-center overflow-hidden rounded-full',
-                          (icon.width ?? 1) / (icon.height ?? 1) > 1.5 ? undefined : 'fk-tint-bg',
+                          (icon.width ?? 1) / (icon.height ?? 1) > 1.5 ? 'dark:rounded-lg dark:bg-white' : 'fk-tint-bg',
                         )}
                       >
                         <Image
@@ -847,7 +847,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                           height={120}
                           aria-hidden
                           style={{ width: 'auto' }}
-                          className="max-h-[120px] w-auto object-contain"
+                          className="max-h-[120px] w-auto max-w-full object-contain"
                         />
                       </span>
                     ) : null}
@@ -1039,11 +1039,11 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
 /* Figma 3:1825 — the five pastels cycle across the grid; the editor picks
    each tile's tone so a new industry does not have to inherit a neighbour's. */
 const INDUSTRY_TONE = {
-  pink: 'bg-industry-pink',
-  mint: 'bg-industry-mint',
-  lilac: 'bg-industry-lilac',
-  teal: 'bg-industry-teal',
-  blue: 'bg-industry-blue',
+  pink: 'var(--color-industry-pink)',
+  mint: 'var(--color-industry-mint)',
+  lilac: 'var(--color-industry-lilac)',
+  teal: 'var(--color-industry-teal)',
+  blue: 'var(--color-industry-blue)',
 } as const
 
 export function IndustriesSection({ block }: { block: BlockProps }) {
@@ -1085,10 +1085,8 @@ export function IndustriesSection({ block }: { block: BlockProps }) {
             return (
               <li
                 key={item.label}
-                className={cn(
-                  'flex w-[132px] flex-col items-center gap-4 rounded-tl-industry rounded-br-industry px-4 py-4 sm:w-[160px]',
-                  INDUSTRY_TONE[item.tone ?? 'teal'],
-                )}
+                style={{ '--fk-tint': INDUSTRY_TONE[item.tone ?? 'teal'] } as React.CSSProperties}
+                className="fk-tint-bg fk-tint-border flex w-[132px] flex-col items-center gap-4 rounded-tl-industry rounded-br-industry border px-4 py-4 sm:w-[160px]"
               >
                 <span className="flex size-8 items-center justify-center">
                   {icon?.url ? (
@@ -1098,11 +1096,11 @@ export function IndustriesSection({ block }: { block: BlockProps }) {
                       width={32}
                       height={32}
                       aria-hidden
-                      className="size-8"
+                      className="size-8 dark:invert"
                     />
                   ) : null}
                 </span>
-                <span className="text-center text-base leading-6 font-semibold text-ink-900">
+                <span className="text-center text-base leading-6 font-semibold text-ink-900 dark:text-foreground">
                   {item.label}
                 </span>
               </li>
@@ -1727,7 +1725,7 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
               ctas={block.ctas}
               locale={locale}
               size="md"
-              className="shrink-0 border-0 bg-white py-2 ps-6 pe-2 text-[15px] text-navy-800 hover:bg-white/90 [&_svg]:size-8 [&_svg]:rounded-pill [&_svg]:bg-navy-800 [&_svg]:p-2 [&_svg]:text-white"
+              className="shrink-0 border-0 bg-white py-2 ps-6 pe-2 text-[15px] text-navy-800 hover:bg-white/90 dark:text-navy-800 [&_svg]:size-8 [&_svg]:rounded-pill [&_svg]:bg-navy-800 [&_svg]:p-2 [&_svg]:text-white"
             />
           </div>
         </div>

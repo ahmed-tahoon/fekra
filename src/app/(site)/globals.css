@@ -243,6 +243,16 @@
   --overlay: rgb(0 0 0 / 0.72);
 }
 
+/*
+ * Every gradient heading runs the comp's #12cbb4 -> #375bc7. That navy end
+ * sits at 3.1:1 on the dark background, so the second word of each headline
+ * sank into the page. Same hues, lifted: the blue lands at 7.3:1. Unlayered on
+ * purpose so it outranks the per-heading bg-[linear-gradient(...)] utilities.
+ */
+.dark .bg-clip-text {
+  background-image: linear-gradient(140deg, #12cbb4 0%, #7f9dff 100%);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-background-subtle: var(--background-subtle);
