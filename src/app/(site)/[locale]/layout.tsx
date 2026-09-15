@@ -9,6 +9,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { Footer, type FooterData } from '@/components/layout/Footer'
 import { Header, type HeaderData } from '@/components/layout/Header'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
+import { ScrollReveal } from '@/components/ScrollReveal'
 import { BookingDrawer } from '@/components/booking/BookingDrawer'
 import { TalkToFika } from '@/components/layout/TalkToFika'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
@@ -197,6 +198,7 @@ export default async function SiteLayout({
       </head>
       <body className="min-h-dvh antialiased">
         <SmoothScroll />
+        <ScrollReveal />
         <ThemeProvider>
           <Header
             data={header}

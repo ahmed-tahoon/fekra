@@ -1,0 +1,8 @@
+Use case: photorealistic-natural
+Asset type: standalone developer photograph for a website hero image tile, no UI and no collage
+Primary request: A photorealistic candid editorial photograph of two Egyptian software developers in their late twenties to thirties discussing a laptop on a bench in a shaded open-air Cairo office courtyard. A man with dark curly hair and glasses and a woman with dark shoulder-length hair wear contemporary casual office clothes. They are focused on the laptop and each other, not posing for the camera.
+Scene/backdrop: plants, a bench, simple contemporary Egyptian office courtyard architecture. Authentic everyday work environment, subtle natural details.
+Composition/framing: portrait 2:3 image, both faces and the laptop centered with comfortable margin to crop the sides for a narrow vertical hero tile approximately 136 by 254. Keep important faces away from the top-right corner, which will have a large rounded crop. Medium view including seated upper bodies and laptop; natural body positions, unobtrusive background.
+Lighting/mood: natural soft daylight in open shade, realistic color, lively but calm real work moment.
+Materials/textures: natural Egyptian complexions, visible skin texture, realistic hands and fingers, natural fabric and plants, true photographic detail.
+Constraints: exactly one standalone photo. No text, logos, watermarks, pyramids, stock handshake, artificial posing, abstract graphics, exaggerated cinematic effects, or glossy beauty retouching.

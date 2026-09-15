@@ -1,0 +1,8 @@
+Use case: photorealistic-natural
+Asset type: standalone portrait photo for a tech company website hero collage; do not create any UI or collage.
+Primary request: candid editorial photograph of an Egyptian male software developer in his late twenties or early thirties, dark curly hair, natural medium olive complexion, casually wearing a cream overshirt, seated working on a laptop in a modest modern Cairo office beside a daylight window.
+Scene/backdrop: believable contemporary office, daylight window, softly out-of-focus work environment.
+Style/medium: authentic natural editorial photography, realistic unretouched skin texture, natural anatomy and hands, quiet concentration on his actual work.
+Composition/framing: portrait 2:3 aspect ratio, approximately 1024x1536. Seated developer face centered in upper-middle of frame, workspace and hands in lower half. Leave margin around the subject for a rounded top-left corner crop at small web display size. Keep entire head comfortably within frame. Camera observes from a natural three-quarter angle.
+Lighting/mood: soft natural daylight, authentic calm working atmosphere.
+Constraints: One standalone photograph. No posing, no stock-photo smile, no text, no logos, no watermark, no pyramids or cultural stereotypes, no illustration, no abstract graphics.

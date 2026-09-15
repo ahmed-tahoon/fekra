@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     await payload.create({
       collection: 'contact-submissions',
       overrideAccess: true,
+      disableTransaction: true, // single flat INSERT — see api/contact
       data: {
         fullName: parsed.data.email,
         email: parsed.data.email,

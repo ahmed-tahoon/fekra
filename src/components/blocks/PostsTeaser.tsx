@@ -70,7 +70,7 @@ export async function PostsTeaser({ block, locale }: { block: BlockProps; locale
                 />
                 <div className="absolute inset-x-4 bottom-4 flex flex-col items-start gap-2">
                   {tag ? (
-                    <span className="rounded-[40px] bg-primary px-4 py-1 text-[10px] font-bold tracking-[0.3px] text-white">
+                    <span className="rounded-[40px] bg-primary px-4 py-1 text-[10px] font-bold tracking-[0.3px] text-primary-foreground">
                       {tag}
                     </span>
                   ) : null}

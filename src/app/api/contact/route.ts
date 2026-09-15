@@ -49,6 +49,10 @@ export async function POST(request: Request) {
       collection: 'contact-submissions',
       // Public users have no Payload session; the route is the trust boundary.
       overrideAccess: true,
+      // One flat row, one INSERT — the BEGIN/COMMIT Payload wraps it in are
+      // two extra round-trips to a remote database protecting nothing. This
+      // halved the time the visitor sits on "Sending…" (measured 355→180ms).
+      disableTransaction: true,
       data: {
         fullName: data.fullName,
         email: data.email,

@@ -69,7 +69,7 @@ export function TechTabs({ groups }: { groups: TechGroup[] }) {
               className={cn(
                 'min-h-11 shrink-0 border-b-2 px-1 pb-4 text-sm font-semibold whitespace-nowrap transition-colors',
                 i === active
-                  ? 'border-brand-500 text-brand-500'
+                  ? 'border-primary text-primary'
                   : 'border-transparent text-ink-500 hover:text-foreground dark:text-muted-foreground',
               )}
             >
@@ -104,22 +104,22 @@ export function TechTabs({ groups }: { groups: TechGroup[] }) {
                  * supersedes the earlier request to drop them): same treatment
                  * as the client-logo board, a soft ring instead of a shadow so
                  * the tiles sit in the panel rather than float over it, and
-                 * still white in dark mode — a logo's ground stays white.
+                 * a softer light ground in dark mode to reduce glare.
                  *
                  * No logo yet? Render the name in the same square with a soft
                  * outline, so the cell is not simply empty.
                  */}
                 {item.src ? (
-                  <span className="flex size-[104px] items-center justify-center rounded-2xl bg-white p-3 ring-1 ring-navy-800/10 dark:bg-white/92 dark:ring-white/15">
+                  <span className="fk-art-surface flex size-[104px] items-center justify-center rounded-2xl bg-white p-3 ring-1 ring-navy-800/10 dark:ring-white/15">
                     <span
                       className="relative block"
                       style={logoMarkSize(item.width, item.height, 1) ?? { width: '100%', height: '100%' }}
                     >
-                      <Image src={item.src} alt="" fill sizes="104px" aria-hidden className="object-contain" />
+                      <Image src={item.src} alt="" fill sizes="104px" aria-hidden className="fk-art-image object-contain" />
                     </span>
                   </span>
                 ) : (
-                  <span className="flex size-[104px] items-center justify-center rounded-2xl bg-white px-3 text-center text-sm font-semibold text-navy-800 ring-1 ring-navy-800/10 dark:bg-white/92 dark:text-navy-800 dark:ring-white/15">
+                  <span className="fk-art-surface flex size-[104px] items-center justify-center rounded-2xl bg-white px-3 text-center text-sm font-semibold text-navy-800 ring-1 ring-navy-800/10 dark:text-navy-800 dark:ring-white/15">
                     {item.name}
                   </span>
                 )}

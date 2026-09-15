@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { Globe2, MapPin } from 'lucide-react'
 
 import { ContactForm } from '@/components/forms/ContactForm'
 import type { Dictionary } from '@/i18n/getDictionary'
@@ -59,17 +60,37 @@ export function ContactSection({
           {block.showOffices !== false && offices?.length ? (
             <div className="relative">
               {/* The map carries its own city pills and caption, so it is
-                  decorative here — the offices themselves are real content and
-                  are exposed to assistive tech as a plain list instead. */}
+                  decorative here. Dark mode uses live office text on dark cards
+                  because the raster map has baked-in white labels. */}
               <Image
                 src="/images/decor/global-presence-map.png"
                 alt=""
                 aria-hidden
                 width={655}
                 height={374}
-                className="h-auto w-full"
+                className="h-auto w-full dark:hidden"
               />
-              <ul className="sr-only">
+              <div className="hidden rounded-3xl border border-border bg-card p-6 sm:p-8 dark:block">
+                <h3 className="flex items-center gap-3 text-xl font-semibold text-foreground">
+                  <Globe2 aria-hidden className="size-6 shrink-0 text-primary" />
+                  {dict.contact.offices}
+                </h3>
+                <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {offices.map((office) => (
+                    <li key={`${office.city}-${office.country}`} className="flex items-start gap-3 rounded-2xl border border-border bg-background-subtle p-4">
+                      <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
+                      <div className="min-w-0">
+                        <p className="font-semibold text-foreground">{office.city}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{office.country}</p>
+                        {office.isHeadquarters ? <p className="mt-2 text-xs text-primary">{dict.contact.headquarters}</p> : null}
+                        {office.phone ? <p dir="ltr" className="mt-2 break-words text-sm text-muted-foreground">{office.phone}</p> : null}
+                        {office.email ? <p className="mt-1 break-all text-sm text-muted-foreground">{office.email}</p> : null}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <ul className="sr-only dark:hidden">
                 {offices.map((office) => (
                   <li key={`${office.city}-${office.country}`}>
                     {office.city}, {office.country}

@@ -1,0 +1,7 @@
+Use case: photorealistic-natural
+Asset type: Standalone portrait photograph for the outer-right tile of a website hero collage, displayed at approximately 176 x 270 pixels.
+Primary request: A candid, photorealistic Egyptian senior software engineer, a man in his late thirties or early forties, with short dark hair with a little gray and a trimmed beard, wearing a navy casual polo, working at a laptop in a contemporary Cairo office.
+Scene/backdrop: Contemporary everyday tech office, muted greenery and softly blurred office background.
+Style/medium: Authentic editorial workplace photography with honest natural skin texture, realistic hands and working posture, natural daylight and restrained color.
+Composition/framing: Portrait 2:3 aspect ratio, three-quarter side view, looking at his screen rather than camera. Face in upper-middle, hands and laptop in lower half. Preserve margin around head for a top-left rounded-corner crop of the tile. His body faces toward the left of the frame, balancing a portrait at the far left of the eventual collage.
+Constraints: One complete rectangular photograph only. No posing, stock-photo smile, text, logos, watermark, pyramids, stereotypes, UI, graphic shapes, borders or collage.

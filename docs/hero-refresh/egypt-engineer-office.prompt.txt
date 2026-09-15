@@ -1,0 +1,11 @@
+Use case: photorealistic-natural
+Asset type: standalone photograph for a website hero tile, no UI or collage
+Primary request: An Egyptian woman software engineer wearing an understated beige hijab and a blue casual shirt works on a laptop in a bright contemporary shared office in Cairo. She has a medium complexion and natural skin texture. A candid focused moment, slightly smiling as she listens to an off-camera colleague. Her hands rest naturally near the keyboard.
+Scene/backdrop: modern everyday Cairo tech office, simple desks, daylight windows, subtle office objects and softly unfocused background. No other person in the frame.
+Composition/framing: landscape 6:5, medium shot including the engineer's face, shoulders, forearms and laptop. Face near center with room at top left for a large rounded corner crop in an upper-right inner hero tile approximately 166 by 140. Frame naturally without cutting hands awkwardly.
+Style/medium: authentic documentary editorial photography, realistic camera detail, natural proportions, natural complexion and accurate hands.
+Lighting/mood: soft bright natural daylight, approachable and professional, unposed everyday work moment.
+Constraints: no logos, text, watermark, UI, graphics, exaggerated retouching, or artificial staged stock-photo feeling.
+
+Refinement prompt:
+Edit this photograph with one targeted change: replace the entire view outside the office windows with an ordinary softly out-of-focus contemporary urban office neighborhood in Cairo. Remove the pyramids and mosque/minaret silhouettes; no famous landmarks at all. Keep the engineer's exact face, beige hijab, blue shirt, pose, laptop, hands, office furniture, indoor plants, photographic quality, light, dimensions and composition unchanged. The result should feel like an everyday authentic shared tech office, not a tourism advertisement. No text, logos or watermark.

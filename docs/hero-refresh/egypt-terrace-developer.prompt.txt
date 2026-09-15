@@ -1,0 +1,8 @@
+Use case: photorealistic-natural
+Asset type: standalone square editorial photo for a software company website hero collage; no UI or collage.
+Primary request: candid natural photograph of an Egyptian male software developer with short curly hair and natural medium-dark complexion, wearing a muted sage casual shirt, focused on working on a laptop at a shaded office rooftop terrace in Cairo.
+Scene/backdrop: simple contemporary office terrace with a few plants, ordinary Cairo city buildings softly out of focus in the background, no landmarks.
+Style/medium: authentic editorial photography, realistic unretouched skin texture, natural human hands, quiet concentration on work rather than posing.
+Composition/framing: square 1:1 image, seated man with face centered in upper-middle, hands and laptop below, generous headroom and space at upper right for a rounded-corner crop at small web tile size. Natural three-quarter camera angle with surroundings visible.
+Lighting/mood: soft natural daylight under shade, pleasant relaxed working atmosphere.
+Constraints: Single believable photograph only. No posing, stock smiles, text, logos, watermark, pyramids, cultural stereotypes, fantasy, illustration, or abstract graphics.

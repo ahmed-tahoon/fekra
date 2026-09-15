@@ -94,7 +94,7 @@ export function TopicPills({
           {open ? (
             <div
               role="menu"
-              className="menu-in scrollbar-slim absolute start-0 top-[calc(100%+0.6rem)] z-50 max-h-80 w-64 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-[#111a2e]"
+              className="menu-in scrollbar-slim absolute start-0 top-[calc(100%+0.6rem)] z-50 max-h-80 w-64 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-elevated"
             >
               {overflow.map((topic) => (
                 <button

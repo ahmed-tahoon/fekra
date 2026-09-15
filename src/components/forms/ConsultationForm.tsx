@@ -74,10 +74,10 @@ export function ConsultationForm({
   }
 
   const input =
-    'w-full border-b border-[#bcbcbc] bg-transparent px-2 py-3 text-sm text-ink-900 placeholder:text-ink-900/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring dark:text-foreground dark:placeholder:text-muted-foreground'
+    'w-full border-b border-[#bcbcbc] bg-transparent px-2 py-3 text-sm text-ink-900 placeholder:text-ink-900/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring dark:border-input dark:text-foreground dark:placeholder:text-muted-foreground'
 
   return (
-    <div className="rounded-[25px] bg-white p-[30px] shadow-[0_0_5px_rgba(0,0,0,0.2)] dark:bg-card">
+    <div className="rounded-[25px] bg-white p-[30px] shadow-[0_0_5px_rgba(0,0,0,0.2)] dark:bg-card dark:ring-1 dark:ring-border">
       <h2 className="font-display text-2xl font-bold text-black dark:text-foreground">{title}</h2>
 
       {status === 'success' ? (

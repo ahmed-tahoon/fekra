@@ -70,11 +70,11 @@ export function ServiceHeroSection({
                 return (
                   <li
                     key={item.text}
-                    className="flex min-h-[95px] items-center gap-3 rounded-[15px] border border-[#001033]/20 bg-white/30 p-2.5 dark:border-border dark:bg-card/40"
+                    className="flex min-h-[95px] items-center gap-3 rounded-[15px] border border-[#001033]/20 bg-white/30 p-2.5 dark:border-border dark:bg-card"
                   >
                     {icon?.url ? (
                       <span className="flex size-8 shrink-0 items-center justify-center">
-                        <Image src={mediaUrl(icon)} alt="" width={31} height={31} aria-hidden className="size-[31px]" />
+                        <Image src={mediaUrl(icon)} alt="" width={31} height={31} aria-hidden className="fk-mono-icon size-[31px]" />
                       </span>
                     ) : null}
                     <span className="text-sm/[21px] text-[#001033] dark:text-foreground">{item.text}</span>

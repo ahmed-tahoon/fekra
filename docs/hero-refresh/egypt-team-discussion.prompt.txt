@@ -1,0 +1,7 @@
+Use case: photorealistic-natural
+Asset type: standalone candid developer photograph for a small website hero tile, no UI and no collage.
+Primary request: Three Egyptian software developers, one woman and two men aged late twenties to thirties, gathered closely around a laptop in a bright modern shared office breakout area. They wear everyday muted casual clothes and have natural Egyptian complexions, realistic skin texture, authentic unposed expressions. Capture a slightly animated technical discussion: the woman explaining something, both men thoughtfully listening or looking at the laptop.
+Scene/backdrop: normal contemporary Cairo shared tech office breakout area, softly unfocused understated furnishings and window daylight. No landmarks.
+Composition/framing: wide landscape 7:4, compact medium close group framing intended for a small 166 by 96 pixel tile. All three face centers distributed across the middle of the frame, laptop bottom center, little wasted space, no important face near the top-right rounded corner. Include natural hands without awkward cropping, realistic anatomy.
+Lighting/mood: soft bright natural daylight, understated documentary editorial photography, realistic and lively everyday work moment.
+Constraints: exactly one photograph. No posing, stock handshakes, logos, text, watermark, glossy skin, exaggerated cinematic styling, artificial smiles or visual graphics.

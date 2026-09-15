@@ -6,6 +6,7 @@ import { seedApprovedServices } from './services'
 import { getPayload } from 'payload'
 import config from '../payload.config'
 import { TEAM, splitTalentPanels } from './team'
+import { HERO_PHOTOS } from '../lib/hero-photos'
 
 /**
  * Seeds a working English site that matches the approved Figma Home layout, so
@@ -652,9 +653,7 @@ const run = async () => {
     ['icon-1.svg', 'icon-2.svg', 'icon-3.svg'].map((f) => upsertMedia(payload, f, '')),
   )
   const tiles = await Promise.all(
-    Array.from({ length: 9 }, (_, i) => `tile-0${i + 1}.png`).map((f) =>
-      upsertMedia(payload, f, 'FEKRA engineers at work'),
-    ),
+    HERO_PHOTOS.map((photo) => upsertMedia(payload, photo.file, photo.alt, 'hero')),
   )
 
   /*
@@ -877,7 +876,7 @@ const run = async () => {
           { variant: 'primary', link: route('Schedule a Call', '/meeting', 'booking_cta_click') },
         ],
         // Order matters: each entry maps to a fixed slot in MOSAIC_LAYOUT,
-        // which mirrors the Figma collage tile for tile.
+        // which follows the Vivasoft reference. Photo indices follow HERO_PHOTOS.
         mosaic: [
           { kind: 'image', corner: 'tl', image: tiles[0]?.id },
           { kind: 'stat', corner: 'tr', tone: 'green', value: '100+', label: 'Top Talents' },
@@ -885,12 +884,12 @@ const run = async () => {
           { kind: 'stat', corner: 'tr', tone: 'teal', value: '80+', label: 'Projects' },
           { kind: 'image', corner: 'tr', image: tiles[2]?.id },
           { kind: 'stat', corner: 'tl', tone: 'indigo', value: '8+', label: 'Experience' },
-          { kind: 'image', corner: 'tr', image: tiles[4]?.id },
-          { kind: 'image', corner: 'tl', image: tiles[3]?.id },
+          { kind: 'image', corner: 'tr', image: tiles[3]?.id },
+          { kind: 'image', corner: 'tl', image: tiles[4]?.id },
           { kind: 'image', corner: 'tr', image: tiles[5]?.id },
           { kind: 'stat', corner: 'tr', tone: 'emerald', value: '20+', label: 'Tech Stack' },
-          { kind: 'image', corner: 'tl', image: tiles[7]?.id },
-          { kind: 'image', corner: 'tr', image: tiles[6]?.id },
+          { kind: 'image', corner: 'tl', image: tiles[6]?.id },
+          { kind: 'image', corner: 'tr', image: tiles[7]?.id },
           { kind: 'image', corner: 'tr', image: tiles[8]?.id },
         ],
       },

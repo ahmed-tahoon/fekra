@@ -1,0 +1,8 @@
+Use case: photorealistic-natural
+Asset type: standalone developer portrait photograph for a tech company website hero collage; no UI or collage.
+Primary request: candid editorial photo of an Egyptian woman software developer in her late twenties or early thirties, dark wavy shoulder-length hair, natural medium complexion, rust orange casual blouse, concentrating on her laptop beside a bright office window in a modern modest Cairo office.
+Scene/backdrop: believable local tech team working environment and desk, natural softly blurred office background.
+Style/medium: authentic natural editorial photography with realistic unretouched skin and natural hands, slightly three-quarter camera angle, thoughtful focused expression while working.
+Composition/framing: landscape 6:5 aspect ratio, face centered, hands and laptop in lower frame, keep entire head and shoulders comfortably away from frame edges to allow a generous rounded top-right corner crop at small web tile size.
+Lighting/mood: bright soft natural window daylight, relaxed everyday working atmosphere.
+Constraints: Single photograph only. No posing, no stock smiles, no text, no logos, no watermark, no pyramids or cultural stereotypes, no illustration or abstract graphics.

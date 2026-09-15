@@ -39,18 +39,20 @@ export function RotatingWords({ words, intervalMs = 4200 }: { words: string[]; i
   const current = words[enabled ? index : 0] ?? ''
 
   return (
-    <span className="relative inline-block text-center text-primary">
-      {/* Reserves the width of the longest word so the headline never reflows
-          as it cycles — that would be a CLS hit on the largest element (2.6). */}
-      <span aria-hidden className="invisible block h-0 overflow-hidden">
-        {words.reduce((a, b) => (b.length > a.length ? b : a), '')}
-      </span>
+    <span className="relative inline-grid max-w-full align-top text-center leading-[1.15] text-primary">
+      {/* Measure every phrase in the same grid cell: character count does not
+          predict rendered width, and mobile phrases can wrap to two lines. */}
+      {words.map((word, i) => (
+        <span key={i} aria-hidden className="invisible col-start-1 row-start-1 -my-[0.16em] py-[0.16em]">
+          {word}
+        </span>
+      ))}
       {/* Gradient sits on the animating span itself so the clipped background
           repaints as one layer with the animation — on a wrapper it leaves
           stale slivers in Chrome. */}
       <span
         key={current}
-        className="fk-rotate-in inline-block bg-[linear-gradient(137.53deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent"
+        className="fk-rotate-in col-start-1 row-start-1 -my-[0.16em] py-[0.16em] bg-[linear-gradient(137.53deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent"
       >
         {current}
       </span>

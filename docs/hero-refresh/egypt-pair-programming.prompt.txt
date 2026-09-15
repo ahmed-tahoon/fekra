@@ -1,0 +1,7 @@
+Use case: photorealistic-natural
+Asset type: Standalone wide documentary photograph for a lower-right website hero tile, displayed at approximately 328 by 196 pixels.
+Primary request: Two Egyptian software engineers, a man in a charcoal T-shirt and a woman with dark curly hair in a muted blue shirt, reviewing code together at one laptop in a modest modern office.
+Scene/backdrop: Understated contemporary Cairo tech workplace, normal desks and subtle office context, warm natural daylight.
+Style/medium: Authentic candid documentary tech photography, natural skin texture, realistic hands, ordinary working posture.
+Composition/framing: Wide 5:3 aspect ratio. Seated beside one another leaning in naturally, eyes on the screen. Camera across the table at face height. Group centered, laptop in lower part of composition. Heads kept safely away from the top-right rounded corner area with generous margin above and to the right.
+Constraints: Single complete photograph, no collage or UI. No stock posing, handshakes, smiles at camera, logos, legible text, watermark, pyramids or stereotypes.

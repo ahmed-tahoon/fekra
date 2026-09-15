@@ -49,7 +49,7 @@ const VARIANTS = {
     '[&_ul]:mb-6 [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:mb-6 [&_ol]:list-decimal [&_ol]:ps-6',
     '[&_li]:mb-2.5 [&_li]:text-[1.05rem] sm:[&_li]:text-[1.15rem] [&_li]:leading-[1.8] [&_li]:text-slate-600 dark:[&_li]:text-slate-300',
     '[&_li]:marker:text-blog-500',
-    '[&_a]:font-semibold [&_a]:text-blog-600 [&_a]:no-underline hover:[&_a]:underline',
+    '[&_a]:font-semibold [&_a]:text-blog-600 dark:[&_a]:text-blog-300 [&_a]:no-underline hover:[&_a]:underline',
     '[&_strong]:text-slate-900 dark:[&_strong]:text-white',
     '[&_blockquote]:my-8 [&_blockquote]:rounded-e-2xl [&_blockquote]:border-s-4 [&_blockquote]:border-blog-500',
     '[&_blockquote]:bg-blog-500/[0.06] [&_blockquote]:px-6 [&_blockquote]:py-2 [&_blockquote]:text-[1.12rem]',

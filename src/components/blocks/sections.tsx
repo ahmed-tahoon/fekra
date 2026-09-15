@@ -8,6 +8,7 @@ import { LinkButton } from '@/components/ui/Button'
 import { dir, type Locale } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
 import { faqSchema } from '@/lib/jsonld'
+import { defaultHeroPhoto } from '@/lib/hero-photos'
 import { resolveLink } from '@/lib/resolveLink'
 
 import { CountUp } from './CountUp'
@@ -17,12 +18,12 @@ import { TechTabs } from './TechTabs'
 import type { BlockProps, MediaDoc } from './types'
 import { mediaAlt, mediaUrl } from './types'
 
-/* Measured from the comp: the two greens carry navy text, the darker two white. */
+/* Reference pastels in light mode; quieter brand hues in dark mode. */
 const STAT_TONE = {
-  green: 'bg-tile-green text-navy-800',
-  emerald: 'bg-tile-emerald text-navy-800',
-  indigo: 'bg-tile-indigo text-white',
-  teal: 'bg-tile-teal text-white',
+  green: 'bg-[#c4e8fc] text-navy-800 dark:bg-[#23342f] dark:text-[#b7f5dd]',
+  emerald: 'bg-[#ddd7ff] text-navy-800 dark:bg-[#233334] dark:text-[#b7eee8]',
+  indigo: 'bg-[#d4fbea] text-navy-800 dark:bg-[#2d2b3e] dark:text-[#eeecff]',
+  teal: 'bg-[#ffd6ef] text-navy-800 dark:bg-[#26323b] dark:text-[#c8eff7]',
 } as const
 
 const TILE_CORNER = {
@@ -41,33 +42,23 @@ const TILE_CORNER_SM = {
   br: 'rounded-br-[1.25rem]',
 } as const
 
-/*
- * The collage from the Figma frame, as percentages of its 1408x456 box.
- * Absolute px would not survive a resize, so each tile keeps its exact
- * proportions and the whole board scales with an aspect ratio. Tiles beyond
- * this preset fall back to a plain grid, so adding one in the CMS never
- * breaks the layout.
- */
-/*
- * Funnel geometry note: this is the approved Figma collage (1408x456), tile by
- * tile. A symmetric five-column rebalance (IM-4) was built on 23 Aug and
- * REVERTED the same day on FEKRA's review — the uniform grid collided with the
- * hero CTA and lost the collage's character. The Figma scatter stands.
- */
+/* Vivasoft reference, normalized to a 1408 x 448 board. Equal outer
+ * portraits frame the staggered center. Lower tiles share one baseline;
+ * consistent gutters and no scroll drift keep that alignment intact. */
 const MOSAIC_LAYOUT = [
-  { left: 0, top: 0, width: 12.358, height: 59.211 },
-  { left: 13.352, top: 13.158, width: 11.222, height: 46.053 },
-  { left: 25.568, top: 23.904, width: 11.648, height: 30.921 },
-  { left: 25.568, top: 58.333, width: 11.648, height: 41.667 },
-  { left: 38.21, top: 25, width: 12.997, height: 75 },
-  { left: 52.202, top: 35.307, width: 11.506, height: 40.351 },
-  { left: 52.202, top: 79.167, width: 11.506, height: 20.833 },
-  { left: 64.702, top: 23.684, width: 11.861, height: 31.14 },
-  { left: 64.702, top: 58.333, width: 22.94, height: 41.667 },
-  { left: 77.557, top: 14.254, width: 10.085, height: 40.57 },
-  { left: 88.636, top: 2.412, width: 11.364, height: 59.211 },
-  { left: 88.636, top: 65.132, width: 11.364, height: 34.868 },
-  { left: 0, top: 62.719, width: 24.574, height: 37.281 },
+  { left: 0.0000, top: 0.0000, width: 12.2159, height: 60.2679 },
+  { left: 12.9261, top: 34.3750, width: 10.9375, height: 25.8929 },
+  { left: 24.7159, top: 39.7321, width: 11.7898, height: 31.2500 },
+  { left: 24.7159, top: 73.2143, width: 11.7898, height: 26.7857 },
+  { left: 37.3580, top: 43.3036, width: 9.6591, height: 56.6964 },
+  { left: 50.9943, top: 50.0000, width: 11.7898, height: 26.3393 },
+  { left: 50.9943, top: 78.5714, width: 11.7898, height: 21.4286 },
+  { left: 63.6364, top: 27.2321, width: 10.9375, height: 26.7857 },
+  { left: 63.6364, top: 56.2500, width: 23.2955, height: 43.7500 },
+  { left: 75.4261, top: 27.2321, width: 11.5057, height: 26.7857 },
+  { left: 87.7841, top: 0.0000, width: 12.2159, height: 60.2679 },
+  { left: 87.7841, top: 62.9464, width: 12.2159, height: 37.0536 },
+  { left: 0.0000, top: 62.9464, width: 23.8636, height: 37.0536 },
 ] as const
 
 /** Shared section heading. One H2 per section keeps the outline honest (18.4). */
@@ -172,7 +163,7 @@ function SplitHero({ block, locale, isFirst }: { block: BlockProps; locale: Loca
     >
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-none"
       />
       <div className="container-site grid items-center gap-10 md:grid-cols-[1fr_410px] md:gap-12">
         <div className="max-w-[568px]">
@@ -223,19 +214,20 @@ export function HeroSection({
   if ((block.media as MediaDoc | undefined)?.url) return <SplitHero block={block} locale={locale} isFirst={isFirst} />
 
   const words = (block.rotatingWords ?? []).map((w) => w.text).filter(Boolean)
-  const mosaic = block.mosaic ?? []
+  let photoIndex = 0
+  const mosaic = (block.mosaic ?? []).map((item) => {
+    if (item.kind === 'stat') return item
+    const source = item.image as MediaDoc | undefined
+    const replacement = defaultHeroPhoto(source?.url, photoIndex++)
+    return replacement ? { ...item, image: replacement } : item
+  })
   const Title = isFirst ? 'h1' : 'h2'
 
-  /*
-   * Phones get a curated board, not the whole collage: every stat (they carry
-   * the message) alternating with photos, capped at eight. Stacking all
-   * thirteen tiles two-up ran ~790px — a wall of images to scroll past before
-   * anything else on the page.
-   */
+  // Four photo/stat pairs retain every business figure on phones.
   const mobileTiles: typeof mosaic = []
   const photos = mosaic.filter((item) => item.kind !== 'stat')
   const stats = mosaic.filter((item) => item.kind === 'stat')
-  for (let i = 0; mobileTiles.length < 6 && (photos[i] || stats[i]); i++) {
+  for (let i = 0; mobileTiles.length < 8 && (photos[i] || stats[i]); i++) {
     /*
      * Zig-zag the pair. Pushing photo-then-stat every time puts every photo in
      * the left grid column and every stat in the right one — two stacked
@@ -244,7 +236,7 @@ export function HeroSection({
      */
     const pair = [photos[i], stats[i]].filter((item) => item != null)
     if (i % 2) pair.reverse()
-    mobileTiles.push(...pair.slice(0, 6 - mobileTiles.length))
+    mobileTiles.push(...pair.slice(0, 8 - mobileTiles.length))
   }
 
   // No mosaic -> the About comp's simple centred hero: wider copy column,
@@ -259,8 +251,8 @@ export function HeroSection({
       return (
         <div
           className={cn(
-            'flex size-full flex-col justify-end',
-            compact ? 'p-3.5' : 'p-4 lg:p-5',
+            'flex size-full flex-col justify-center',
+            compact ? 'p-3.5' : 'px-4 py-3 lg:px-6',
             corner,
             STAT_TONE[item.tone ?? 'green'],
           )}
@@ -271,7 +263,7 @@ export function HeroSection({
           <span
             className={cn(
               'font-display leading-tight tracking-[-0.04em]',
-              compact ? 'text-[0.8125rem]' : 'text-lg md:text-[clamp(1rem,1.75vw,1.5rem)]',
+              compact ? 'text-[0.8125rem]' : 'text-[clamp(0.625rem,0.9vw,1rem)] font-semibold',
             )}
           >
             {item.label}
@@ -283,7 +275,7 @@ export function HeroSection({
               'font-display font-bold tracking-[-0.04em]',
               compact
                 ? 'mt-1.5 block text-[1.75rem] leading-none'
-                : 'mt-3 block text-2xl md:text-[clamp(1.5rem,2.8vw,2.5rem)] lg:leading-8',
+                : 'mt-2 block text-[clamp(1.25rem,2.25vw,2.5rem)] leading-none',
             )}
           />
         </div>
@@ -297,9 +289,9 @@ export function HeroSection({
             src={mediaUrl(image)}
             alt={mediaAlt(image)}
             fill
-            sizes="(min-width: 768px) 25vw, 50vw"
+            sizes="(min-width: 768px) 24vw, 50vw"
             priority={isFirst && index < 4}
-            className="object-cover"
+            className="object-cover object-[center_35%] md:object-center"
           />
         ) : null}
       </div>
@@ -313,6 +305,7 @@ export function HeroSection({
       // board on short windows, which is what broke the tiles' proportions.
       // Budgeted so copy + collage land the section bottom at ~982px on a
       // 1440x982 screen — the whole hero fits one screen by default there.
+      data-motion="hero"
       className={cn(
         'relative isolate mt-[calc(var(--header-block)*-1)] flex flex-col overflow-hidden pt-[calc(var(--header-block)+clamp(1.25rem,5.2vw,4.75rem))] pb-8 md:pb-12 dark:bg-background',
         // The copy-only hero carries the comp's 136px of air under the nav;
@@ -337,7 +330,7 @@ export function HeroSection({
            flat black while every other theme surface carried a tint. Same angle,
            brand teal into navy at low alpha over the dark background. */
         className={cn(
-          'absolute inset-x-0 top-0 bottom-8 md:bottom-12 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]',
+          'absolute inset-x-0 top-0 bottom-8 md:bottom-12 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-none',
           // No collage to clear, so the wash runs the full frame as it does in
           // the comp, instead of stopping short and banding into white.
           simple && 'bottom-0 md:bottom-0',
@@ -449,7 +442,7 @@ export function HeroSection({
                          * Sized so the drawn glyph matches the text, and kept
                          * on the source's 16.67:16 ratio rather than squared.
                          */
-                        className="h-4 w-[17px] shrink-0 sm:h-5 sm:w-[21px]"
+                        className="fk-mono-icon h-4 w-[17px] shrink-0 sm:h-5 sm:w-[21px]"
                       />
                     ) : (
                       <span aria-hidden className="size-1.5 shrink-0 rounded-pill bg-primary" />
@@ -500,10 +493,10 @@ export function HeroSection({
                         width={20}
                         height={20}
                         aria-hidden
-                        className="size-5 shrink-0"
+                        className="fk-mono-icon size-5 shrink-0"
                       />
                     ) : (
-                      <Fallback aria-hidden className="size-5 shrink-0" strokeWidth={1.8} />
+                      <Fallback aria-hidden className="fk-mono-icon size-5 shrink-0" strokeWidth={1.8} />
                     )}
                     {bullet.text}
                   </li>
@@ -516,21 +509,17 @@ export function HeroSection({
 
       {mosaic.length ? (
         <>
-          {/* Desktop: the collage, positioned exactly as designed. Full-bleed —
-              it runs past the container to the viewport edges. The fixed aspect
-              ratio is the comp's 1408x456 board, so tiles keep their designed
-              proportions at every viewport instead of squashing to fill. */}
-          {/* Comp: the board's top row starts level with the CTA button, so the
-              pull-up is one button height minus a hair. mx keeps the comp's
-              breathing room at the viewport edges — the board is 1408 on 1440. */}
-          <div className="relative mx-4 -mt-[clamp(2rem,3.2vw,3rem)] hidden aspect-[1408/456] md:block">
+          {/* On wide screens, bring the middle photo within ~48px of the CTA.
+              Outer portraits flank the copy; tablets retain safer clearance. */}
+          <div data-hero-collage className="relative mx-3 -mt-14 hidden aspect-[1408/448] [--radius-tile:clamp(1.5rem,4.3vw,4rem)] md:block xl:-mt-[calc(13.8vw_-_3.25rem)]">
             {mosaic.map((item, index) => {
               const pos = MOSAIC_LAYOUT[index]
               if (!pos) return null
               return (
                 <div
                   key={index}
-                  className="fk-tile-enter absolute"
+                  data-scroll-reveal
+                  className="absolute"
                   style={
                     {
                       left: `${pos.left}%`,
@@ -541,26 +530,26 @@ export function HeroSection({
                     } as React.CSSProperties
                   }
                 >
-                  {/* Inner element carries the scroll drift so it cannot fight
-                      the entrance transform on the same node. Columns further
-                      right drift a touch more, which is what reads as depth. */}
-                  <div
-                    className="fk-drift size-full"
-                    style={{ '--drift': 0.5 + (index % 4) * 0.35 } as React.CSSProperties}
-                  >
-                    {tile(item, index)}
-                  </div>
+                  {tile(item, index)}
                 </div>
               )
             })}
           </div>
 
+          {mosaic.length > MOSAIC_LAYOUT.length ? (
+            <ul className="mx-3 mt-3 hidden grid-cols-4 gap-3 md:grid">
+              {mosaic.slice(MOSAIC_LAYOUT.length).map((item, index) => (
+                <li key={index} className="aspect-[4/3]">{tile(item, index + MOSAIC_LAYOUT.length)}</li>
+              ))}
+            </ul>
+          ) : null}
+
           {/* Mobile: the collage would be unreadable at 390px, so the curated
               tiles become a two-column board. Uniform cells — each tile's own
               rounded corner is what keeps it reading as the collage. */}
-          <ul className="mt-8 grid auto-rows-[124px] grid-cols-2 gap-3 px-4 md:hidden">
+          <ul className="mt-5 grid auto-rows-[124px] grid-cols-2 gap-3 px-4 md:hidden">
             {mobileTiles.map((item, index) => (
-              <li key={index}>{tile(item, index, true)}</li>
+              <li key={index} data-scroll-reveal>{tile(item, index, true)}</li>
             ))}
           </ul>
         </>
@@ -614,7 +603,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
               const image = badge.image as MediaDoc | undefined
               if (!image?.url) return null
               return (
-                <li key={badge.name} className="flex items-center justify-center">
+                <li key={badge.name} className="fk-art-surface flex items-center justify-center rounded-2xl dark:p-3">
                   {/* Heights are equalised, widths left to each badge: the row
                       mixes a wide lockup with four round seals. */}
                   <Image
@@ -623,7 +612,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                     width={296}
                     height={125}
                     style={{ width: 'auto' }}
-                    className="h-[92px] w-auto object-contain sm:h-[125px]"
+                    className="fk-art-image h-[92px] w-auto object-contain sm:h-[125px]"
                   />
                 </li>
               )
@@ -702,14 +691,14 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                  */
                 <li
                   key={logo.name}
-                  className="relative mx-auto flex h-16 w-full max-w-[9rem] items-center justify-center rounded-lg dark:bg-white/92"
+                  className="fk-art-surface relative mx-auto flex h-16 w-full max-w-[9rem] items-center justify-center rounded-lg"
                 >
                   <Image
                     src={mediaUrl(image)}
                     alt={logo.name}
                     fill
                     sizes="144px"
-                    className="object-contain p-1 opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:p-1.5"
+                    className="fk-art-image object-contain p-1 opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:p-2 dark:opacity-100 dark:grayscale-0"
                   />
                 </li>
               )
@@ -836,8 +825,8 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                       <span
                         style={{ '--fk-tint': tint.disc } as React.CSSProperties}
                         className={cn(
-                          'grid size-[120px] shrink-0 place-items-center overflow-hidden rounded-full',
-                          (icon.width ?? 1) / (icon.height ?? 1) > 1.5 ? 'dark:rounded-lg dark:bg-white' : 'fk-tint-bg',
+                          'fk-art-surface grid size-[120px] shrink-0 place-items-center overflow-hidden rounded-full dark:p-2',
+                          (icon.width ?? 1) / (icon.height ?? 1) > 1.5 ? 'dark:rounded-lg' : 'bg-[var(--fk-tint)]',
                         )}
                       >
                         <Image
@@ -847,7 +836,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                           height={120}
                           aria-hidden
                           style={{ width: 'auto' }}
-                          className="max-h-[120px] w-auto max-w-full object-contain"
+                          className="fk-art-image max-h-[120px] w-auto max-w-full object-contain"
                         />
                       </span>
                     ) : null}
@@ -940,7 +929,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
 
                   <div className="flex flex-col gap-3">
                     {icon?.url ? (
-                      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-card">
+                      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-card dark:bg-elevated">
                         {/* Eager: a lazy 24px icon leaves the white chip empty
                             until it arrives, which reads as a missing icon. */}
                         <Image
@@ -949,7 +938,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                           width={24}
                           height={24}
                           loading="eager"
-                          className="size-6"
+                          className="fk-mono-icon size-6"
                           aria-hidden
                         />
                       </span>
@@ -1002,7 +991,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                     alt=""
                     width={48}
                     height={48}
-                    className="size-12"
+                    className="fk-mono-icon size-12"
                     aria-hidden
                   />
                 ) : null}
@@ -1096,7 +1085,7 @@ export function IndustriesSection({ block }: { block: BlockProps }) {
                       width={32}
                       height={32}
                       aria-hidden
-                      className="size-8 dark:invert"
+                      className="fk-mono-icon size-8"
                     />
                   ) : null}
                 </span>
@@ -1188,7 +1177,7 @@ export function ProcessSection({ block }: { block: BlockProps }) {
       id={block.anchor ?? undefined}
       /* Same soft diagonal wash as the hero (client request) so the funnel
          sits on a tinted ground instead of bare page. */
-      className="section bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]"
+      className="section bg-[linear-gradient(117.67deg,rgba(238,252,243,0.4)_3.72%,rgba(220,239,247,0.4)_103.6%)] dark:bg-none"
     >
       {/*
        * PF-1 — the comp's 100px gap between the heading and the funnel is what
@@ -1506,7 +1495,7 @@ export function FaqSection({ block, locale }: { block: BlockProps; locale: Local
                 </span>
                 <span
                   aria-hidden
-                  className="grid size-[34px] shrink-0 place-items-center rounded-pill bg-[linear-gradient(135deg,rgba(72,155,194,0.4)_0%,rgba(142,142,142,0.1)_100%)] text-navy-800 transition-transform duration-300 group-open:rotate-90 group-open:bg-primary group-open:bg-none group-open:text-white dark:text-foreground"
+                  className="grid size-[34px] shrink-0 place-items-center rounded-pill bg-[linear-gradient(135deg,rgba(72,155,194,0.4)_0%,rgba(142,142,142,0.1)_100%)] text-navy-800 transition-transform duration-300 group-open:rotate-90 group-open:bg-primary group-open:bg-none group-open:text-primary-foreground dark:text-foreground dark:group-open:text-primary-foreground"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -2004,12 +1993,12 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
             </span>
           ) : null}
           {typeof person.match === 'number' ? (
-            <span className="rounded-pill border border-[#a7f3d0] bg-[#ecfdf5] px-2.5 py-1.5 text-xs text-success-600">
+            <span className="rounded-pill border border-[#a7f3d0] bg-[#ecfdf5] px-2.5 py-1.5 text-xs text-success-600 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-200">
               {TALENT_CHIPS[locale].match}: {person.match}%
             </span>
           ) : null}
           {person.evaluated ? (
-            <span className="rounded-pill border border-[#e0e7ff] bg-[#eef2ff] px-2.5 py-1.5 text-xs text-[#4338ca]">
+            <span className="rounded-pill border border-[#e0e7ff] bg-[#eef2ff] px-2.5 py-1.5 text-xs text-[#4338ca] dark:border-indigo-300/25 dark:bg-indigo-300/10 dark:text-indigo-200">
               {TALENT_CHIPS[locale].evaluated}
             </span>
           ) : null}

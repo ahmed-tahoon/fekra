@@ -67,7 +67,7 @@ export function PostCard({
       <div className="flex flex-1 flex-col px-3 pt-5 pb-4">
         <div className="mb-4 flex items-center justify-between gap-3">
           {category ? (
-            <span className="rounded-full border border-blog-500/40 px-3 py-1 text-[11px] font-semibold tracking-wide text-blog-600 uppercase">
+            <span className="rounded-full border border-blog-500/40 px-3 py-1 text-[11px] font-semibold tracking-wide text-blog-600 uppercase dark:text-blog-300">
               {category}
             </span>
           ) : (
@@ -80,7 +80,7 @@ export function PostCard({
           ) : null}
         </div>
 
-        <h3 className="text-lg leading-snug font-bold text-slate-900 transition-colors group-hover:text-blog-600 dark:text-white">
+        <h3 className="text-lg leading-snug font-bold text-slate-900 transition-colors group-hover:text-blog-600 dark:text-white dark:group-hover:text-blog-300">
           {/* Stretched link: the whole card is the target, but only one link is
               in the tab order and the accessible name stays the title (23.2). */}
           <Link href={href} className="after:absolute after:inset-0">

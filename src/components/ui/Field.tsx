@@ -16,8 +16,8 @@ const controlClass =
   'w-full rounded-[28px] border border-transparent bg-panel-grey px-4 py-3 text-base text-navy-800 ' +
   '@md:rounded-[32px] @md:px-6 @md:py-4 @md:text-lg ' +
   'placeholder:text-ink-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ' +
-  'dark:bg-card dark:text-foreground dark:placeholder:text-muted-foreground ' +
-  'aria-[invalid=true]:border-danger-600'
+  'dark:border-input dark:bg-card dark:text-foreground dark:placeholder:text-muted-foreground ' +
+  'aria-[invalid=true]:border-danger-600 dark:aria-[invalid=true]:border-danger-600'
 
 /**
  * One labelled control. The label is always a real <label for>, the error is

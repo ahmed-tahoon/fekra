@@ -1,0 +1,7 @@
+Use case: photorealistic-natural
+Asset type: Standalone wide photograph for a lower-left website hero collage tile displayed at approximately 342 by 170 pixels.
+Primary request: Three Egyptian software developers, two men and one woman in their late twenties or thirties, in realistic casual clothing, collaborating in a contemporary Cairo office. One man stands explaining software architecture sketched as simple boxes and connecting lines on a glassboard to two seated colleagues working with laptops.
+Style/medium: Natural documentary workplace photography, candid interaction, believable anatomy and honest skin texture, unposed and unstaged.
+Composition/framing: Wide horizontal image approximately 2.1:1. Faces placed in the central top/middle band with breathing space, clear people and office context that remains legible in a small crop. Include all three people, the standing colleague, seated colleagues and laptops.
+Lighting/mood: Soft natural office daylight, restrained colors, relaxed focused collaboration.
+Constraints: Single complete photograph only, no collage or UI, no legible text, logos, watermark, pyramids or stereotypes. No posed stock-photo smiles.

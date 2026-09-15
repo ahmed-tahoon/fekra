@@ -200,47 +200,30 @@
   --overlay: rgb(0 0 0 / 0.45);
 }
 
-/*
- * Dark theme (15.1/15.5).
- *
- * One neutral ramp, all tinted to ~212deg — between the brand teal (190deg) and
- * the FEKRA navy (225deg), so the darks read as part of the brand rather than
- * as generic grey. The previous set drifted across 171-233deg: the border was
- * visibly green while the foreground was blue-violet, which is what made dark
- * mode feel muddy and unrelated to the light theme.
- *
- * Four surface levels instead of three, each a deliberate luminance step
- * (0.0046 -> 0.0077 -> 0.0117 -> 0.0178), so nested panels separate without
- * anyone reaching for a border or a shadow.
- *
- * Every pairing is measured, not eyeballed:
- *   body on background    16.3:1      muted on card        6.7:1
- *   body on card          14.4:1      primary on card      6.7:1
- *   muted on background    7.6:1      label on primary     7.1:1
- * Border is 1.66:1 against card — the old #24312f sat at 1.28:1, below the
- * point where an edge reads at all, so cards looked like they had none.
- */
+/* Dark surfaces use a neutral charcoal ramp. Keep decorative brand
+ * colours separate from text, controls, and the grounds behind original art. */
 .dark {
-  --background: #0a0f15;
-  --background-subtle: #0f161e;
-  --foreground: #e6edf5;
-  --muted-foreground: #94a4b8;
-  --card: #141d27;
-  --card-foreground: #e6edf5;
-  /* Menus, popovers and the mobile nav sit above cards. */
-  --elevated: #1b2531;
-  --border: #354252;
-  /* A field's edge has to out-read a divider, or inputs vanish. */
-  --input: #41505f;
-  --primary: var(--color-brand-400);
-  --primary-hover: var(--color-brand-300);
-  /* Brand-400 on dark needs a dark label to stay above 4.5:1 (15.5). */
-  --primary-foreground: #04181d;
+  color-scheme: dark;
+  --background: #121214;
+  --background-subtle: #18181b;
+  --foreground: #edf2f7;
+  --muted-foreground: #b6b6c0;
+  --card: #202024;
+  --card-foreground: #edf2f7;
+  --elevated: #29292e;
+  --border: #3e3e46;
+  --input: #777782;
+  --primary: var(--color-brand-300);
+  --primary-hover: var(--color-brand-200);
+  --primary-foreground: #082a31;
   --accent: var(--color-brand-100);
-  --accent-foreground: #04181d;
+  --accent-foreground: #082a31;
   --ring: var(--color-brand-300);
-  /* Deeper than light mode: a dim overlay over a dark page reads as a bug. */
-  --overlay: rgb(0 0 0 / 0.72);
+  --overlay: rgb(3 8 15 / 0.76);
+  --color-blog-ink: var(--background);
+  --color-danger-600: #fda4af;
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.04), 0 8px 24px rgb(0 0 0 / 0.18);
+  --shadow-lift: 0 1px 0 rgb(255 255 255 / 0.06), 0 16px 40px rgb(0 0 0 / 0.28);
 }
 
 /*
@@ -400,6 +383,20 @@
 }
 
 @layer utilities {
+  /* Opt in by asset role: monochrome glyphs can be lifted, while logos and
+   * artwork with baked-in dark text keep their original colours on a soft
+   * light ground. Multiply removes opaque white rectangles inside that ground. */
+  .dark .fk-mono-icon {
+    filter: brightness(0) invert(0.93);
+  }
+  .dark .fk-art-surface {
+    background-color: #b9bec5;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  }
+  .dark .fk-art-image {
+    mix-blend-mode: multiply;
+  }
+
   /*
    * Per-item tints that come from the CMS/comp rather than the token set (the
    * About stat cards and certification rows each carry their own pastel).
@@ -416,10 +413,10 @@
     border-color: var(--fk-tint);
   }
   .dark .fk-tint-bg {
-    background-color: color-mix(in srgb, var(--fk-tint) 14%, transparent);
+    background-color: color-mix(in srgb, var(--fk-tint) 5%, var(--card));
   }
   .dark .fk-tint-border {
-    border-color: color-mix(in srgb, var(--fk-tint) 26%, transparent);
+    border-color: color-mix(in srgb, var(--fk-tint) 16%, var(--card));
   }
 
   .container-site,
@@ -599,6 +596,23 @@
     }
   }
 
+  /* Armed by IntersectionObserver only below the viewport. The independent
+     translate property preserves existing hover transforms on cards. */
+  .fk-reveal-pending {
+    opacity: 0;
+    translate: 0 24px;
+  }
+
+  .fk-reveal-in {
+    animation: fk-scroll-reveal 750ms var(--ease-out-soft) backwards;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  @keyframes fk-scroll-reveal {
+    from { opacity: 0; translate: 0 24px; }
+    to { opacity: 1; translate: none; }
+  }
+
   /* Clicking a link inside a nav dropdown closes it even though the pointer
      still hovers it; leaving or refocusing re-arms the hover (NavItem.tsx). */
   li.nav-closed > div,
@@ -707,6 +721,8 @@
    * by name or the page would still move under someone who asked it not to.
    */
   .fk-drift,
+  .fk-reveal-pending,
+  .fk-reveal-in,
   .fk-enter,
   .fk-tile-enter,
   .fk-marquee,
@@ -714,6 +730,7 @@
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+    translate: none !important;
     filter: none !important;
   }
 }

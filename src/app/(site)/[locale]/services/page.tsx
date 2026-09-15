@@ -77,7 +77,7 @@ export default async function ServicesIndex({ params }: { params: Promise<{ loca
           </div>
           <span
             aria-hidden
-            className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-white dark:bg-background-subtle"
+            className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground dark:bg-background-subtle"
           >
             <ArrowUpRight className="size-4" strokeWidth={2.25} />
           </span>
@@ -107,7 +107,7 @@ export default async function ServicesIndex({ params }: { params: Promise<{ loca
       <section className="relative isolate mt-[calc(var(--header-block)*-1)] overflow-hidden pt-[calc(var(--header-block)+clamp(3rem,7vw,6rem))] pb-16 md:pb-24">
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.78)_3.72%,rgba(220,239,247,0.78)_103.6%)] dark:bg-[linear-gradient(117.67deg,rgba(32,162,188,0.10)_3.72%,rgba(39,57,105,0.16)_103.6%)]"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.78)_3.72%,rgba(220,239,247,0.78)_103.6%)] dark:bg-none"
         />
         <div className="container-site grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_auto]">
           <div className="max-w-[780px]">

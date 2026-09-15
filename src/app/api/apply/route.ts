@@ -89,6 +89,7 @@ export async function POST(request: Request) {
     await payload.create({
       collection: 'job-applications',
       overrideAccess: true,
+      disableTransaction: true, // single flat INSERT — see api/contact
       data: {
         fullName: data.fullName,
         email: data.email,
