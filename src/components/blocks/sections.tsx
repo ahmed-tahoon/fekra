@@ -42,23 +42,24 @@ const TILE_CORNER_SM = {
   br: 'rounded-br-[1.25rem]',
 } as const
 
-/* Vivasoft reference, normalized to a 1408 x 448 board. Equal outer
- * portraits frame the staggered center. Lower tiles share one baseline;
- * consistent gutters and no scroll drift keep that alignment intact. */
+/* Vivasoft reference, traced tile by tile off a 1975 x 629 capture of the
+ * live site (same 3.14:1 board). Percentages are of the board box. Gutters
+ * run ~1% of the width both ways; the centre columns climb to within a
+ * gutter of the CTA row, which is where the reference gets its density. */
 const MOSAIC_LAYOUT = [
-  { left: 0.0000, top: 0.0000, width: 12.2159, height: 60.2679 },
-  { left: 12.9261, top: 34.3750, width: 10.9375, height: 25.8929 },
-  { left: 24.7159, top: 39.7321, width: 11.7898, height: 31.2500 },
-  { left: 24.7159, top: 73.2143, width: 11.7898, height: 26.7857 },
-  { left: 37.3580, top: 43.3036, width: 9.6591, height: 56.6964 },
-  { left: 50.9943, top: 50.0000, width: 11.7898, height: 26.3393 },
-  { left: 50.9943, top: 78.5714, width: 11.7898, height: 21.4286 },
-  { left: 63.6364, top: 27.2321, width: 10.9375, height: 26.7857 },
-  { left: 63.6364, top: 56.2500, width: 23.2955, height: 43.7500 },
-  { left: 75.4261, top: 27.2321, width: 11.5057, height: 26.7857 },
-  { left: 87.7841, top: 0.0000, width: 12.2159, height: 60.2679 },
-  { left: 87.7841, top: 62.9464, width: 12.2159, height: 37.0536 },
-  { left: 0.0000, top: 62.9464, width: 23.8636, height: 37.0536 },
+  { left: 0.0000, top: 0.0000, width: 12.2000, height: 59.9400, corner: 'tl' },
+  { left: 13.2700, top: 14.6300, width: 11.0300, height: 45.3100, corner: 'tr' },
+  { left: 25.6700, top: 26.0700, width: 11.3900, height: 29.4100, corner: 'tr' },
+  { left: 25.6700, top: 58.6600, width: 11.3900, height: 41.3400, corner: 'tr' },
+  { left: 38.2800, top: 25.7600, width: 12.5100, height: 74.2400, corner: 'tr' },
+  { left: 52.0000, top: 36.0900, width: 11.2900, height: 39.7500, corner: 'tl' },
+  { left: 52.0000, top: 79.0100, width: 11.2900, height: 20.9900, corner: 'tr' },
+  { left: 64.8100, top: 22.8900, width: 11.7500, height: 31.4800, corner: 'tl' },
+  { left: 64.8100, top: 57.5500, width: 22.7800, height: 42.4500, corner: 'tr' },
+  { left: 77.4700, top: 14.3100, width: 10.1200, height: 40.0600, corner: 'tr' },
+  { left: 88.4600, top: 1.9100, width: 11.5400, height: 59.3000, corner: 'tl' },
+  { left: 88.4600, top: 64.7100, width: 11.5400, height: 35.2900, corner: 'tr' },
+  { left: 0.0000, top: 63.1200, width: 24.3000, height: 36.8800, corner: 'tr' },
 ] as const
 
 /** Shared section heading. One H2 per section keeps the outline honest (18.4). */
@@ -245,14 +246,16 @@ export function HeroSection({
 
   const tile = (item: (typeof mosaic)[number], index: number, compact = false) => {
     const image = item.image as MediaDoc | undefined
-    const corner = (compact ? TILE_CORNER_SM : TILE_CORNER)[item.corner ?? 'tl']
+    const corner = compact
+      ? TILE_CORNER_SM[item.corner ?? 'tl']
+      : TILE_CORNER[MOSAIC_LAYOUT[index]?.corner ?? item.corner ?? 'tl']
 
     if (item.kind === 'stat') {
       return (
         <div
           className={cn(
             'flex size-full flex-col justify-center',
-            compact ? 'p-3.5' : 'px-4 py-3 lg:px-6',
+            compact ? 'p-3.5' : 'px-[clamp(1rem,1.8vw,2.5rem)] py-3',
             corner,
             STAT_TONE[item.tone ?? 'green'],
           )}
@@ -263,7 +266,7 @@ export function HeroSection({
           <span
             className={cn(
               'font-display leading-tight tracking-[-0.04em]',
-              compact ? 'text-[0.8125rem]' : 'text-[clamp(0.625rem,0.9vw,1rem)] font-semibold',
+              compact ? 'text-[0.8125rem]' : 'text-[clamp(0.75rem,1.3vw,1.75rem)] leading-[1.25] font-medium',
             )}
           >
             {item.label}
@@ -275,7 +278,7 @@ export function HeroSection({
               'font-display font-bold tracking-[-0.04em]',
               compact
                 ? 'mt-1.5 block text-[1.75rem] leading-none'
-                : 'mt-2 block text-[clamp(1.25rem,2.25vw,2.5rem)] leading-none',
+                : 'mt-[0.35em] block text-[clamp(1.5rem,2.9vw,3.75rem)] leading-none',
             )}
           />
         </div>
@@ -509,9 +512,11 @@ export function HeroSection({
 
       {mosaic.length ? (
         <>
-          {/* On wide screens, bring the middle photo within ~48px of the CTA.
-              Outer portraits flank the copy; tablets retain safer clearance. */}
-          <div data-hero-collage className="relative mx-3 -mt-14 hidden aspect-[1408/448] [--radius-tile:clamp(1.5rem,4.3vw,4rem)] md:block xl:-mt-[calc(13.8vw_-_3.25rem)]">
+          {/* The board's top edge sits level with the CTA row, as in the
+              reference: the outer portraits start beside the button and the
+              centre columns rise to a gutter below it. Tablets pull up less
+              so the middle photo keeps clear of the button. */}
+          <div data-hero-collage className="relative mx-3 -mt-8 hidden aspect-[1975/629] [--radius-tile:clamp(1.5rem,5.5vw,7rem)] md:block xl:-mt-16">
             {mosaic.map((item, index) => {
               const pos = MOSAIC_LAYOUT[index]
               if (!pos) return null
