@@ -35,8 +35,8 @@ export const isLocale = (value: string | undefined): value is Locale =>
  *
  * All five since 23 Aug 2026: the home page, header, footer, offices and the
  * 13 service documents carry ar/de/fr/es translations (scripts/translate-home
- * .ts). Blog posts and job ads remain English-only — their availableLocales
- * say so, which keeps their hreflang honest (14.9), and untranslated CMS
+ * .ts). Published blog posts also carry all five translations. Each document's
+ * availableLocales keeps its hreflang honest (14.9), and untranslated CMS
  * fields elsewhere fall back to English rather than rendering blank.
  */
 export const PUBLIC_LOCALES: readonly Locale[] = ['en', 'ar', 'de', 'fr', 'es']
@@ -62,6 +62,20 @@ export function splitLocale(pathname: string): { locale: Locale; rest: string } 
     return { locale: maybe, rest: rest || '/' }
   }
   return { locale: DEFAULT_LOCALE, rest: pathname || '/' }
+}
+
+/**
+ * Is `href` the page at `pathname`, or a page under it? Both sides go through
+ * splitLocale because a prerendered English page reached via the proxy rewrite
+ * reads usePathname() as `/en/about`, never the `/about` in the nav href. A
+ * locale root ("/", "/ar") matches exactly, or it would be active everywhere.
+ */
+export function isActivePath(pathname: string, href: string): boolean {
+  const current = splitLocale(pathname)
+  const target = splitLocale(href)
+  if (current.locale !== target.locale) return false
+  if (current.rest === target.rest) return true
+  return target.rest !== '/' && current.rest.startsWith(`${target.rest}/`)
 }
 
 /**

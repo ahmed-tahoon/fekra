@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Globe2, BookOpen, Users, Sparkles } from 'lucide-react'
 
 import { getDictionary } from '@/i18n/getDictionary'
 import { isLocale, localeHref } from '@/i18n/routing'
@@ -54,14 +55,13 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
 
   return (
     <>
-      {/* Hero: eyebrow, headline, one paragraph. No stat counters, no jump
-          button — the roles are the next thing on the page anyway. */}
+      {/* A team-led hero with a direct jump to the current openings. */}
       <section className="relative isolate mt-[calc(var(--header-block)*-1)] overflow-hidden pt-[calc(var(--header-block)+clamp(2.5rem,7vw,5.5rem))] pb-14 md:pb-20">
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-[linear-gradient(117.67deg,rgba(238,252,243,0.45)_3.72%,rgba(220,239,247,0.45)_103.6%)] dark:bg-none"
         />
-        <div className="container-site">
+        <div className="container-site grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <div className="max-w-[680px]">
             <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
               {dict.careers.eyebrow}
@@ -72,12 +72,20 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
             <p className="mt-5 text-[15px]/7 text-ink-500 md:text-lg/8 dark:text-muted-foreground">
               {dict.careers.heroBody}
             </p>
+            <a href="#open-roles" className="mt-7 inline-flex min-h-12 items-center gap-3 rounded-pill bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">{dict.careers.openRoles}<ArrowRight className="icon-flip size-4" aria-hidden /></a>
+          </div>
+          <div className="grid grid-cols-2 items-center gap-4" aria-hidden>
+            <Image src="/images/team/team-planning-session.webp" alt="" width={360} height={440} priority className="aspect-[4/5] w-full rounded-tl-[64px] rounded-br-[32px] object-cover" />
+            <div className="flex flex-col gap-4 pt-10">
+              <Image src="/images/team/team-pairing-session.webp" alt="" width={320} height={240} priority className="aspect-[4/3] w-full rounded-tr-[40px] rounded-bl-[32px] object-cover" />
+              <div className="rounded-tr-[32px] rounded-bl-[32px] bg-brand-100 p-5 text-navy-800 dark:bg-card dark:text-foreground"><Users className="mb-3 size-6 text-primary" /><p className="font-display text-lg font-semibold">{dict.careers.whyTitle}</p></div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Open roles lead — it is what people came for. */}
-      <section className="section pt-14 md:pt-20">
+      <section id="open-roles" className="section scroll-mt-28 pt-14 md:pt-20">
         <div className="container-site">
           <SectionLabel eyebrow={dict.careers.title} heading={dict.careers.openRoles} />
 
@@ -128,20 +136,20 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
               [dict.careers.why2Title, dict.careers.why2Body],
               [dict.careers.why3Title, dict.careers.why3Body],
               [dict.careers.why4Title, dict.careers.why4Body],
-            ].map(([title, body], index) => (
+            ].map(([title, body], index) => {
+              const Icon = [Globe2, BookOpen, Users, Sparkles][index]!
+              return (
               <article
                 key={title}
                 className="rounded-panel border border-border bg-card p-6 shadow-card"
               >
-                <span aria-hidden className="font-display text-sm font-bold text-primary/60">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
+                <span aria-hidden className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" /></span>
                 <h3 className="mt-6 font-display text-lg font-bold text-navy-800 dark:text-foreground">
                   {title}
                 </h3>
                 <p className="mt-3 text-sm/6 text-ink-500 dark:text-muted-foreground">{body}</p>
               </article>
-            ))}
+            )})}
           </div>
         </div>
       </section>

@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BrandLogo } from '@/components/layout/BrandLogo'
 import { LinkButton } from '@/components/ui/Button'
 import type { Dictionary } from '@/i18n/getDictionary'
+import { isActivePath } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
 import type { ResolvedLink } from '@/lib/resolveLink'
 
@@ -42,7 +43,7 @@ export function MobileNav({
     }
   }, [open])
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+  const isActive = (href: string) => isActivePath(pathname, href)
 
   return (
     <>
@@ -91,15 +92,15 @@ export function MobileNav({
                     >
                       <Link
                         href={item.link.href}
-                        aria-current={isActive(item.link.href) ? 'page' : undefined}
+                        aria-current={isActive(item.link.activeHref ?? item.link.href) ? 'page' : undefined}
                         className={cn(
                           'flex items-center justify-between gap-4 py-4 font-display text-lg font-bold',
-                          isActive(item.link.href) ? 'text-primary' : 'text-navy-800 dark:text-foreground',
+                          isActive(item.link.activeHref ?? item.link.href) ? 'text-primary' : 'text-navy-800 dark:text-foreground',
                         )}
                       >
                         {item.link.label}
                         <ChevronRight
-                          className={cn('icon-flip size-4', isActive(item.link.href) ? 'text-primary' : 'text-muted-foreground')}
+                          className={cn('icon-flip size-4', isActive(item.link.activeHref ?? item.link.href) ? 'text-primary' : 'text-muted-foreground')}
                           aria-hidden
                         />
                       </Link>

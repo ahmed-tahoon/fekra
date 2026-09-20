@@ -1,4 +1,4 @@
-import { Award, Clock, FilePenLine } from 'lucide-react'
+import { Award, Check, Clock, FilePenLine, Star } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -6,12 +6,16 @@ import { JsonLd } from '@/components/JsonLd'
 import { RichText } from '@/components/RichText'
 import { LinkButton } from '@/components/ui/Button'
 import { dir, type Locale } from '@/i18n/routing'
+import { batchTwo } from '@/i18n/batch-two'
 import { cn } from '@/lib/cn'
+import { clientLogo, clientLogoSizing } from '@/lib/client-logos'
 import { faqSchema } from '@/lib/jsonld'
 import { defaultHeroPhoto } from '@/lib/hero-photos'
 import { resolveLink } from '@/lib/resolveLink'
 
 import { CountUp } from './CountUp'
+import { FaqAccordion } from './FaqAccordion'
+import { TestimonialCarousel } from './TestimonialCarousel'
 import { ProcessStepper } from './ProcessStepper'
 import { RotatingWords } from './RotatingWords'
 import { TechTabs } from './TechTabs'
@@ -355,9 +359,22 @@ export function HeroSection({
                  in dark it sat at 3.39:1 on the card — under the 4.5:1 floor.
                  The pill also used bg-card, only 1.13:1 against the page, so it
                  barely read as a pill at all. Elevated + foreground fixes both. */
-              className="fk-enter inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white px-3 py-1 text-xs font-medium sm:px-3.5 sm:py-1.5 sm:text-sm tracking-[0.35px] text-ink-500 dark:border-border dark:bg-elevated dark:text-foreground"
+              className="fk-enter inline-flex items-center gap-2 rounded-pill border border-[rgba(25,36,36,0.08)] bg-white py-1 ps-1 pe-3 text-xs font-medium sm:pe-3.5 sm:text-sm tracking-[0.35px] text-ink-500 dark:border-border dark:bg-elevated dark:text-foreground"
             >
-              <span aria-hidden className="size-2 shrink-0 rounded-pill bg-primary" />
+              {/* Client faces lead the line as social proof — the testimonial
+                  portraits, overlapped and ringed in the pill's own surface. */}
+              <span aria-hidden className="flex shrink-0">
+                {TESTIMONIAL_PROFILES.slice(0, 4).map((profile) => (
+                  <Image
+                    key={profile.avatar}
+                    src={profile.avatar}
+                    alt=""
+                    width={28}
+                    height={28}
+                    className="size-6 rounded-pill object-cover ring-2 ring-white not-first:-ms-2 sm:size-7 dark:ring-elevated"
+                  />
+                ))}
+              </span>
               {block.trustLine}
             </p>
           ) : null}
@@ -578,7 +595,7 @@ export function HeroSection({
   )
 }
 
-export function LogoCloudSection({ block }: { block: BlockProps }) {
+export function LogoCloudSection({ block, locale }: { block: BlockProps; locale: Locale }) {
   /* Figma 1:11600 — the same logo array, presented as a centred badge row
      under a gradient heading instead of beside a statement. */
   if (block.variant === 'badges') {
@@ -628,7 +645,7 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
     )
   }
 
-  const logos = block.logos ?? []
+  const logos = (block.logos ?? []).map(clientLogo)
   const statement = block.statement
   const hasStatement = Boolean(statement?.before || statement?.highlight || statement?.after)
   // The statement is content in its own right — it should not disappear just
@@ -655,16 +672,20 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
        * which put ~700px of dead air between the text and the grid. Centring
        * the pair with a fixed gap cannot stretch, whatever the row width.
        */}
-      <div className="container-site mx-auto flex flex-col items-center gap-12 lg:flex-row lg:items-start lg:justify-center lg:gap-16 xl:gap-20">
+      <div className="container-site mx-auto flex flex-col items-center gap-10 lg:flex-row lg:justify-center lg:gap-10 xl:gap-14">
         {hasStatement ? (
           /* 458px / 32px / 48px line-height, Space Grotesk Medium in the comp —
              not bold, which is what made it read heavier than the design. */
-          <p className="mx-auto max-w-md text-center font-display text-2xl leading-[1.25] font-bold text-balance text-navy-800 lg:mx-0 lg:my-auto lg:max-w-[24rem] lg:shrink-0 lg:pb-10 lg:text-start lg:text-[34px] xl:max-w-[26rem] dark:text-foreground">
-            {statement?.before}{' '}
+          <p className="mx-auto max-w-md text-center font-display text-2xl leading-[1.35] font-semibold text-navy-800 lg:mx-0 lg:my-auto lg:w-[430px] lg:max-w-none lg:shrink-0 lg:text-start lg:text-[30px] dark:text-foreground">
+            {locale === 'en' && statement?.before === '50+ companies rely on our' ? <>
+              <span className="lg:block">50+ companies rely</span>{' '}
+              <span className="lg:block">on our <span className="text-primary">top 3%</span> talent to</span>{' '}
+              <span className="lg:block">scale their dev teams.</span>
+            </> : <>{statement?.before}{' '}
             {statement?.highlight ? (
               <span className="text-primary">{statement.highlight}</span>
             ) : null}{' '}
-            {statement?.after}
+            {statement?.after}</>}
           </p>
         ) : block.heading ? (
           <p className="text-sm text-muted-foreground">{block.heading}</p>
@@ -673,22 +694,16 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
         )}
 
         {logos.length ? (
-          /* A flex-wrap board of fixed cells — large marks on tight 10px gaps
-             so the logos, not the whitespace, carry the board. Four per row,
-             remainder left-aligned: the 4/4/2 rhythm. */
-          <ul className="mx-auto grid w-full max-w-md shrink-0 grid-cols-3 gap-4 sm:max-w-[34rem] md:gap-x-8 lg:mx-0 lg:w-[38rem] lg:gap-y-5">
+          /* Compared three- and four-column boards: three preserves the
+             reference's balance and keeps the detailed lockups legible. */
+          <ul data-client-logos className="mx-auto grid w-full max-w-[34rem] grid-cols-3 gap-x-6 gap-y-5 lg:mx-0 lg:min-w-0">
             {logos.map((logo) => {
               const image = logo.image as MediaDoc | undefined
               if (!image?.url) return null
               return (
                 /*
-                 * Each mark fills its 9rem x 4rem cell (object-contain), which
-                 * is exactly what the BairesDev reference does — their SVGs are
-                 * w-full h-full in the same box. Equal-area sizing was tried
-                 * here first and reversed on request: it kept the ink even but
-                 * rendered the complex lockups (Pitman, KFH, SMS) too small to
-                 * read, and the reference favours legible-and-large. The tech
-                 * grid keeps equal-area, where the marks are simpler.
+                 * Proportions remain intact inside consistent cells, with
+                 * optical padding for the broadest and narrowest marks.
                  *
                  * Dark mode sets the marks on a light tile rather than
                  * inverting them — three of the twelve ship opaque white
@@ -696,14 +711,14 @@ export function LogoCloudSection({ block }: { block: BlockProps }) {
                  */
                 <li
                   key={logo.name}
-                  className="fk-art-surface relative mx-auto flex h-16 w-full max-w-[9rem] items-center justify-center rounded-lg"
+                  className="fk-art-surface group relative mx-auto flex h-16 w-full max-w-[9rem] items-center justify-center rounded-lg"
                 >
                   <Image
                     src={mediaUrl(image)}
-                    alt={logo.name}
+                    alt={logo.name ?? image.alt ?? ''}
                     fill
                     sizes="144px"
-                    className="fk-art-image object-contain p-1 opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 dark:p-2 dark:opacity-100 dark:grayscale-0"
+                    className={cn('fk-art-image object-contain opacity-80 grayscale transition-[filter,opacity] duration-300 group-hover:opacity-100 group-hover:grayscale-0 dark:group-hover:mix-blend-normal', clientLogoSizing[logo.name ?? ''] ?? 'p-1 dark:p-2')}
                   />
                 </li>
               )
@@ -900,7 +915,7 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
               </span>
             </h2>
             {block.body ? (
-              <p className="max-w-3xl text-lg/[1.3] text-ink-500 dark:text-muted-foreground">
+              <p className="max-w-full text-base/[1.5] text-ink-500 xl:text-lg dark:text-muted-foreground">
                 {block.body}
               </p>
             ) : null}
@@ -1174,7 +1189,7 @@ export function StatsSection({ block }: { block: BlockProps }) {
   )
 }
 
-export function ProcessSection({ block }: { block: BlockProps }) {
+export function ProcessSection({ block, locale }: { block: BlockProps; locale: Locale }) {
   const steps = (block.steps ?? []).map((s) => ({ title: s.title, body: s.body }))
 
   return (
@@ -1212,7 +1227,7 @@ export function ProcessSection({ block }: { block: BlockProps }) {
           ) : null}
         </div>
 
-        <ProcessStepper steps={steps} />
+        <ProcessStepper steps={steps} completed={{ title: batchTwo[locale].done, body: batchTwo[locale].doneBody }} />
       </div>
     </section>
   )
@@ -1343,11 +1358,14 @@ function testimonialProfile(quote?: string) {
   return TESTIMONIAL_PROFILES.find((profile) => normalized?.includes(profile.quoteKey))
 }
 
-export function TestimonialsSection({ block }: { block: BlockProps }) {
-  // The approved composition is a single five-card set. Extra CMS entries stay
-  // available for future rotation without lengthening this section.
-  const items = (block.items ?? []).slice(0, 5)
-  const stats = block.stats ?? []
+export function TestimonialsSection({ block, locale }: { block: BlockProps; locale: Locale }) {
+  const items = block.items ?? []
+  const labels = batchTwo[locale]
+  const stats = [
+    { value: '4.9/5', label: labels.clientRating, star: true },
+    { value: '98%', label: labels.retention },
+    { value: '12+', label: labels.countries },
+  ]
 
   /* Empty still means "not ready", not "broken" — the section reappears as
      soon as the CMS contains at least one testimonial. */
@@ -1375,19 +1393,19 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
 
         {/* Three across, then a narrow card beside a wide one — the comp's
             exact five-card rhythm. */}
-        <ul className="grid gap-6 md:grid-cols-6">
+        <TestimonialCarousel labels={labels}>
           {items.map((item, i) => {
             const avatar = item.avatar as MediaDoc | undefined
             const profile = testimonialProfile(item.quote)
             const avatarSrc = profile?.avatar ?? (avatar?.url ? mediaUrl(avatar) : undefined)
             const authorName = profile?.name ?? item.authorName
             const authorRole = profile ? `${profile.role} · ${profile.country}` : item.authorRole
-            const span = i === 4 ? 'md:col-span-4' : 'md:col-span-2'
+            const span = i % 5 === 4 ? 'md:col-span-4' : 'md:col-span-2'
             return (
               <li
                 key={i}
                 className={cn(
-                  'flex flex-col justify-between gap-4 rounded-card border border-panel-grey bg-card p-6 dark:border-border',
+                  'flex min-w-0 flex-col justify-between gap-4 rounded-card border border-panel-grey bg-card p-6 dark:border-border',
                   span,
                 )}
               >
@@ -1428,7 +1446,7 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
               </li>
             )
           })}
-        </ul>
+        </TestimonialCarousel>
 
         {stats.length ? (
           <ul className="flex flex-wrap items-start justify-center gap-x-8 gap-y-6 border-t border-panel-grey pt-8 dark:border-border">
@@ -1436,14 +1454,7 @@ export function TestimonialsSection({ block }: { block: BlockProps }) {
               <li key={stat.label} className="flex flex-col items-center gap-1">
                 <span className="flex items-center justify-center gap-1">
                   {stat.star ? (
-                    <Image
-                      aria-hidden
-                      src="/images/decor/star.svg"
-                      alt=""
-                      width={24}
-                      height={24}
-                      className="size-6"
-                    />
+                    <Star aria-hidden className="size-6 fill-primary text-primary" strokeWidth={1.5} />
                   ) : null}
                   <CountUp
                     value={stat.value ?? ''}
@@ -1482,43 +1493,10 @@ export function FaqSection({ block, locale }: { block: BlockProps; locale: Local
           </h2>
         </div>
 
-        {/* Native <details> — keyboard accessible, findable by in-page search and
-            readable by crawlers with no JS (19.2/19.3). The comp's open/closed
-            chevrons are the same control rotated, so one icon covers both. */}
-        <div className="flex w-full flex-col gap-4">
-          {items.map((item, i) => (
-            <details
-              key={i}
-              /* Every item starts closed — an auto-opened first answer pushes
-                 the rest of the list down and makes one question look
-                 privileged. `open` stays available per-item if that changes. */
-              className="group rounded-card border border-panel-grey bg-card px-8 py-6 shadow-[0_1px_2px_rgba(25,33,61,0.06)] open:shadow-[0_5px_15px_rgba(25,33,61,0.06)] dark:border-border"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 [&::-webkit-details-marker]:hidden">
-                <span className="max-w-[650px] text-xl/[1.35] font-semibold text-navy-800 dark:text-foreground">
-                  {item.question}
-                </span>
-                <span
-                  aria-hidden
-                  className="grid size-[34px] shrink-0 place-items-center rounded-pill bg-[linear-gradient(135deg,rgba(72,155,194,0.4)_0%,rgba(142,142,142,0.1)_100%)] text-navy-800 transition-transform duration-300 group-open:rotate-90 group-open:bg-primary group-open:bg-none group-open:text-primary-foreground dark:text-foreground dark:group-open:text-primary-foreground"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="size-4"
-                    strokeWidth="2.5"
-                    stroke="currentColor"
-                  >
-                    <path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
-              </summary>
-              <div className="pt-4 text-base/[1.66] text-ink-500 dark:text-muted-foreground">
-                <RichText data={item.answer} />
-              </div>
-            </details>
-          ))}
-        </div>
+        <FaqAccordion items={items.map((item) => ({
+          question: item.question,
+          answer: <RichText data={item.answer} className="max-w-none text-base/7 text-ink-500 [&_p]:mb-3 [&_ul]:mb-3 [&_ol]:mb-3 [&_li]:mb-1 [&>*:last-child]:mb-0 dark:text-muted-foreground" />,
+        }))} />
 
         {block.footnote || block.ctas?.length ? (
           <div className="flex flex-col items-center gap-4 text-center">
@@ -2052,9 +2030,9 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
       ) : null}
 
       {block.bullets?.length ? (
-        <ul className="ms-5 flex list-disc flex-col gap-1 text-lg/[1.6] text-ink-500 dark:text-muted-foreground">
+        <ul className="flex flex-col gap-3 text-base/6 text-ink-500 dark:text-muted-foreground">
           {block.bullets.map((bullet) => (
-            <li key={bullet.text}>{bullet.text}</li>
+            <li key={bullet.text} className="flex items-start gap-3"><span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><Check aria-hidden className="size-3.5" strokeWidth={2.5} /></span><span>{bullet.text}</span></li>
           ))}
         </ul>
       ) : null}
@@ -2134,7 +2112,7 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
           // between 1024 and 1280 the old rule left it stranded in the middle
           // of a wide viewport with the panel stacked underneath — the tablet
           // "not using the full width" complaint. 480 + gap + panel fits 1024.
-          'container-site flex flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-10 xl:gap-16',
+          'container-site flex flex-col items-center gap-10 lg:flex-row lg:justify-center lg:gap-8 xl:gap-10',
           copyRight && 'lg:flex-row-reverse',
         )}
       >

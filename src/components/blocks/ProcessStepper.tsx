@@ -45,7 +45,7 @@ const BARS = [328, 288, 248, 208, 168] as const
  * arrives. It pauses on hover or keyboard focus and never starts at all under
  * prefers-reduced-motion.
  */
-export function ProcessStepper({ steps }: { steps: Step[] }) {
+export function ProcessStepper({ steps, completed }: { steps: Step[]; completed: Step }) {
   const [active, setActive] = useState(0)
   const [auto, setAuto] = useState(false)
   const [started, setStarted] = useState(false)
@@ -67,7 +67,6 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return
-        setActive(0)
         setStarted(true)
         observer.disconnect()
       },
@@ -94,9 +93,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
 
   if (!steps.length) return null
   const resultActive = active === steps.length
-  // The card holds the last step's copy through the result beat — there is no
-  // CMS copy for "you made it", and a blank card would rock the layout.
-  const step = steps[Math.min(active, steps.length - 1)] ?? steps[0]!
+  const step = resultActive ? completed : steps[active] ?? steps[0]!
 
   return (
     <div
@@ -175,7 +172,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                     className="absolute inset-0 bg-border transition-colors duration-200 group-hover:bg-canvas-2 [clip-path:polygon(0_0,100%_0,calc(100%_-_var(--fs)*18.5px)_100%,calc(var(--fs)*18.5px)_100%)] dark:bg-card dark:group-hover:bg-border"
                   />
                   <span className="sr-only">
-                    Step {i + 1} — {s.title}
+                    {i + 1} — {s.title}
                   </span>
                   {/* One person fewer each row — the funnel narrows. */}
                   {Array.from({ length: BARS.length + 1 - i }, (_, k) => (
@@ -198,8 +195,8 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
          * ribbon's left edge slants at the funnel's angle; asymmetric shape,
          * so it mirrors under RTL while its content does not.
          */}
-        <li aria-hidden className="flex h-11 justify-center sm:h-16">
-          <div className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
+        <li className="flex h-11 justify-center sm:h-16">
+          <button type="button" onClick={() => setActive(steps.length)} aria-label={`${completed.title} ${completed.body}`} aria-pressed={resultActive} className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
             <span
               className={cn(
                 'absolute inset-0 bg-border transition-opacity duration-500 [clip-path:polygon(0_0,100%_0,calc(100%_-_var(--fs)*21px)_100%,calc(var(--fs)*21px)_100%)] dark:bg-card',
@@ -251,7 +248,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
                 <span className="text-sm font-bold whitespace-nowrap sm:text-base">Top 3%</span>
               </span>
             </div>
-          </div>
+          </button>
         </li>
       </ol>
 
@@ -262,7 +259,7 @@ export function ProcessStepper({ steps }: { steps: Step[] }) {
           hero. min-h stays so the card cannot change height between steps and
           rock the funnel beside it. */}
       <div aria-hidden className="w-full max-w-[420px] self-center p-6 sm:min-h-[220px] lg:p-8">
-        <div key={Math.min(active, steps.length - 1)} className="fk-enter [animation-duration:0.35s]">
+        <div key={active} className="fk-enter [animation-duration:0.35s]">
           <h3 className="font-display text-2xl leading-tight font-bold text-navy-800 dark:text-foreground">
             {step.title}
           </h3>

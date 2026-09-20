@@ -200,7 +200,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
               </div>
             ) : null}
 
-            <RichText data={post.content} anchors variant="article" />
+            <RichText data={post.content} anchors variant="article" locale={locale} />
 
             {post.tags?.length ? (
               <ul className="mt-10 flex flex-wrap gap-2">

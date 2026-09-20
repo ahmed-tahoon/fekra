@@ -13,6 +13,7 @@ import { HeaderShell } from './HeaderShell'
 import { MobileNav } from './MobileNav'
 import { NavItem } from './NavItem'
 import { NavLink } from './NavLink'
+import { ServicesMegaMenu } from './ServicesMegaMenu'
 
 export type HeaderData = {
   items?: { link?: PayloadLink; children?: { link?: PayloadLink; description?: string }[] }[] | null
@@ -102,7 +103,7 @@ export function Header({
         <nav aria-label="Main" className="hidden xl:block">
           <ul className="flex items-center gap-4">
             {items.map((item) => {
-              const mega = item.children.length && servicesMenu?.length ? servicesMenu : null
+              const mega = (item.link!.activeHref ?? item.link!.href) === localeHref(locale, '/services') && servicesMenu?.length ? servicesMenu : null
               return (
                 <NavItem key={item.link!.href}>
                   <NavLink link={item.link!} hasChildren={item.children.length > 0} />
@@ -114,64 +115,7 @@ export function Header({
                         aria-hidden
                         className="invisible absolute -inset-x-10 top-full h-8 group-hover:visible"
                       />
-                      {/*
-                       * The pill's backdrop-blur makes it the containing block
-                       * for fixed descendants, so `fixed inset-x-0 top-full`
-                       * pins this panel to the pill's own width and bottom edge
-                       * — a full-width mega panel without escaping the hover
-                       * group (Figma "Services" menu).
-                       */}
-                      <div className="invisible fixed inset-x-0 top-full z-50 pt-2 opacity-0 transition-[opacity,visibility] group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-                        {/*
-                         * MM-1, fifth pass — the client's own Figma card: each
-                         * service is a bold group heading over a left-bordered
-                         * role list, groups packed into responsive CSS columns
-                         * (break-inside-avoid keeps a group whole), and the
-                         * "build your team" box rides the flow into the last
-                         * column's tail. Content-fitted height, no inner
-                         * scroll; the page stays visible below.
-                         */}
-                        <div className="border-y border-border bg-card shadow-lift">
-                          <div className="container-wide columns-2 gap-8 py-8 md:columns-3 xl:columns-5">
-                            {mega.map((svc) => {
-                              const href = localeHref(locale, `/services/${svc.slug}`)
-                              return (
-                                <div key={svc.slug} className="mb-6 break-inside-avoid">
-                                  <Link
-                                    href={href}
-                                    className="text-[13px] font-bold text-navy-800 transition-colors hover:text-primary dark:text-foreground"
-                                  >
-                                    {svc.title}
-                                  </Link>
-                                  <ul className="mt-2 flex flex-col gap-1.5 border-s border-border ps-3">
-                                    {svc.roles.map((role) => (
-                                      <li key={`${role.slug}:${role.title}`}>
-                                        <Link
-                                          href={localeHref(locale, `/services/${role.slug}`)}
-                                          className="block text-[13px]/5 text-muted-foreground transition-colors hover:text-primary"
-                                        >
-                                          {role.title}
-                                        </Link>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )
-                            })}
-                            <div className="break-inside-avoid rounded-xl border border-brand-200 p-4 text-center dark:border-border">
-                              <p className="text-sm/6 font-medium text-navy-800 dark:text-foreground">
-                                {dict.nav.buildTeam}
-                              </p>
-                              <Link
-                                href={localeHref(locale, '/services/hire-dedicated-developers')}
-                                className="mt-3 inline-block rounded-pill bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
-                              >
-                                {dict.nav.hireNow}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <ServicesMegaMenu services={mega} locale={locale} dict={dict} />
                     </>
                   ) : item.children.length ? (
                     <ul className="invisible absolute start-0 top-full z-50 min-w-64 rounded-card border border-border bg-card p-2 opacity-0 shadow-lift transition-[opacity,visibility] group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">

@@ -3,6 +3,7 @@ import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical
 
 import { cn } from '@/lib/cn'
 import { slugify } from '@/lib/slug'
+import type { Locale } from '@/i18n/routing'
 
 /**
  * Body copy. The prose rules live here once so every article, job description
@@ -69,11 +70,13 @@ export function RichText({
   className,
   anchors = false,
   variant = 'default',
+  locale = 'en',
 }: {
   data: SerializedEditorState | null | undefined
   className?: string
   anchors?: boolean
   variant?: keyof typeof VARIANTS
+  locale?: Locale
 }) {
   if (!data) return null
 
@@ -98,7 +101,7 @@ export function RichText({
                 {children}
                 <a
                   href={`#${id}`}
-                  aria-label={`Link to ${text}`}
+                  aria-label={`${{ en: 'Link to', ar: 'رابط إلى', de: 'Link zu', fr: 'Lien vers', es: 'Enlace a' }[locale]} ${text}`}
                   className="ms-2 text-blog-500 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                 >
                   #

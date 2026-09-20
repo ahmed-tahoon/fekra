@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { DEFAULT_LOCALE, LOCALES, dir, isLocale, localeHref, negotiateLocale, splitLocale } from '../src/i18n/routing'
+import { DEFAULT_LOCALE, LOCALES, dir, isActivePath, isLocale, localeHref, negotiateLocale, splitLocale } from '../src/i18n/routing'
 import { slugify } from '../src/payload/fields/slug'
 
 // --- URL policy: English unprefixed, everything else prefixed ---------------
@@ -26,6 +26,21 @@ assert.deepEqual(splitLocale('/english/x'), { locale: 'en', rest: '/english/x' }
 for (const locale of LOCALES) {
   assert.deepEqual(splitLocale(localeHref(locale, '/services/team')), { locale, rest: '/services/team' })
 }
+
+// --- Header active state ----------------------------------------------------
+// Prerendered English pages report the rewritten `/en/...` pathname.
+assert.ok(isActivePath('/', '/'))
+assert.ok(isActivePath('/en', '/'))
+assert.ok(isActivePath('/en/about', '/about'))
+assert.ok(isActivePath('/en/services/x', '/services'))
+assert.ok(isActivePath('/ar', '/ar'))
+assert.ok(isActivePath('/ar/blog/x', '/ar/blog'))
+// Home must not light up on every page of its locale.
+assert.ok(!isActivePath('/about', '/'))
+assert.ok(!isActivePath('/en/about', '/'))
+assert.ok(!isActivePath('/ar/about', '/ar'))
+assert.ok(!isActivePath('/ar/about', '/about'))
+assert.ok(!isActivePath('/careers-x', '/careers'))
 
 // --- Direction --------------------------------------------------------------
 assert.equal(dir('ar'), 'rtl')

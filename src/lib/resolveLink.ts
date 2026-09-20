@@ -1,5 +1,6 @@
 import { type Locale, localeHref } from '@/i18n/routing'
 import { documentHref, type LinkableCollection } from './urls'
+import { BOOKING_URL } from './booking'
 
 export type PayloadLink = {
   type?: 'internal' | 'route' | 'external' | null
@@ -13,6 +14,7 @@ export type PayloadLink = {
 
 export type ResolvedLink = {
   href: string
+  activeHref?: string
   label: string
   external: boolean
   newTab: boolean
@@ -39,6 +41,8 @@ export function resolveLink(link: PayloadLink | null | undefined, locale: Locale
   }
 
   if (link.type === 'route') {
+    if (link.route === '/services') return { ...common, href: localeHref(locale, '/services/hire-dedicated-developers'), activeHref: localeHref(locale, '/services'), external: false }
+    if (link.route === '/meeting') return { ...common, href: BOOKING_URL, external: true }
     return link.route ? { ...common, href: localeHref(locale, link.route), external: false } : null
   }
 
@@ -46,6 +50,7 @@ export function resolveLink(link: PayloadLink | null | undefined, locale: Locale
   if (!ref) return null
   const slug = typeof ref.value === 'string' ? undefined : ref.value?.slug
   if (!slug) return null
+  if (ref.relationTo === 'pages' && slug === 'meeting') return { ...common, href: BOOKING_URL, external: true }
 
   return {
     ...common,

@@ -115,7 +115,7 @@ export async function findDocs<T = unknown>({
       payload.find({
         collection,
         locale,
-        fallbackLocale: 'en',
+        fallbackLocale: collection === 'posts' ? false : 'en',
         draft,
         overrideAccess: draft,
         depth,
@@ -135,7 +135,13 @@ export async function findDocs<T = unknown>({
          * actually paginates.
          */
         pagination: false,
-        where: draft || !hasDrafts ? where : { ...where, _status: { equals: 'published' } },
+        where: {
+          and: [
+            where,
+            ...(draft || !hasDrafts ? [] : [{ _status: { equals: 'published' } }]),
+            ...(collection === 'posts' && !draft && locale !== 'en' ? [{ availableLocales: { contains: locale } }] : []),
+          ],
+        },
       }),
   )
 

@@ -1,0 +1,106 @@
+{
+  "building-qa-culture-that-ships": {
+    "ar": {
+      "title": "بناء ثقافة لضمان الجودة مع الحفاظ على الإصدارات الأسبوعية",
+      "excerpt": "ضوابط جودة تكشف العيوب الفعلية دون تحويل كل إصدار إلى إجراءات تستغرق أسبوعين.",
+      "tags": ["الجودة", "الاختبار", "التسليم"],
+      "nodes": ["تفشل معظم عمليات ضمان الجودة في أحد اتجاهين: إما أن تكون سطحية فلا تكشف العيوب، أو معقدة لدرجة تدفع الفرق إلى تجاوزها.", "اجعل خطورة العيب معيار القرار، لا عدد العيوب", "العيب المانع يوقف الإصدار، أما العيب الشكلي فلا يفعل ذلك. توثيق هذا الفرق قبل أسبوع الإطلاق يبقي النقاش تقنيًا بدلًا من أن يتحول إلى خلاف إداري.", "أتمت اختبارات عدم التراجع وراجع الباقي يدويًا", "كل خلل وقع سابقًا ينبغي أن يصبح حالة اختبار. أما بقية الوظائف، فتستفيد أكثر من مراجعة يدوية قصيرة ودقيقة للمسارات التي تحقق الإيرادات.", "أعد الاختبار قبل إعلان النجاح", "إصلاح العيب لا يعني اجتيازه للاختبار. إعادة الاختبار هي أقل خطوات العملية تكلفة، وهي أيضًا أكثر خطوة يجري تجاوزها."]
+    },
+    "de": {
+      "title": "Eine QA-Kultur aufbauen und trotzdem wöchentlich ausliefern",
+      "excerpt": "Qualitätsprüfungen, die echte Fehler erkennen, ohne jedes Release zu einem zweiwöchigen Ritual zu machen.",
+      "tags": ["Qualität", "Tests", "Auslieferung"],
+      "nodes": ["Die meisten QA-Prozesse scheitern auf eine von zwei Arten: Sie sind zu oberflächlich, um Fehler zu finden, oder so aufwendig, dass Teams sie umgehen.", "Nach Schweregrad entscheiden, nicht nach Anzahl", "Ein blockierender Fehler stoppt ein Release. Ein kosmetischer Fehler nicht. Wer diesen Unterschied vor der Release-Woche festhält, hält die Diskussion technisch statt politisch.", "Regressionstests automatisieren, den Rest prüfen", "Alles, was einmal kaputtgegangen ist, sollte durch einen Test abgesichert werden. Für den Rest ist eine kurze, sorgfältige manuelle Prüfung der umsatzrelevanten Abläufe sinnvoller.", "Erneut testen, bevor ein Fehler als bestanden gilt", "Ein behobener Fehler ist noch kein erfolgreich nachgetesteter Fehler. Der erneute Test ist der günstigste Schritt im Prozess und wird am häufigsten übersprungen."]
+    },
+    "fr": {
+      "title": "Créer une culture qualité tout en livrant chaque semaine",
+      "excerpt": "Des contrôles qualité qui détectent les vrais défauts sans transformer chaque livraison en cérémonie de deux semaines.",
+      "tags": ["Qualité", "Tests", "Livraison"],
+      "nodes": ["La plupart des processus qualité échouent de deux façons : trop légers pour détecter les défauts, ou si lourds que les équipes les contournent.", "Décider selon la gravité, pas selon le nombre", "Un défaut bloquant arrête une livraison. Un défaut esthétique, non. Formaliser cette distinction avant la semaine de lancement permet de garder un débat technique plutôt que politique.", "Automatiser les tests de non-régression, examiner le reste", "Tout défaut déjà survenu devrait être couvert par un test. Pour le reste, une vérification manuelle courte et rigoureuse des parcours générateurs de revenus est plus utile.", "Retester avant de valider", "Un défaut corrigé n’est pas encore un défaut validé. Le nouveau test est l’étape la moins coûteuse du processus et celle que l’on saute le plus souvent."]
+    },
+    "es": {
+      "title": "Crear una cultura de calidad sin dejar de entregar cada semana",
+      "excerpt": "Controles de calidad que detectan defectos reales sin convertir cada entrega en un ritual de dos semanas.",
+      "tags": ["Calidad", "Pruebas", "Entrega"],
+      "nodes": ["La mayoría de los procesos de calidad fallan de dos maneras: son demasiado superficiales para detectar problemas o tan pesados que los equipos los esquivan.", "Decidir por gravedad, no por cantidad", "Un defecto bloqueante detiene una entrega. Un problema estético, no. Dejar esa distinción por escrito antes de la semana de lanzamiento mantiene la conversación en el terreno técnico y evita las disputas internas.", "Automatizar las pruebas de regresión y revisar el resto", "Todo lo que haya fallado una vez debería tener una prueba. Para lo demás, resulta más útil una revisión manual breve y rigurosa de los recorridos que generan ingresos.", "Volver a probar antes de dar por válido", "Un defecto corregido todavía no es un defecto validado. Volver a probar es el paso más barato del proceso y el que más se omite."]
+    }
+  },
+  "scaling-engineering-teams-with-ai": {
+    "ar": {
+      "title": "توسيع فرق الهندسة بالذكاء الاصطناعي بعيدًا عن الاستعراض",
+      "excerpt": "أين تضاعف أدوات الذكاء الاصطناعي إنتاجية الفريق، وأين تضيف عبئًا خفيًا من المراجعة لم يُخطط له.",
+      "tags": ["الذكاء الاصطناعي", "الهندسة"],
+      "nodes": ["تغيّر أدوات الذكاء الاصطناعي تكلفة كتابة الشيفرة، لكنها لا تغيّر تكلفة فهمها، والفهم هو أصلًا موضع الاختناق لدى الفرق.", "ما الذي يضاعف الإنتاجية؟", "إعداد هياكل الاختبارات، وعمليات الترحيل، وتحويل الشيفرات النمطية، والمسودات الأولى للتوثيق. يمكن التحقق من هذه الأعمال خلال ثوانٍ، وكتابتها متكررة ومملة، وهذا ما يجعلها مناسبة لهذه الأدوات.", "ما الذي يزيد عبء المراجعة؟", "إعادة الهيكلة الكبيرة المبنية على افتراضات، والأنظمة الفرعية غير المألوفة. تصل الشيفرة المولّدة دون المنطق الذي أنتجها، فيضطر المراجع إلى إعادة بنائه من الصفر، وهو ما يستغرق غالبًا وقتًا أطول من كتابتها.", "قاعدة عملية يمكن الاعتماد عليها", "دع الذكاء الاصطناعي يكتب كل ما تستطيع التحقق منه أسرع مما تستطيع كتابته. أما الباقي، فلا يزال يحتاج إلى شخص يتحمل مسؤولية دعمه عند حدوث مشكلة."]
+    },
+    "de": {
+      "title": "Engineering-Teams mit KI skalieren – ohne Inszenierung",
+      "excerpt": "Wo KI-Werkzeuge die Leistung eines Teams steigern und wo sie unbemerkt zusätzlichen Prüfaufwand erzeugen.",
+      "tags": ["KI", "Engineering"],
+      "nodes": ["KI-Werkzeuge verändern die Kosten des Codeschreibens. Sie verändern nicht die Kosten des Verstehens – und dort lag bereits der Engpass vieler Teams.", "Was die Leistung steigert", "Testgerüste, Migrationen, die Übertragung von Standardcode und erste Dokumentationsentwürfe. Alles lässt sich in Sekunden prüfen und ist mühsam zu schreiben: genau das passende Aufgabenprofil.", "Was den Prüfaufwand erhöht", "Große spekulative Refactorings und unbekannte Teilsysteme. Generierter Code kommt ohne die Überlegungen, die zu ihm geführt haben. Prüfende müssen diese von Grund auf rekonstruieren – oft langsamer, als den Code selbst zu schreiben.", "Eine belastbare Regel", "Lassen Sie KI alles schreiben, was Sie schneller prüfen als selbst schreiben können. Alles andere braucht weiterhin einen Menschen, der im Störungsfall dafür einsteht."]
+    },
+    "fr": {
+      "title": "Développer les équipes techniques avec l’IA, sans mise en scène",
+      "excerpt": "Quand les outils d’IA augmentent réellement la production d’une équipe et quand ils ajoutent discrètement une charge de revue imprévue.",
+      "tags": ["IA", "Ingénierie"],
+      "nodes": ["Les outils d’IA changent le coût de l’écriture du code. Ils ne changent pas celui de sa compréhension, qui constituait déjà un goulot d’étranglement pour les équipes.", "Ce qui démultiplie la production", "Les structures de tests, les migrations, la transposition de code répétitif et les premiers jets de documentation. Ces tâches se vérifient en quelques secondes et sont fastidieuses à rédiger : le profil idéal.", "Ce qui alourdit la revue", "Les refactorisations importantes et spéculatives, ainsi que les sous-systèmes inconnus. Le code généré arrive sans le raisonnement qui l’a produit. La personne chargée de la revue doit le reconstruire, souvent plus lentement qu’elle n’aurait écrit le code.", "Une règle solide", "Laissez l’IA écrire ce que vous pouvez vérifier plus vite que vous ne pouvez le rédiger. Tout le reste nécessite encore une personne prête à en assurer le support en cas d’incident."]
+    },
+    "es": {
+      "title": "Ampliar equipos de ingeniería con IA, sin teatro",
+      "excerpt": "Dónde las herramientas de IA multiplican la producción del equipo y dónde añaden una carga de revisión que nadie había previsto.",
+      "tags": ["IA", "Ingeniería"],
+      "nodes": ["Las herramientas de IA cambian el coste de escribir código. No cambian el de comprenderlo, y la comprensión ya era un cuello de botella para los equipos.", "Qué multiplica la producción", "Las estructuras de pruebas, las migraciones, la adaptación de código repetitivo y los primeros borradores de documentación. Son tareas verificables en segundos y tediosas de escribir: el perfil adecuado.", "Qué aumenta la carga de revisión", "Las refactorizaciones grandes y especulativas y los subsistemas desconocidos. El código generado llega sin el razonamiento que lo produjo, por lo que quien lo revisa debe reconstruirlo desde cero, a menudo más lentamente que si lo escribiera.", "Una regla que funciona", "Deja que la IA escriba todo lo que puedas verificar más rápido de lo que puedas redactar. Lo demás sigue necesitando a una persona que asuma su soporte cuando surjan incidencias."]
+    }
+  },
+  "how-we-vet-the-top-3-percent": {
+    "ar": {
+      "title": "كيف نختار أفضل ٣٪ من المهندسين",
+      "excerpt": "خمس مراحل للتقييم، وما تختبره كل مرحلة فعليًا، ولماذا تأتي المقابلة التقنية في النهاية.",
+      "tags": ["التوظيف", "العملية"],
+      "nodes": ["يمر كل مهندس نوظفه بالمراحل الخمس نفسها. ترتيبها أهم من محتواها: نبدأ بالمؤشرات الأقل تكلفة في التقييم.", "فحص الملف المهني", "نختار المرشحين بناءً على المسؤولية الفعلية التي أثبتوها، لا عدد السنوات أو أسماء الشركات. من حوّل نظامًا من نموذج أولي إلى منتج مستخدم يخبرنا أكثر ممن قضى وقتًا أطول بالقرب من نظام قائم.", "اللغة والتواصل", "تؤكد مقابلة منظمة باللغة الإنجليزية قدرة المهندس على توضيح اختلافه في الرأي، وطلب السياق الناقص، وكتابة تحديث يستطيع الآخرون العمل بناءً عليه. تستبعد هذه المرحلة مرشحين أكثر من المرحلة التقنية.", "الالتزام والموثوقية", "التفرغ وفترات الإخطار وساعات العمل المشتركة أسئلة تبدو روتينية لكنها تمنع مفاجآت مكلفة. نطرحها قبل استثمار الوقت في التقييم التقني.", "التقييم التقني", "مهمة عملية مستمدة من الدور الوظيفي، لا لغزًا. نراجع سجل التعديلات بالدقة نفسها التي نراجع بها النتيجة؛ فطريقة معالجة المشكلة تكشف قابلية التعاون أكثر من التعديل النهائي.", "المقابلة التقنية", "تأتي في النهاية عن قصد. في هذه المرحلة نعرف بالفعل أن المرشح يتواصل وينجز، لذا يمكن أن يتعمق النقاش في تصميم الأنظمة بدلًا من إعادة فحص الأساسيات."]
+    },
+    "de": {
+      "title": "Wie wir die besten 3 % der Engineers auswählen",
+      "excerpt": "Fünf Auswahlstufen, was jede tatsächlich prüft und warum das technische Interview zuletzt kommt.",
+      "tags": ["Personalgewinnung", "Prozess"],
+      "nodes": ["Alle Engineers, die wir vermitteln, durchlaufen dieselben fünf Stufen. Die Reihenfolge ist wichtiger als der Inhalt: Die am einfachsten zu prüfenden Signale kommen zuerst.", "Profilprüfung", "Wir wählen nach nachgewiesener Verantwortung aus, nicht nach Jahren oder Firmennamen. Wer ein System vom Prototyp bis zum Produktivbetrieb begleitet hat, zeigt uns mehr als jemand, der länger neben einem bestehenden System gearbeitet hat.", "Sprache und Kommunikation", "Ein strukturiertes Interview auf Englisch bestätigt, dass die Person klar widersprechen, fehlenden Kontext erfragen und ein handlungsorientiertes Update schreiben kann. In dieser Stufe scheiden mehr Bewerbende aus als in der technischen.", "Verbindlichkeit und Zuverlässigkeit", "Verfügbarkeit, Kündigungsfristen und gemeinsame Arbeitszeiten sind unspektakuläre Fragen, die teure Überraschungen verhindern. Wir stellen sie, bevor jemand Zeit in eine technische Bewertung investiert.", "Technische Bewertung", "Eine praktische Aufgabe aus der Rolle, kein Rätsel. Wir prüfen die Commit-Historie ebenso genau wie das Ergebnis: Der Weg durch ein Problem sagt mehr über Zusammenarbeit aus als der abschließende Diff.", "Technisches Interview", "Bewusst als letzter Schritt. Zu diesem Zeitpunkt wissen wir bereits, dass die Person kommuniziert und liefert. So kann das Gespräch tief in die Architektur gehen, statt Grundlagen erneut zu prüfen."]
+    },
+    "fr": {
+      "title": "Comment nous sélectionnons les meilleurs 3 % des ingénieurs",
+      "excerpt": "Cinq étapes de sélection, ce que chacune évalue réellement et pourquoi l’entretien technique arrive en dernier.",
+      "tags": ["Recrutement", "Processus"],
+      "nodes": ["Chaque ingénieur que nous plaçons passe par les mêmes cinq étapes. Leur ordre compte davantage que leur contenu : les signaux les moins coûteux à vérifier viennent d’abord.", "Examen du profil", "Nous présélectionnons selon les responsabilités démontrées plutôt que les années d’expérience ou les noms d’employeurs. Une personne qui a mené un système du prototype à la production nous en dit plus qu’une autre ayant travaillé plus longtemps à côté d’un système existant.", "Langue et communication", "Un entretien structuré en anglais confirme la capacité à exprimer clairement un désaccord, demander le contexte manquant et rédiger un compte rendu exploitable. Cette étape élimine plus de candidatures que l’évaluation technique.", "Engagement et fiabilité", "La disponibilité, le préavis et les plages horaires communes semblent banals, mais évitent des surprises coûteuses. Nous les clarifions avant tout investissement dans une évaluation technique.", "Évaluation technique", "Une tâche pratique issue du poste, pas une énigme. Nous examinons l’historique des commits aussi attentivement que le résultat : la manière de résoudre un problème prédit mieux la collaboration que le diff final.", "Entretien technique", "Il vient délibérément en dernier. Nous savons déjà que la personne communique et livre. La conversation peut donc approfondir l’architecture au lieu de revérifier les bases."]
+    },
+    "es": {
+      "title": "Cómo seleccionamos al mejor 3 % de los ingenieros",
+      "excerpt": "Cinco fases de selección, qué evalúa cada una y por qué la entrevista técnica se realiza al final.",
+      "tags": ["Contratación", "Proceso"],
+      "nodes": ["Cada profesional de ingeniería que incorporamos pasa por las mismas cinco fases. El orden importa más que el contenido: primero comprobamos las señales menos costosas.", "Revisión del perfil", "Preseleccionamos por la responsabilidad demostrada, no por los años ni por los nombres de empresas. Quien llevó un sistema del prototipo a producción nos dice más que quien pasó más tiempo cerca de uno ya existente.", "Idioma y comunicación", "Una entrevista estructurada en inglés confirma que la persona puede expresar desacuerdos con claridad, pedir el contexto que falta y escribir una actualización útil para los demás. Esta fase descarta más candidaturas que la técnica.", "Compromiso y fiabilidad", "La disponibilidad, los plazos de preaviso y las horas de coincidencia son preguntas rutinarias que evitan sorpresas caras. Las hacemos antes de invertir tiempo en una evaluación técnica.", "Evaluación técnica", "Una tarea práctica propia del puesto, no un acertijo. Revisamos el historial de commits tan cuidadosamente como el resultado: la forma de resolver un problema predice la colaboración mejor que el diff final.", "Entrevista técnica", "Es la última fase, deliberadamente. Ya sabemos que la persona comunica y entrega, por lo que podemos profundizar en arquitectura en lugar de comprobar otra vez los fundamentos."]
+    }
+  },
+  "nearshore-vs-offshore": {
+    "ar": {
+      "title": "التعهيد القريب أم البعيد: أي نموذج يناسب فريقك؟",
+      "excerpt": "تؤثر ساعات العمل المشتركة والتكلفة وتوافر الخبرات في اتجاهات مختلفة. إليك كيف توازن بينها بوضوح.",
+      "tags": ["التعهيد", "التوظيف"],
+      "nodes": ["المقارنة بين التعهيد القريب والبعيد هي في جوهرها مقارنة لعدد الساعات اليومية التي تستطيع فرقك التواصل خلالها.", "ساعات العمل المشتركة هي المتغير الحقيقي", "أربع ساعات من التداخل تكفي لفريق مسؤول عن نطاق محدد. ساعة واحدة لا تكفي لأي فريق، مهما كان السعر.", "متى يتفوق التعهيد البعيد؟", "عندما تحتاج إلى خبرات متخصصة وعميقة غير متاحة قريبًا، أو إلى عمل غير متزامن بطبيعته، مثل خطوط معالجة البيانات والترحيل وأعمال المنصات طويلة الأمد.", "متى يتفوق التعهيد القريب؟", "في تطوير المنتجات الذي يتغير اتجاهه باستمرار، وفي الأعمال الموجهة للعملاء، ولدى الفرق التي لا تزال تحدد بنية أنظمتها."]
+    },
+    "de": {
+      "title": "Nearshore oder Offshore: Welches Modell passt zu Ihrem Team?",
+      "excerpt": "Gemeinsame Arbeitszeiten, Kosten und verfügbare Fachkräfte ziehen in unterschiedliche Richtungen. So wägen Sie sie ehrlich ab.",
+      "tags": ["Outsourcing", "Personalgewinnung"],
+      "nodes": ["Die Debatte über Nearshore und Offshore dreht sich im Kern darum, wie viele Stunden am Tag Ihre Teams miteinander sprechen können.", "Die zeitliche Überschneidung ist entscheidend", "Vier gemeinsame Stunden reichen für ein Team mit klar abgegrenztem Verantwortungsbereich. Eine Stunde reicht für niemanden, unabhängig vom Preis.", "Wann Offshore überzeugt", "Wenn tiefe Spezialkenntnisse in der Nähe nicht verfügbar sind und die Arbeit von Natur aus asynchron ist: Datenpipelines, Migrationen oder langfristige Plattformarbeit.", "Wann Nearshore überzeugt", "Bei Produktarbeit mit häufigen Richtungswechseln, kundenorientierten Aufgaben und Teams, die ihre Architektur noch entwickeln."]
+    },
+    "fr": {
+      "title": "Nearshore ou offshore : quel modèle convient à votre équipe ?",
+      "excerpt": "Les horaires communs, le coût et la disponibilité des compétences tirent dans des directions différentes. Voici comment les pondérer honnêtement.",
+      "tags": ["Externalisation", "Recrutement"],
+      "nodes": ["Le débat entre nearshore et offshore porte surtout sur le nombre d’heures par jour pendant lesquelles vos équipes peuvent échanger.", "Le chevauchement horaire est la vraie variable", "Quatre heures communes suffisent à une équipe responsable d’un périmètre délimité. Une heure ne suffit à personne, quel que soit le prix.", "Quand l’offshore l’emporte", "Pour des compétences pointues introuvables à proximité et des travaux naturellement asynchrones : pipelines de données, migrations et chantiers de plateforme au long cours.", "Quand le nearshore l’emporte", "Pour les produits dont l’orientation change souvent, les activités au contact des clients et les équipes qui définissent encore leur architecture."]
+    },
+    "es": {
+      "title": "Nearshore u offshore: qué modelo encaja con tu equipo",
+      "excerpt": "La coincidencia horaria, el coste y la disponibilidad de talento apuntan en distintas direcciones. Así puedes valorarlos con claridad.",
+      "tags": ["Externalización", "Contratación"],
+      "nodes": ["El debate entre nearshore y offshore trata, en realidad, de cuántas horas al día pueden comunicarse tus equipos.", "La coincidencia horaria es la variable real", "Cuatro horas de coincidencia bastan para un equipo responsable de un ámbito delimitado. Una hora no basta para nadie, a ningún precio.", "Cuándo gana el offshore", "Cuando se necesitan conocimientos profundos y especializados que no existen cerca y trabajo asíncrono por naturaleza: canalizaciones de datos, migraciones y proyectos prolongados de plataforma.", "Cuándo gana el nearshore", "En productos con cambios frecuentes de rumbo, tareas de cara al cliente y equipos que todavía están definiendo su arquitectura."]
+    }
+  }
+}

@@ -5,12 +5,12 @@ import { notFound } from 'next/navigation'
 import { mediaUrl } from '@/components/blocks/types'
 import { Analytics } from '@/components/analytics/Analytics'
 import { ConsentBanner } from '@/components/analytics/ConsentBanner'
+import { buildServicesMenu } from '@/lib/services-menu'
 import { JsonLd } from '@/components/JsonLd'
 import { Footer, type FooterData } from '@/components/layout/Footer'
 import { Header, type HeaderData } from '@/components/layout/Header'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { ScrollReveal } from '@/components/ScrollReveal'
-import { BookingDrawer } from '@/components/booking/BookingDrawer'
 import { TalkToFika } from '@/components/layout/TalkToFika'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { getDictionary } from '@/i18n/getDictionary'
@@ -141,32 +141,7 @@ export default async function SiteLayout({
     }),
   ])
 
-  const parentId = (service: (typeof servicesDocs.docs)[number]) =>
-    typeof service.parent === 'object' ? service.parent?.id : service.parent
-
-  // Only services with roles form groups in the header's Services mega-menu.
-  // A CMS role without a child document still falls back to the parent page,
-  // so editors can stage a label before its landing page is published.
-  const uniqueServices = Array.from(
-    new Map(servicesDocs.docs.map((service) => [service.slug, service])).values(),
-  )
-
-  const servicesMenu = uniqueServices
-    .filter((s) => s.menuRoles?.length)
-    .map((service) => {
-      const children = uniqueServices.filter((candidate) => parentId(candidate) === service.id)
-      return {
-        title: service.title,
-        slug: service.slug,
-        roles: (service.menuRoles ?? []).map((role) => {
-          const child = children.find(
-            (candidate) => candidate.title.toLowerCase() === role.label.toLowerCase(),
-          )
-          return { title: role.label, slug: child?.slug ?? service.slug }
-        }),
-      }
-    })
-
+  const servicesMenu = buildServicesMenu(servicesDocs.docs, locale)
   const siteName = settings.siteName ?? 'FEKRA'
   const logoUrl = settings.logoLight?.url ? mediaUrl(settings.logoLight) : null
 
@@ -220,10 +195,7 @@ export default async function SiteLayout({
           />
 
           <TalkToFika locale={locale} dict={dict} />
-          {/* Intercepts the meeting CTAs site-wide; /meeting stays a real page. */}
-          <BookingDrawer url={settings.calendlyUrl} dict={dict} />
-          {/* Hidden for launch. Restore: enabled={(settings.consentMode ?? 'opt-in') === 'opt-in'} */}
-          <ConsentBanner dict={dict} locale={locale} enabled={false} />
+          <ConsentBanner dict={dict} locale={locale} enabled={(settings.consentMode ?? 'opt-in') === 'opt-in'} />
           <Analytics
             gtmId={settings.gtmContainerId}
             ga4Id={settings.ga4MeasurementId}

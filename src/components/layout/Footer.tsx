@@ -2,6 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { BrandLogo } from './BrandLogo'
+import { CookiePreferences } from '@/components/analytics/CookiePreferences'
+import { batchTwo } from '@/i18n/batch-two'
 
 
 import type { Dictionary } from '@/i18n/getDictionary'
@@ -72,7 +74,13 @@ export function Footer({
   offices?: Office[] | null
   socials?: { platform: string; url: string }[] | null
 }) {
-  const legal = (data.legalLinks ?? []).map((l) => resolveLink(l.link, locale)).filter(Boolean)
+  const labels = batchTwo[locale]
+  const requiredLegal = [
+    { href: localeHref(locale, '/privacy-policy'), label: labels.privacy },
+    { href: localeHref(locale, '/terms-and-conditions'), label: labels.terms },
+    { href: localeHref(locale, '/cookie-policy'), label: labels.cookies },
+  ]
+  const legal = [...requiredLegal, ...(data.legalLinks ?? []).map((l) => resolveLink(l.link, locale)).filter((link) => link && !requiredLegal.some((required) => required.href === link.href))]
   // The comp's "Contact Us" column is the head office's phone and email.
   const contact = offices?.find((o) => o.isHeadquarters) ?? offices?.[0]
 
@@ -222,6 +230,7 @@ export function Footer({
                   </Link>
                 </li>
               ))}
+              <li><CookiePreferences locale={locale} /></li>
             </ul>
             {socials?.length ? (
               <ul className="flex items-center gap-5">

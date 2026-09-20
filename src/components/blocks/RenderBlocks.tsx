@@ -82,7 +82,7 @@ export async function RenderBlocks({
           case 'hiringModels':
             return <HiringModelsSection key={key} block={block} locale={locale} />
           case 'logoCloud':
-            return <LogoCloudSection key={key} block={block} />
+            return <LogoCloudSection key={key} block={block} locale={locale} />
           case 'talentShowcase':
             return <TalentShowcaseSection key={key} block={block} locale={locale} />
           case 'cardGrid':
@@ -90,9 +90,9 @@ export async function RenderBlocks({
           case 'stats':
             return <StatsSection key={key} block={block} />
           case 'process':
-            return <ProcessSection key={key} block={block} />
+            return <ProcessSection key={key} block={block} locale={locale} />
           case 'testimonials':
-            return <TestimonialsSection key={key} block={block} />
+            return <TestimonialsSection key={key} block={block} locale={locale} />
           case 'faq':
             return <FaqSection key={key} block={block} locale={locale} />
           case 'postsTeaser':
@@ -115,6 +115,7 @@ export async function RenderBlocks({
                 locale={locale}
                 dict={dict}
                 offices={context?.offices as never}
+                as={isFirst ? 'h1' : 'h2'}
               />
             )
           case 'booking':

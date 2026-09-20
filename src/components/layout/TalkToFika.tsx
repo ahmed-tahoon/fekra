@@ -6,14 +6,15 @@ import { X } from 'lucide-react'
 import { useState } from 'react'
 
 import type { Dictionary } from '@/i18n/getDictionary'
-import { type Locale, localeHref } from '@/i18n/routing'
+import { type Locale } from '@/i18n/routing'
+import { BOOKING_URL } from '@/lib/booking'
 
 /**
  * Figma 1:14136 — the floating "Talk to Fika" bubble. There is no chat backend,
  * so the bubble is an invitation that links to the booking page; the close
  * button collapses it to the avatar, which can re-expand it.
  */
-export function TalkToFika({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+export function TalkToFika({ dict }: { locale: Locale; dict: Dictionary }) {
   const [open, setOpen] = useState(true)
 
   const avatar = (
@@ -60,7 +61,7 @@ export function TalkToFika({ locale, dict }: { locale: Locale; dict: Dictionary 
           <X className="size-3.5" aria-hidden />
         </span>
       </button>
-      <Link href={localeHref(locale, '/meeting')} className="flex min-h-11 items-center gap-2.5 sm:gap-[15px]">
+      <Link href={BOOKING_URL} className="flex min-h-11 min-w-11 items-center justify-center gap-2.5 sm:gap-[15px]">
         {avatar}
         <span className="hidden pe-1 font-display text-lg font-bold text-navy-800 lg:inline dark:text-foreground">
           {dict.chat.talk}

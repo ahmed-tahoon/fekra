@@ -8,6 +8,7 @@ import type { Locale } from '@/i18n/routing'
 import type { BlockProps } from './types'
 
 type Office = {
+  countryCode?: string | null
   city?: string | null
   country?: string | null
   addressLine?: string | null
@@ -62,6 +63,7 @@ export function ContactSection({
               {/* The map carries its own city pills and caption, so it is
                   decorative here. Dark mode uses live office text on dark cards
                   because the raster map has baked-in white labels. */}
+              <div className="relative dark:hidden">
               <Image
                 src="/images/decor/global-presence-map.png"
                 alt=""
@@ -70,6 +72,18 @@ export function ContactSection({
                 height={374}
                 className="h-auto w-full dark:hidden"
               />
+              {/* Overlay the raster's inaccurate illustrations with complete,
+                  uncropped flag vectors. Coordinates follow its 1449×881 artboard. */}
+              {[
+                { code: 'us', left: 13.2, top: 3.0 },
+                { code: 'gb', left: 46.1, top: 12.9 },
+                { code: 'sa', left: 71.5, top: 29.4 },
+                { code: 'eg', left: 48.5, top: 45.7 },
+                { code: 'ae', left: 62.3, top: 47.6 },
+              ].map((flag) => <span key={flag.code} className="absolute flex items-center justify-center bg-white" style={{ left: `${flag.left}%`, top: `${flag.top}%`, width: '5.4%', height: '9.7%' }}>
+                <Image src={`/images/flags/${flag.code}.svg`} alt="" aria-hidden width={78} height={52} className="h-auto w-full object-contain" />
+              </span>)}
+              </div>
               <div className="hidden rounded-3xl border border-border bg-card p-6 sm:p-8 dark:block">
                 <h3 className="flex items-center gap-3 text-xl font-semibold text-foreground">
                   <Globe2 aria-hidden className="size-6 shrink-0 text-primary" />
@@ -78,7 +92,7 @@ export function ContactSection({
                 <ul className="mt-6 grid gap-3 sm:grid-cols-2">
                   {offices.map((office) => (
                     <li key={`${office.city}-${office.country}`} className="flex items-start gap-3 rounded-2xl border border-border bg-background-subtle p-4">
-                      <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
+                      {office.countryCode && ['EG', 'SA', 'AE', 'GB', 'US'].includes(office.countryCode) ? <Image src={`/images/flags/${office.countryCode.toLowerCase()}.svg`} alt="" aria-hidden width={32} height={22} className="mt-1 h-[22px] w-8 shrink-0 object-contain" /> : <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />}
                       <div className="min-w-0">
                         <p className="font-semibold text-foreground">{office.city}</p>
                         <p className="mt-1 text-sm text-muted-foreground">{office.country}</p>

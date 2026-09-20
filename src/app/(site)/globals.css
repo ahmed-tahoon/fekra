@@ -519,33 +519,19 @@
     }
   }
 
-  /*
-   * Hero headline word swap.
-   *
-   * Slow and settled rather than snappy: 0.9s on a gentle curve, rising only
-   * 0.2em. The old word unmounts the instant the new one mounts, so opacity is
-   * brought to full by 45% of the timeline while the transform keeps easing —
-   * the word is legible almost immediately and then drifts to rest, instead of
-   * leaving a blank beat in the middle of the headline.
-   */
-  .fk-rotate-in {
-    animation: fk-rotate-in 0.9s var(--ease-calm) both;
+  /* Hero headline typewriter caret (RotatingWords). Hard on/off blink, not a fade. */
+  .fk-caret {
+    animation: fk-caret 1.05s steps(1) infinite;
   }
 
-  @keyframes fk-rotate-in {
-    /* No blur here on purpose: animating `filter` on text inside a
-       `background-clip: text` span leaves stale repaint slivers above the
-       glyphs in Chrome. */
-    from {
+  @keyframes fk-caret {
+    0%,
+    55% {
+      opacity: 1;
+    }
+    56%,
+    100% {
       opacity: 0;
-      transform: translateY(0.2em);
-    }
-    45% {
-      opacity: 1;
-    }
-    to {
-      opacity: 1;
-      transform: none;
     }
   }
 

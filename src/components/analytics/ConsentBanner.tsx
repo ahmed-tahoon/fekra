@@ -26,7 +26,7 @@ export function ConsentBanner({ dict, locale, enabled }: { dict: Dictionary; loc
       <p className="mt-2 text-sm text-muted-foreground">
         {dict.consent.body}{' '}
         {/* Consent is not informed without the detail behind it (1.10 / 21.8). */}
-        <Link href={localeHref(locale, '/cookie-policy')} className="font-semibold text-primary underline underline-offset-4">
+        <Link href={localeHref(locale, '/cookie-policy')} className="inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4">
           {dict.consent.cookiePolicy}
         </Link>
       </p>
