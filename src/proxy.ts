@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { DEFAULT_LOCALE, LOCALES, isLocale, isPublicLocale, negotiateLocale } from '@/i18n/routing'
+import { isLocaleDocumentRequest } from '@/i18n/navigation'
 import { isComingSoon } from '@/lib/site-mode'
 
 const LOCALE_COOKIE = 'NEXT_LOCALE'
@@ -20,8 +21,7 @@ const LOCALE_COOKIE = 'NEXT_LOCALE'
  * document request: LanguageSwitcher writes the cookie itself on click.
  */
 function remember(response: NextResponse, locale: string, request: NextRequest) {
-  const dest = request.headers.get('sec-fetch-dest')
-  if (dest && dest !== 'document') return response
+  if (!isLocaleDocumentRequest(request.headers)) return response
   response.cookies.set(LOCALE_COOKIE, locale, { path: '/', sameSite: 'lax', maxAge: 31536000 })
   return response
 }
@@ -76,7 +76,7 @@ export default function proxy(request: NextRequest) {
   }
 
   // Bare "/" with a remembered or negotiated non-default locale -> send there once.
-  if (pathname === '/') {
+  if (pathname === '/' && isLocaleDocumentRequest(request.headers)) {
     const remembered = request.cookies.get(LOCALE_COOKIE)?.value
     const preferred = isLocale(remembered)
       ? remembered

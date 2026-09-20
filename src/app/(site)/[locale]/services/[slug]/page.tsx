@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { RenderBlocks } from '@/components/blocks/RenderBlocks'
 import { JsonLd } from '@/components/JsonLd'
 import { getDictionary } from '@/i18n/getDictionary'
-import { DEFAULT_LOCALE, isLocale, localeHref } from '@/i18n/routing'
+import { isLocale, localeHref } from '@/i18n/routing'
 import { breadcrumbSchema, serviceSchema } from '@/lib/jsonld'
 import { findDoc, getGlobal, staticSlugs } from '@/lib/payload'
 import { buildMetadata, notFoundMetadata } from '@/lib/seo'
@@ -13,9 +13,9 @@ import type { ServiceDoc, SettingsLite } from '../../page-types'
 
 export const revalidate = 3600
 
-export async function generateStaticParams() {
-  const slugs = await staticSlugs('services', DEFAULT_LOCALE, 300)
-  return slugs.map(({ slug }) => ({ locale: DEFAULT_LOCALE, slug }))
+export async function generateStaticParams({ params }: { params: { locale: string } }) {
+  if (!isLocale(params.locale)) return []
+  return staticSlugs('services', params.locale, 300)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }) {

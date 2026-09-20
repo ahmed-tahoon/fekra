@@ -49,6 +49,13 @@ export function Header({
     }))
     .filter((i) => i.link)
 
+  if (locale === 'ar') {
+    for (const item of items) for (const child of item.children) {
+      const service = servicesMenu?.find((service) => localeHref(locale, `/services/${service.slug}`) === child.link?.href)
+      if (service && child.link) child.link = { ...child.link, label: service.title }
+    }
+  }
+
   const ctas = (data.ctas ?? [])
     .map((c) => ({ variant: c.variant ?? 'primary', link: resolveLink(c.link, locale) }))
     .filter((c) => c.link)
@@ -100,7 +107,7 @@ export function Header({
           Tightening the gap and the CTA does not close a 113px deficit, so this
           stays at `xl` until the nav loses an item.
         */}
-        <nav aria-label="Main" className="hidden xl:block">
+        <nav data-main-nav aria-label={dict.nav.main} className="hidden xl:block">
           <ul className="flex items-center gap-4">
             {items.map((item) => {
               const mega = (item.link!.activeHref ?? item.link!.href) === localeHref(locale, '/services') && servicesMenu?.length ? servicesMenu : null

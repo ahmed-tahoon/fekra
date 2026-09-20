@@ -63,7 +63,7 @@ export function MobileNav({
         ref={dialogRef}
         onClose={() => setOpen(false)}
         onCancel={() => setOpen(false)}
-        aria-label="Main"
+        aria-label={dict.nav.main}
         className="m-0 h-dvh max-h-none w-full max-w-none bg-background p-0 text-foreground backdrop:bg-[var(--overlay)] xl:hidden"
       >
         {open ? (

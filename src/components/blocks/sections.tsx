@@ -1,3 +1,5 @@
+import testimonialCopy from '@/i18n/testimonials.json'
+import { BidiText } from '@/components/BidiText'
 import { Award, Check, Clock, FilePenLine, Star } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -8,7 +10,8 @@ import { LinkButton } from '@/components/ui/Button'
 import { dir, type Locale } from '@/i18n/routing'
 import { batchTwo } from '@/i18n/batch-two'
 import { cn } from '@/lib/cn'
-import { clientLogo, clientLogoSizing } from '@/lib/client-logos'
+import { logoMarkSize } from '@/lib/logo-size'
+import { clientLogo } from '@/lib/client-logos'
 import { faqSchema } from '@/lib/jsonld'
 import { defaultHeroPhoto } from '@/lib/hero-photos'
 import { resolveLink } from '@/lib/resolveLink'
@@ -258,7 +261,7 @@ export function HeroSection({
       return (
         <div
           className={cn(
-            'flex size-full flex-col justify-center',
+            'flex size-full flex-col items-start justify-center text-start',
             compact ? 'p-3.5' : 'px-[clamp(1rem,1.8vw,2.5rem)] py-3',
             corner,
             STAT_TONE[item.tone ?? 'green'],
@@ -269,7 +272,7 @@ export function HeroSection({
               label drops to 13px and the value grows. */}
           <span
             className={cn(
-              'font-display leading-tight tracking-[-0.04em]',
+              'flex min-h-[2.5em] items-center font-display leading-tight tracking-[-0.04em] rtl:tracking-normal',
               compact ? 'text-[0.8125rem]' : 'text-[clamp(0.75rem,1.3vw,1.75rem)] leading-[1.25] font-medium',
             )}
           >
@@ -279,7 +282,7 @@ export function HeroSection({
             value={item.value ?? ''}
             dir="ltr"
             className={cn(
-              'font-display font-bold tracking-[-0.04em]',
+              'font-[family-name:var(--font-urbanist)] font-bold tracking-[-0.04em]',
               compact
                 ? 'mt-1.5 block text-[1.75rem] leading-none'
                 : 'mt-[0.35em] block text-[clamp(1.5rem,2.9vw,3.75rem)] leading-none',
@@ -625,7 +628,7 @@ export function LogoCloudSection({ block, locale }: { block: BlockProps; locale:
               const image = badge.image as MediaDoc | undefined
               if (!image?.url) return null
               return (
-                <li key={badge.name} className="fk-art-surface flex items-center justify-center rounded-2xl dark:p-3">
+                <li key={badge.name} className="fk-art-surface flex items-center justify-center rounded-2xl bg-white p-3">
                   {/* Heights are equalised, widths left to each badge: the row
                       mixes a wide lockup with four round seals. */}
                   <Image
@@ -711,15 +714,17 @@ export function LogoCloudSection({ block, locale }: { block: BlockProps; locale:
                  */
                 <li
                   key={logo.name}
-                  className="fk-art-surface group relative mx-auto flex h-16 w-full max-w-[9rem] items-center justify-center rounded-lg"
+                  className="fk-art-surface group/client-logo relative mx-auto flex h-20 w-full max-w-[9rem] items-center justify-center rounded-lg bg-white p-3"
                 >
-                  <Image
-                    src={mediaUrl(image)}
-                    alt={logo.name ?? image.alt ?? ''}
-                    fill
-                    sizes="144px"
-                    className={cn('fk-art-image object-contain opacity-80 grayscale transition-[filter,opacity] duration-300 group-hover:opacity-100 group-hover:grayscale-0 dark:group-hover:mix-blend-normal', clientLogoSizing[logo.name ?? ''] ?? 'p-1 dark:p-2')}
-                  />
+                  <span className="relative block" style={logoMarkSize(image.width, image.height, 120 / 56) ?? { width: '100%', height: '100%' }}>
+                    <Image
+                      src={mediaUrl(image)}
+                      alt={logo.name ?? image.alt ?? ''}
+                      fill
+                      sizes="120px"
+                      className="fk-art-image object-contain grayscale transition-[filter] duration-200 group-hover/client-logo:grayscale-0 dark:grayscale-0 motion-reduce:transition-none"
+                    />
+                  </span>
                 </li>
               )
             })}
@@ -1100,7 +1105,7 @@ export function IndustriesSection({ block }: { block: BlockProps }) {
                 <span className="flex size-8 items-center justify-center">
                   {icon?.url ? (
                     <Image
-                      src={mediaUrl(icon)}
+                      src={/ind-logistics|logistics/i.test(icon.url ?? '') ? '/images/industries/ind-logistics.svg' : mediaUrl(icon)}
                       alt=""
                       width={32}
                       height={32}
@@ -1227,7 +1232,7 @@ export function ProcessSection({ block, locale }: { block: BlockProps; locale: L
           ) : null}
         </div>
 
-        <ProcessStepper steps={steps} completed={{ title: batchTwo[locale].done, body: batchTwo[locale].doneBody }} />
+        <ProcessStepper resultLabel={({ en: 'Top 3%', ar: 'أفضل 3%', de: 'Top 3%', fr: 'Top 3 %', es: 'Mejor 3%' })[locale]} steps={steps} completed={{ title: batchTwo[locale].done, body: batchTwo[locale].doneBody }} />
       </div>
     </section>
   )
@@ -1355,7 +1360,8 @@ function testimonialProfile(quote?: string) {
     .replace(/[’]/g, "'")
     .trim()
 
-  return TESTIMONIAL_PROFILES.find((profile) => normalized?.includes(profile.quoteKey))
+  const englishQuote = Object.entries(testimonialCopy).find(([, translations]) => Object.values(translations).some((translation) => translation.quote === quote))?.[0].toLowerCase()
+  return TESTIMONIAL_PROFILES.find((profile) => (englishQuote ?? normalized)?.includes(profile.quoteKey))
 }
 
 export function TestimonialsSection({ block, locale }: { block: BlockProps; locale: Locale }) {
@@ -1376,11 +1382,11 @@ export function TestimonialsSection({ block, locale }: { block: BlockProps; loca
       id={block.anchor ?? undefined}
       className="section bg-brand-50 dark:bg-background-subtle"
     >
-      <div className="container-reading flex flex-col gap-10">
+      <div className="container-reading flex flex-col gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
           {block.eyebrow ? (
             <p className="text-sm font-semibold tracking-[2.8px] text-navy-800 uppercase dark:text-foreground">
-              {block.eyebrow}
+              {block.eyebrow.toLowerCase() === 'trusted by' ? ({ en: 'Trusted by', ar: 'نحظى بثقة', de: 'Vertrauen von', fr: 'Ils nous font confiance', es: 'Confían en nosotros' })[locale] : block.eyebrow}
             </p>
           ) : null}
           <h2 className="font-display text-[clamp(1.75rem,2.92vw,2.625rem)] leading-[1.19] font-bold">
@@ -1399,7 +1405,8 @@ export function TestimonialsSection({ block, locale }: { block: BlockProps; loca
             const profile = testimonialProfile(item.quote)
             const avatarSrc = profile?.avatar ?? (avatar?.url ? mediaUrl(avatar) : undefined)
             const authorName = profile?.name ?? item.authorName
-            const authorRole = profile ? `${profile.role} · ${profile.country}` : item.authorRole
+            const localized = locale !== 'en' && profile ? Object.entries(testimonialCopy).find(([quote]) => quote.toLowerCase().includes(profile.quoteKey))?.[1][locale] : undefined
+            const authorRole = localized ? `${localized.role} · ${localized.country}` : locale === 'en' && profile ? `${profile.role} · ${profile.country}` : item.authorRole
             const span = i % 5 === 4 ? 'md:col-span-4' : 'md:col-span-2'
             return (
               <li
@@ -1419,7 +1426,7 @@ export function TestimonialsSection({ block, locale }: { block: BlockProps; loca
                     className="size-8"
                   />
                   <blockquote className="text-base/6 text-ink-500 dark:text-muted-foreground">
-                    {item.quote}
+                    {localized?.quote ?? item.quote}
                   </blockquote>
                 </figure>
                 <figcaption className="flex items-center gap-3">
@@ -1449,7 +1456,7 @@ export function TestimonialsSection({ block, locale }: { block: BlockProps; loca
         </TestimonialCarousel>
 
         {stats.length ? (
-          <ul className="flex flex-wrap items-start justify-center gap-x-8 gap-y-6 border-t border-panel-grey pt-8 dark:border-border">
+          <ul className="flex flex-wrap items-start justify-center gap-x-8 gap-y-6 border-t border-panel-grey pt-5 dark:border-border">
             {stats.map((stat) => (
               <li key={stat.label} className="flex flex-col items-center gap-1">
                 <span className="flex items-center justify-center gap-1">
@@ -1962,17 +1969,16 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
                 second line. Cards in a row stretch to the tallest, so the row
                 stays level. */}
             <span className="block text-xs text-ink-500 dark:text-muted-foreground">
-              {person.role}
+              <BidiText>{person.role}</BidiText>
             </span>
           </span>
         </div>
 
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-border pt-2.5 pb-1">
           {person.experience ? (
-            /* No dir="ltr": it flipped the Arabic "+٥ سنوات" into "٥ سنوات+".
-                A Latin value like "3+ Years" is one LTR run and needs no help. */
+            /* The shared numeric experience value uses a locale-specific label. */
             <span className="rounded-pill border border-border bg-background-subtle px-2.5 py-1.5 text-xs text-ink-500 dark:text-muted-foreground">
-              {person.experience}
+              {/[0-9]+/.test(person.experience) ? <><bdi dir="ltr">{person.experience.match(/[0-9]+/)?.[0]}+</bdi>{' '}{({ en: 'Years', ar: 'سنوات خبرة', de: 'Jahre Erfahrung', fr: 'ans d’expérience', es: 'años de experiencia' })[locale]}</> : <BidiText>{person.experience}</BidiText>}
             </span>
           ) : null}
           {typeof person.match === 'number' ? (
@@ -2044,7 +2050,7 @@ export function TalentShowcaseSection({ block, locale }: { block: BlockProps; lo
               key={role.label}
               className="rounded-pill border border-brand-500 bg-role-pill px-3 py-2.5 text-base leading-none text-role-pill-ink"
             >
-              {role.label}
+              <BidiText>{role.label}</BidiText>
             </li>
           ))}
         </ul>

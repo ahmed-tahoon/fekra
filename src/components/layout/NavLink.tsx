@@ -28,8 +28,8 @@ export function NavLink({ link, hasChildren }: { link: ResolvedLink; hasChildren
          * because the label is centred in it.
          */
         'inline-flex h-11 min-w-11 items-center justify-center gap-1 px-1 text-sm text-navy-800 transition-colors hover:text-primary dark:text-foreground',
-        // The comp marks the current page by weight, not colour.
-        isActive ? 'font-bold' : 'font-normal',
+        // Preserve light-mode weight; dark mode adds a branded underline and colour.
+        isActive ? 'font-bold dark:text-primary dark:underline dark:decoration-2 dark:underline-offset-8' : 'font-normal',
       )}
     >
       {link.label}

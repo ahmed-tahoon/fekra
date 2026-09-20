@@ -1,3 +1,7 @@
+'use client'
+
+import { useLocaleStatus } from '@/components/LocaleStatusProvider'
+
 /**
  * Route-level loading UI for every page under /[locale] (17.11).
  *
@@ -11,6 +15,7 @@
  * route whose data has not been prefetched.
  */
 export default function Loading() {
+  const messages = useLocaleStatus()
   return (
     <div
       role="status"
@@ -26,7 +31,7 @@ export default function Loading() {
         aria-hidden
         className="size-10 animate-spin rounded-pill border-[3px] border-primary/25 border-e-transparent motion-reduce:animate-none"
       />
-      <span className="sr-only">Loading</span>
+      <span className="sr-only">{messages.loading}</span>
 
       {/* A hint of the page shape underneath, so the wait reads as "arriving"
           rather than "empty". Decorative — announced by neither of the above. */}

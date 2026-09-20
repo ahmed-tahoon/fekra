@@ -3,6 +3,7 @@ import { IBM_Plex_Sans_Arabic, Inter, Tajawal, Urbanist } from 'next/font/google
 import { notFound } from 'next/navigation'
 
 import { mediaUrl } from '@/components/blocks/types'
+import { LocaleStatusProvider } from '@/components/LocaleStatusProvider'
 import { Analytics } from '@/components/analytics/Analytics'
 import { ConsentBanner } from '@/components/analytics/ConsentBanner'
 import { buildServicesMenu } from '@/lib/services-menu'
@@ -183,7 +184,7 @@ export default async function SiteLayout({
             servicesMenu={servicesMenu}
           />
 
-          <main id="main">{children}</main>
+          <main id="main"><LocaleStatusProvider messages={{ loading: dict.common.loading, error: dict.error }}>{children}</LocaleStatusProvider></main>
 
           <Footer
             data={footer}

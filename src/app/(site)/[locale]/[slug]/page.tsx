@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { RenderBlocks } from '@/components/blocks/RenderBlocks'
 import { JsonLd } from '@/components/JsonLd'
 import { getDictionary } from '@/i18n/getDictionary'
-import { DEFAULT_LOCALE, isLocale } from '@/i18n/routing'
+import { isLocale } from '@/i18n/routing'
 import { breadcrumbSchema } from '@/lib/jsonld'
 import { findDoc, getGlobal, staticSlugs } from '@/lib/payload'
 import { buildMetadata, notFoundMetadata } from '@/lib/seo'
@@ -12,10 +12,11 @@ import type { PageDoc, SettingsLite } from '../page-types'
 
 export const revalidate = 3600
 
-/** Pre-renders the default locale at build; other locales render on demand. */
-export async function generateStaticParams() {
-  const slugs = await staticSlugs('pages', DEFAULT_LOCALE, 200)
-  return slugs.filter(({ slug }) => slug !== 'home').map(({ slug }) => ({ locale: DEFAULT_LOCALE, slug }))
+/** The parent layout supplies each locale; build its pages before visitors switch. */
+export async function generateStaticParams({ params }: { params: { locale: string } }) {
+  if (!isLocale(params.locale)) return []
+  const slugs = await staticSlugs('pages', params.locale, 200)
+  return slugs.filter(({ slug }) => slug !== 'home')
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }) {

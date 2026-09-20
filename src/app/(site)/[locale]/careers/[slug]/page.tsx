@@ -6,7 +6,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { RichText } from '@/components/RichText'
 import { ApplicationForm } from '@/components/forms/ApplicationForm'
 import { getDictionary } from '@/i18n/getDictionary'
-import { DEFAULT_LOCALE, isLocale, localeHref } from '@/i18n/routing'
+import { isLocale, localeHref } from '@/i18n/routing'
 import { breadcrumbSchema, jobPostingSchema } from '@/lib/jsonld'
 import { findDoc, findDocs, getGlobal, staticSlugs } from '@/lib/payload'
 import { buildMetadata, notFoundMetadata } from '@/lib/seo'
@@ -16,9 +16,9 @@ import { HiringProcess, JobMeta, RoleRow, SectionLabel } from '../parts'
 
 export const revalidate = 900
 
-export async function generateStaticParams() {
-  const slugs = await staticSlugs('jobs', DEFAULT_LOCALE, 200)
-  return slugs.map(({ slug }) => ({ locale: DEFAULT_LOCALE, slug }))
+export async function generateStaticParams({ params }: { params: { locale: string } }) {
+  if (!isLocale(params.locale)) return []
+  return staticSlugs('jobs', params.locale, 200)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }) {

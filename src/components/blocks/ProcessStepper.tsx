@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+import { BidiText } from '@/components/BidiText'
 import { cn } from '@/lib/cn'
 
 /*
@@ -20,7 +21,7 @@ const WINNER_PATHS = [
 
 export type Step = { title: string; body: string }
 
-const DWELL_MS = 2000
+const DWELL_MS = 3000
 
 /*
  * Funnel geometry from Figma 1:11041, widened 40px per row on request: five
@@ -45,11 +46,13 @@ const BARS = [328, 288, 248, 208, 168] as const
  * arrives. It pauses on hover or keyboard focus and never starts at all under
  * prefers-reduced-motion.
  */
-export function ProcessStepper({ steps, completed }: { steps: Step[]; completed: Step }) {
+export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[]; completed: Step; resultLabel: string }) {
   const [active, setActive] = useState(0)
   const [auto, setAuto] = useState(false)
   const [started, setStarted] = useState(false)
-  const held = useRef(false)
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const held = hovered || focused
   const root = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -84,12 +87,12 @@ export function ProcessStepper({ steps, completed }: { steps: Step[]; completed:
    * beat the outcome is never part of the journey.
    */
   useEffect(() => {
-    if (!auto || !started || steps.length < 2) return
-    const id = setInterval(() => {
-      if (!held.current) setActive((i) => (i + 1) % (steps.length + 1))
+    if (!auto || !started || held || steps.length < 2) return
+    const id = setTimeout(() => {
+      setActive((i) => (i + 1) % (steps.length + 1))
     }, DWELL_MS)
-    return () => clearInterval(id)
-  }, [auto, started, steps.length])
+    return () => clearTimeout(id)
+  }, [auto, started, steps.length, active, held])
 
   if (!steps.length) return null
   const resultActive = active === steps.length
@@ -99,8 +102,8 @@ export function ProcessStepper({ steps, completed }: { steps: Step[]; completed:
     <div
       ref={root}
       className="flex w-full flex-col items-center justify-center gap-8 lg:flex-row lg:items-center lg:gap-10"
-      onFocusCapture={() => (held.current = true)}
-      onBlurCapture={() => (held.current = false)}
+      onFocusCapture={() => setFocused(true)}
+      onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}
     >
       {/* The pause covers only the clickable bars — a cursor parked anywhere
           else (most cursors, after scrolling) must not stall the cycle. */}
@@ -111,8 +114,8 @@ export function ProcessStepper({ steps, completed }: { steps: Step[]; completed:
            stacked up; at 4px they read as one narrowing funnel, which is the
            whole point of the graphic. */
         className="flex w-full max-w-[544px] flex-col gap-1 ps-10 [--fs:0.58] min-[400px]:[--fs:0.72] sm:ps-0 sm:[--fs:1]"
-        onMouseEnter={() => (held.current = true)}
-        onMouseLeave={() => (held.current = false)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
         {steps.map((s, i) => {
           const on = i === active
@@ -245,7 +248,7 @@ export function ProcessStepper({ steps, completed }: { steps: Step[]; completed:
                     <path key={d.slice(0, 16)} d={d} />
                   ))}
                 </svg>
-                <span className="text-sm font-bold whitespace-nowrap sm:text-base">Top 3%</span>
+                <span className="text-sm font-bold whitespace-nowrap sm:text-base"><BidiText>{resultLabel}</BidiText></span>
               </span>
             </div>
           </button>

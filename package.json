@@ -2,7 +2,7 @@
   "name": "fekra-website",
   "version": "1.0.0",
   "private": true,
-  "description": "FEKRA marketing website — Next.js App Router + Payload CMS, 5 locales, light/dark.",
+  "description": "FEKRA marketing website \u2014 Next.js App Router + Payload CMS, 5 locales, light/dark.",
   "license": "UNLICENSED",
   "type": "module",
   "engines": {
@@ -36,7 +36,8 @@
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
     "check:storage": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/check-storage.mjs",
-    "sync:uploads": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/sync-uploads.mjs"
+    "sync:uploads": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/sync-uploads.mjs",
+    "check:content-ar": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/check-arabic-content.ts"
   },
   "browserslist": [
     "chrome >= 111",

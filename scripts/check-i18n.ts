@@ -8,6 +8,18 @@ import { join } from 'node:path'
 
 import { DEFAULT_LOCALE, LOCALES, dir, isActivePath, isLocale, localeHref, negotiateLocale, splitLocale } from '../src/i18n/routing'
 import { slugify } from '../src/payload/fields/slug'
+import { isLocaleDocumentRequest } from '../src/i18n/navigation'
+
+// Language preference must never redirect an English RSC/prefetch back to Arabic.
+assert.ok(isLocaleDocumentRequest(new Headers()))
+assert.ok(isLocaleDocumentRequest(new Headers({ 'sec-fetch-dest': 'document' })))
+for (const [name, value] of [
+  ['sec-fetch-dest', 'empty'],
+  ['rsc', '1'],
+  ['next-router-prefetch', '1'],
+  ['purpose', 'prefetch'],
+  ['sec-purpose', 'prefetch;prerender'],
+]) assert.ok(!isLocaleDocumentRequest(new Headers([[name!, value!]])))
 
 // --- URL policy: English unprefixed, everything else prefixed ---------------
 assert.equal(localeHref('en', '/about'), '/about')

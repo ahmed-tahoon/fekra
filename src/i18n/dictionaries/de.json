@@ -13,7 +13,8 @@
     "skipToContent": "Zum Inhalt springen",
     "buildTeam": "Stellen Sie Ihr eigenes Team aus den Top 3% der FEKRA-Entwickler zusammen",
     "hireNow": "Jetzt einstellen!",
-    "allServices": "Alle Leistungen"
+    "allServices": "Alle Leistungen",
+    "main": "Hauptnavigation"
   },
   "theme": {
     "toggle": "Design wechseln",
@@ -68,7 +69,14 @@
     },
     "subscribe": "Abonnieren",
     "emailPlaceholder": "E-Mail eingeben",
-    "newsletterHint": "Bleiben Sie auf dem Laufenden über Technologie, Design und digitale Innovation."
+    "newsletterHint": "Bleiben Sie auf dem Laufenden über Technologie, Design und digitale Innovation.",
+    "hiringModel": "Vertragsmodell wählen",
+    "hiringModels": {
+      "fullTime": "Vollzeit",
+      "partTime": "Teilzeit",
+      "hourly": "Stundenweise"
+    },
+    "hireDevelopers": "Entwickler einstellen"
   },
   "blog": {
     "title": "Blog",
@@ -144,7 +152,19 @@
     "postedOn": "Veröffentlicht",
     "shareRole": "Stelle teilen",
     "applyAside": "Die Bewerbung dauert etwa fünf Minuten. Wir antworten auf jede.",
-    "whatNextTitle": "Wie es weitergeht"
+    "whatNextTitle": "Wie es weitergeht",
+    "workModels": {
+      "onsite": "Vor Ort",
+      "hybrid": "Hybrid",
+      "remote": "Remote"
+    },
+    "employmentTypes": {
+      "FULL_TIME": "Vollzeit",
+      "PART_TIME": "Teilzeit",
+      "CONTRACTOR": "Freiberuflich",
+      "TEMPORARY": "Befristet",
+      "INTERN": "Praktikum"
+    }
   },
   "contact": {
     "title": "Sprechen wir über Ihr Projekt",
@@ -167,7 +187,8 @@
   "error": {
     "title": "Etwas ist schiefgelaufen",
     "body": "Es ist ein unerwarteter Fehler aufgetreten. Bitte erneut versuchen.",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "reference": "Referenz"
   },
   "consent": {
     "title": "Wir verwenden Cookies",

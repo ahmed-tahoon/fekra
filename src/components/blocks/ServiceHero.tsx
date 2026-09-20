@@ -1,3 +1,4 @@
+import { BidiText } from '@/components/BidiText'
 import Image from 'next/image'
 
 import { ConsultationForm } from '@/components/forms/ConsultationForm'
@@ -48,19 +49,19 @@ export function ServiceHeroSection({
       <div className="container-site grid items-start gap-10 py-12 lg:grid-cols-[minmax(0,1fr)_414px] lg:gap-16">
         <div className="pt-2">
           <Title className="font-display text-4xl font-bold text-[#001033] dark:text-foreground">
-            {block.heading}
+            <BidiText>{block.heading}</BidiText>
           </Title>
 
           {paragraphs.length ? (
             <div className="mt-6 flex flex-col text-base/6 text-[#001033] dark:text-muted-foreground">
               {paragraphs.map((text, i) => (
-                <p key={i}>{text}</p>
+                <p key={i}><BidiText>{text}</BidiText></p>
               ))}
             </div>
           ) : null}
 
           {block.closer ? (
-            <p className="mt-4 text-base/6 font-bold text-[#001033] dark:text-foreground">{block.closer}</p>
+            <p className="mt-4 text-base/6 font-bold text-[#001033] dark:text-foreground"><BidiText>{block.closer}</BidiText></p>
           ) : null}
 
           {block.highlights?.length ? (
@@ -77,7 +78,7 @@ export function ServiceHeroSection({
                         <Image src={mediaUrl(icon)} alt="" width={31} height={31} aria-hidden className="fk-mono-icon size-[31px]" />
                       </span>
                     ) : null}
-                    <span className="text-sm/[21px] text-[#001033] dark:text-foreground">{item.text}</span>
+                    <span className="text-sm/[21px] text-[#001033] dark:text-foreground"><BidiText>{item.text}</BidiText></span>
                   </li>
                 )
               })}

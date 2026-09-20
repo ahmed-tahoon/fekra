@@ -1,9 +1,9 @@
 'use client'
 
-import { Check, Globe } from 'lucide-react'
+import { Check, Globe, LoaderCircle } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 
 import { LOCALES, PUBLIC_LOCALES, LOCALE_META, type Locale, localeHref, splitLocale } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
@@ -25,16 +25,19 @@ export function LanguageSwitcher({
   const pathname = usePathname() ?? '/'
   const { rest } = splitLocale(pathname)
   const [open, setOpen] = useState(false)
+  const [pending, startTransition] = useTransition()
+  const [targetLocale, setTargetLocale] = useState(current)
   const ref = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
-  /*
-   * Links inside a closed dropdown are never in the viewport, so automatic
-   * prefetch cannot help here. Warm language targets when the browser is idle,
-   * again on visible user intent, and immediately when the menu opens. In
-   * production this gets the RSC payloads into the router cache before the
-   * click; in dev, Next.js keeps prefetch intentionally limited.
-   */
+  // Back/Forward may restore a cached route without a document request. Keep
+  // the remembered language aligned with the content actually on screen.
+  useEffect(() => {
+    document.cookie = `NEXT_LOCALE=${current}; path=/; max-age=31536000; samesite=lax`
+  }, [current, pathname])
+
+  // Warm only the language the visitor points to, not four complete pages
+  // whenever any page mounts or the menu opens (expensive on cold CMS routes).
   const approved = useMemo(
     () => new Set<Locale>(available?.length ? (available as Locale[]) : [...PUBLIC_LOCALES]),
     [available],
@@ -43,46 +46,6 @@ export function LanguageSwitcher({
     () => new Set<Locale>([...PUBLIC_LOCALES].filter((l) => approved.has(l))),
     [approved],
   )
-  const switchTargets = useMemo(
-    () =>
-      [...PUBLIC_LOCALES]
-        .filter((l) => enabled.has(l) && l !== current)
-        .map((locale) => localeHref(locale, rest)),
-    [current, enabled, rest],
-  )
-  const prefetchTargets = useCallback(() => {
-    for (const href of switchTargets) router.prefetch(href)
-  }, [router, switchTargets])
-
-  useEffect(() => {
-    if (!switchTargets.length) return
-
-    let cancelled = false
-    const warm = () => {
-      if (cancelled) return
-      prefetchTargets()
-    }
-
-    if ('requestIdleCallback' in window) {
-      const id = window.requestIdleCallback(warm, { timeout: 1500 })
-      return () => {
-        cancelled = true
-        window.cancelIdleCallback(id)
-      }
-    }
-
-    const id = globalThis.setTimeout(warm, 750)
-    return () => {
-      cancelled = true
-      globalThis.clearTimeout(id)
-    }
-  }, [prefetchTargets, switchTargets.length])
-
-  useEffect(() => {
-    if (!open) return
-    prefetchTargets()
-  }, [open, prefetchTargets])
-
   useEffect(() => {
     if (!open) return
     const onPointer = (e: MouseEvent) => {
@@ -115,16 +78,16 @@ export function LanguageSwitcher({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        onFocus={prefetchTargets}
-        onPointerEnter={prefetchTargets}
         aria-label={labels.switch}
+        aria-busy={pending}
         aria-expanded={open}
         aria-haspopup="menu"
         className="inline-flex h-11 items-center gap-2 rounded-pill px-3 text-sm font-medium text-foreground transition-colors hover:bg-background-subtle"
       >
-        <Globe className="size-4" aria-hidden />
-        <span className="uppercase">{current}</span>
+        {pending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden /> : <Globe className="size-4" aria-hidden />}
+        <span className="uppercase">{pending ? targetLocale : current}</span>
       </button>
+      <span role="status" className="sr-only">{pending ? `${labels.switch}: ${LOCALE_META[targetLocale].label}` : ''}</span>
 
       {open ? (
         <div
@@ -155,11 +118,18 @@ export function LanguageSwitcher({
                 role="menuitem"
                 href={localeHref(locale, rest)}
                 hrefLang={LOCALE_META[locale].hreflang}
-                onClick={() => {
+                prefetch={false}
+                onPointerEnter={() => { if (locale !== current) router.prefetch(localeHref(locale, rest)) }}
+                onFocus={() => { if (locale !== current) router.prefetch(localeHref(locale, rest)) }}
+                onNavigate={(event) => {
+                  event.preventDefault()
+                  setOpen(false)
+                  if (locale === current) return
                   // Explicit choice must beat the remembered locale, or the "/"
                   // redirect in proxy.ts bounces English home back to the old one.
                   document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; samesite=lax`
-                  setOpen(false)
+                  setTargetLocale(locale)
+                  startTransition(() => router.push(localeHref(locale, rest) + window.location.search + window.location.hash))
                 }}
                 className={cn(
                   'flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-background-subtle',

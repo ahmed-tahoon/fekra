@@ -69,7 +69,7 @@ export async function RenderBlocks({
   return (
     <>
       {layout.map((block, index) => {
-        const key = block.id ?? `${block.blockType}-${index}`
+        const key = `${locale}:${block.id ?? `${block.blockType}-${index}`}`
         const isFirst = index === 0
 
         switch (block.blockType) {

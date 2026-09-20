@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import { Globe2, MapPin } from 'lucide-react'
 
 import { ContactForm } from '@/components/forms/ContactForm'
 import type { Dictionary } from '@/i18n/getDictionary'
@@ -60,51 +59,25 @@ export function ContactSection({
 
           {block.showOffices !== false && offices?.length ? (
             <div className="relative">
-              {/* The map carries its own city pills and caption, so it is
-                  decorative here. Dark mode uses live office text on dark cards
-                  because the raster map has baked-in white labels. */}
-              <div className="relative dark:hidden">
-              <Image
-                src="/images/decor/global-presence-map.png"
-                alt=""
-                aria-hidden
-                width={655}
-                height={374}
-                className="h-auto w-full dark:hidden"
-              />
-              {/* Overlay the raster's inaccurate illustrations with complete,
-                  uncropped flag vectors. Coordinates follow its 1449×881 artboard. */}
-              {[
-                { code: 'us', left: 13.2, top: 3.0 },
-                { code: 'gb', left: 46.1, top: 12.9 },
-                { code: 'sa', left: 71.5, top: 29.4 },
-                { code: 'eg', left: 48.5, top: 45.7 },
-                { code: 'ae', left: 62.3, top: 47.6 },
-              ].map((flag) => <span key={flag.code} className="absolute flex items-center justify-center bg-white" style={{ left: `${flag.left}%`, top: `${flag.top}%`, width: '5.4%', height: '9.7%' }}>
-                <Image src={`/images/flags/${flag.code}.svg`} alt="" aria-hidden width={78} height={52} className="h-auto w-full object-contain" />
-              </span>)}
+              {/* One map and one set of localized overlays in both themes. */}
+              <div data-presence-map className="relative">
+                <Image src="/images/decor/global-presence-map.png" alt="" aria-hidden width={1449} height={881} className="h-auto w-full" />
+                {[
+                  { code: 'US', left: 11, top: 1.2, width: 14.2 },
+                  { code: 'GB', left: 45.5, top: 11.2, width: 14 },
+                  { code: 'SA', left: 63.5, top: 28, width: 14.2 },
+                  { code: 'EG', left: 46.3, top: 44.6, width: 14.1 },
+                  { code: 'AE', left: 61.7, top: 46.3, width: 14 },
+                ].map((pin) => {
+                  const office = offices.find((office) => office.countryCode === pin.code)
+                  return <div key={pin.code} className="absolute flex items-center justify-center gap-[5%] rounded-[3px] bg-white px-[0.7%] text-navy-800" style={{ left: `${pin.left}%`, top: `${pin.top}%`, width: `${pin.width}%`, height: '12.8%' }}>
+                    <Image src={`/images/flags/${pin.code.toLowerCase()}.svg`} alt="" aria-hidden width={32} height={22} className="h-auto w-[32%] shrink-0 object-contain" />
+                    <span className="text-center text-[clamp(0.5rem,1.05vw,0.9375rem)] leading-tight">{office?.city}</span>
+                  </div>
+                })}
+                <p className="absolute inset-x-[25%] top-[76%] grid h-[9%] place-items-center bg-background text-center text-[clamp(0.625rem,1.1vw,1rem)] font-semibold text-navy-800 dark:text-foreground">{dict.contact.offices}</p>
               </div>
-              <div className="hidden rounded-3xl border border-border bg-card p-6 sm:p-8 dark:block">
-                <h3 className="flex items-center gap-3 text-xl font-semibold text-foreground">
-                  <Globe2 aria-hidden className="size-6 shrink-0 text-primary" />
-                  {dict.contact.offices}
-                </h3>
-                <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                  {offices.map((office) => (
-                    <li key={`${office.city}-${office.country}`} className="flex items-start gap-3 rounded-2xl border border-border bg-background-subtle p-4">
-                      {office.countryCode && ['EG', 'SA', 'AE', 'GB', 'US'].includes(office.countryCode) ? <Image src={`/images/flags/${office.countryCode.toLowerCase()}.svg`} alt="" aria-hidden width={32} height={22} className="mt-1 h-[22px] w-8 shrink-0 object-contain" /> : <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />}
-                      <div className="min-w-0">
-                        <p className="font-semibold text-foreground">{office.city}</p>
-                        <p className="mt-1 text-sm text-muted-foreground">{office.country}</p>
-                        {office.isHeadquarters ? <p className="mt-2 text-xs text-primary">{dict.contact.headquarters}</p> : null}
-                        {office.phone ? <p dir="ltr" className="mt-2 break-words text-sm text-muted-foreground">{office.phone}</p> : null}
-                        {office.email ? <p className="mt-1 break-all text-sm text-muted-foreground">{office.email}</p> : null}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <ul className="sr-only dark:hidden">
+              <ul className="sr-only">
                 {offices.map((office) => (
                   <li key={`${office.city}-${office.country}`}>
                     {office.city}, {office.country}

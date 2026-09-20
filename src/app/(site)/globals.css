@@ -384,17 +384,25 @@
 
 @layer utilities {
   /* Opt in by asset role: monochrome glyphs can be lifted, while logos and
-   * artwork with baked-in dark text keep their original colours on a soft
-   * light ground. Multiply removes opaque white rectangles inside that ground. */
+   * artwork with baked-in dark text keep their original colours on a pure
+   * white ground in both themes. Do not tint or blend brand assets. */
   .dark .fk-mono-icon {
     filter: brightness(0) invert(0.93);
   }
   .dark .fk-art-surface {
-    background-color: #b9bec5;
+    background-color: #ffffff;
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
   }
   .dark .fk-art-image {
-    mix-blend-mode: multiply;
+    mix-blend-mode: normal;
+  }
+
+  /* Keep wheel, touch and keyboard scrolling without a visible menu track. */
+  [data-services-menu] {
+    scrollbar-width: none;
+  }
+  [data-services-menu]::-webkit-scrollbar {
+    display: none;
   }
 
   /*

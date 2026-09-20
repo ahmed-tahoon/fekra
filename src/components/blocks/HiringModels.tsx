@@ -72,7 +72,7 @@ export function HiringModelsSection({ block, locale }: { block: BlockProps; loca
                         className={cn('flex min-h-[125px] flex-col gap-2 rounded-lg border-2 bg-white p-5 dark:bg-card', tone.card)}
                       >
                         <span className={cn('font-display text-3xl/9 font-semibold whitespace-pre-line', tone.value)}>
-                          {stat.value}
+                          {stat.value === 'Flexible' ? ({ en: 'Flexible', ar: 'مرن', de: 'Flexibel', fr: 'Flexible', es: 'Flexible' })[locale] : <bdi dir="ltr">{stat.value}</bdi>}
                         </span>
                         <span className="mt-auto text-sm text-navy-800 dark:text-foreground">{stat.label}</span>
                       </div>

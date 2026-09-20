@@ -26,8 +26,8 @@ export function SectionLabel({ eyebrow, heading }: { eyebrow: string; heading: s
 export function JobMeta({ job, dict, className }: { job: JobDoc; dict: Dictionary; className?: string }) {
   const bits = [
     { label: dict.careers.location, value: job.location },
-    { label: dict.careers.workModel, value: job.workModel },
-    { label: dict.careers.employmentType, value: job.employmentType?.replace('_', ' ').toLowerCase() },
+    { label: dict.careers.workModel, value: dict.careers.workModels[job.workModel as keyof typeof dict.careers.workModels] ?? job.workModel },
+    { label: dict.careers.employmentType, value: dict.careers.employmentTypes[job.employmentType as keyof typeof dict.careers.employmentTypes] ?? job.employmentType },
   ].filter((bit) => bit.value)
 
   return (

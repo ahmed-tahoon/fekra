@@ -15,7 +15,7 @@ import { categoryTheme } from '@/components/blog/theme'
 import { JsonLd } from '@/components/JsonLd'
 import { RichText } from '@/components/RichText'
 import { getDictionary, t } from '@/i18n/getDictionary'
-import { DEFAULT_LOCALE, isLocale, localeHref } from '@/i18n/routing'
+import { isLocale, localeHref } from '@/i18n/routing'
 import { articleSchema, breadcrumbSchema } from '@/lib/jsonld'
 import { cn } from '@/lib/cn'
 import { findDoc, findDocs, staticSlugs } from '@/lib/payload'
@@ -26,9 +26,9 @@ import type { PostDoc } from '../../page-types'
 
 export const revalidate = 900
 
-export async function generateStaticParams() {
-  const slugs = await staticSlugs('posts', DEFAULT_LOCALE, 500)
-  return slugs.map(({ slug }) => ({ locale: DEFAULT_LOCALE, slug }))
+export async function generateStaticParams({ params }: { params: { locale: string } }) {
+  if (!isLocale(params.locale)) return []
+  return staticSlugs('posts', params.locale, 500)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }) {

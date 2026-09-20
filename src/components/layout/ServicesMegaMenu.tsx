@@ -1,3 +1,4 @@
+import { BidiText } from '@/components/BidiText'
 import Link from 'next/link'
 import { X } from 'lucide-react'
 import { localeHref, type Locale } from '@/i18n/routing'
@@ -22,15 +23,15 @@ export function ServicesMegaMenu({ services, locale, dict }: { services: Service
       <button type="button" data-nav-close aria-label={batchTwo[locale].close} className="absolute end-1 top-1 grid size-11 place-items-center rounded-full text-muted-foreground hover:bg-background-subtle"><X className="size-4" aria-hidden /></button>
       <div className="grid grid-cols-5 items-start gap-x-6 gap-y-6">
         {services.map((service) => <div key={service.slug} className={PLACEMENT[service.slug]}>
-          <Link href={localeHref(locale, `/services/${service.slug}`)} className="block pb-2 text-[13px]/5 font-bold text-navy-800 hover:text-primary dark:text-foreground">{service.title}</Link>
+          <Link href={localeHref(locale, `/services/${service.slug}`)} className="block pb-2 text-[13px]/5 font-bold text-navy-800 hover:text-primary dark:text-foreground"><BidiText>{service.title}</BidiText></Link>
           <ul className={service.slug === 'hire-in-demand-developers' ? 'grid grid-flow-col grid-rows-6 gap-x-6' : ''}>
             {service.roles.map((role) => <li key={`${role.slug}:${role.title}`} className="border-s border-border ps-2">
-              <Link href={localeHref(locale, `/services/${role.slug}`)} className="block py-0.5 text-[13px]/[18px] text-muted-foreground hover:text-primary">{role.title}</Link>
+              <Link href={localeHref(locale, `/services/${role.slug}`)} className="block py-0.5 text-[13px]/[18px] text-muted-foreground hover:text-primary"><BidiText>{role.title}</BidiText></Link>
             </li>)}
           </ul>
         </div>)}
         <div className="col-start-5 row-start-2 self-center rounded-[20px] border border-primary px-3 pt-4 text-center">
-          <p className="text-sm/5 text-navy-800 dark:text-foreground">{dict.nav.buildTeam}</p>
+          <p className="text-sm/5 text-navy-800 dark:text-foreground"><BidiText>{dict.nav.buildTeam}</BidiText></p>
           <Link href={localeHref(locale, '/services/hire-dedicated-developers')} className="relative -mb-4 mt-3 inline-flex min-h-11 items-center rounded-pill bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">{dict.nav.hireNow}</Link>
         </div>
       </div>

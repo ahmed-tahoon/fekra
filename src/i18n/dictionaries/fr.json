@@ -13,7 +13,8 @@
     "skipToContent": "Aller au contenu",
     "buildTeam": "Constituez votre équipe avec le top 3% des développeurs FEKRA",
     "hireNow": "Recruter !",
-    "allServices": "Tous les services"
+    "allServices": "Tous les services",
+    "main": "Navigation principale"
   },
   "theme": {
     "toggle": "Changer de thème",
@@ -68,7 +69,14 @@
     },
     "subscribe": "S'abonner",
     "emailPlaceholder": "Entrez votre e-mail",
-    "newsletterHint": "Restez informé des dernières tendances en technologie, design et innovation numérique."
+    "newsletterHint": "Restez informé des dernières tendances en technologie, design et innovation numérique.",
+    "hiringModel": "Choisissez un mode de collaboration",
+    "hiringModels": {
+      "fullTime": "Temps plein",
+      "partTime": "Temps partiel",
+      "hourly": "À l’heure"
+    },
+    "hireDevelopers": "Recruter des développeurs"
   },
   "blog": {
     "title": "Blog",
@@ -144,7 +152,19 @@
     "postedOn": "Publié le",
     "shareRole": "Partager ce poste",
     "applyAside": "Postuler prend environ cinq minutes. Nous répondons à chaque candidature.",
-    "whatNextTitle": "La suite"
+    "whatNextTitle": "La suite",
+    "workModels": {
+      "onsite": "Sur site",
+      "hybrid": "Hybride",
+      "remote": "À distance"
+    },
+    "employmentTypes": {
+      "FULL_TIME": "Temps plein",
+      "PART_TIME": "Temps partiel",
+      "CONTRACTOR": "Indépendant",
+      "TEMPORARY": "Temporaire",
+      "INTERN": "Stage"
+    }
   },
   "contact": {
     "title": "Parlons de votre projet",
@@ -167,7 +187,8 @@
   "error": {
     "title": "Une erreur est survenue",
     "body": "Nous avons rencontré une erreur inattendue. Veuillez réessayer.",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "reference": "Référence"
   },
   "consent": {
     "title": "Nous utilisons des cookies",

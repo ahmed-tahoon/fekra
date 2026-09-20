@@ -13,7 +13,8 @@
     "skipToContent": "Saltar al contenido",
     "buildTeam": "Forma tu propio equipo contratando al top 3% de desarrolladores de FEKRA",
     "hireNow": "¡Contrata ya!",
-    "allServices": "Todos los servicios"
+    "allServices": "Todos los servicios",
+    "main": "Navegación principal"
   },
   "theme": {
     "toggle": "Cambiar tema",
@@ -68,7 +69,14 @@
     },
     "subscribe": "Suscribirse",
     "emailPlaceholder": "Introduce tu correo",
-    "newsletterHint": "Mantente al día con lo último en tecnología, diseño e innovación digital."
+    "newsletterHint": "Mantente al día con lo último en tecnología, diseño e innovación digital.",
+    "hiringModel": "Elige un modelo de contratación",
+    "hiringModels": {
+      "fullTime": "Jornada completa",
+      "partTime": "Jornada parcial",
+      "hourly": "Por horas"
+    },
+    "hireDevelopers": "Contratar desarrolladores"
   },
   "blog": {
     "title": "Blog",
@@ -144,7 +152,19 @@
     "postedOn": "Publicado",
     "shareRole": "Compartir vacante",
     "applyAside": "Postular lleva unos cinco minutos. Respondemos a todas las candidaturas.",
-    "whatNextTitle": "Qué pasa después"
+    "whatNextTitle": "Qué pasa después",
+    "workModels": {
+      "onsite": "Presencial",
+      "hybrid": "Híbrido",
+      "remote": "En remoto"
+    },
+    "employmentTypes": {
+      "FULL_TIME": "Jornada completa",
+      "PART_TIME": "Jornada parcial",
+      "CONTRACTOR": "Por contrato",
+      "TEMPORARY": "Temporal",
+      "INTERN": "Prácticas"
+    }
   },
   "contact": {
     "title": "Hablemos de negocios",
@@ -167,7 +187,8 @@
   "error": {
     "title": "Algo salió mal",
     "body": "Se produjo un error inesperado. Inténtalo de nuevo.",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "reference": "Referencia"
   },
   "consent": {
     "title": "Usamos cookies",

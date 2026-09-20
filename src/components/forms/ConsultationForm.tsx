@@ -8,7 +8,7 @@ import { EVENTS, captureAttribution, track } from '@/lib/analytics'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
-const MODELS = ['Full Time', 'Part Time', 'Hourly Time'] as const
+const MODELS = ['fullTime', 'partTime', 'hourly'] as const
 
 /*
  * The "Get Free Consultation" card from the Figma service heroes: underline
@@ -32,6 +32,7 @@ export function ConsultationForm({
   locale: Locale
 }) {
   const [status, setStatus] = useState<Status>('idle')
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const startedAt = useRef(0)
   useEffect(() => {
     startedAt.current = Date.now()
@@ -42,6 +43,7 @@ export function ConsultationForm({
     const form = event.currentTarget
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>
 
+    setErrors({})
     setStatus('sending')
     try {
       const res = await fetch('/api/contact', {
@@ -62,6 +64,10 @@ export function ConsultationForm({
         }),
       })
       if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { fields?: Record<string, string> }
+        setErrors(body.fields ?? {})
+        const first = Object.keys(body.fields ?? {})[0]
+        if (first) requestAnimationFrame(() => (form.elements.namedItem(first) as HTMLElement | null)?.focus())
         setStatus('error')
         return
       }
@@ -97,7 +103,7 @@ export function ConsultationForm({
           </label>
           <input
             id="consult-name"
-            name="fullName"
+            name="fullName" aria-invalid={Boolean(errors.fullName)} aria-describedby={errors.fullName ? 'consult-errors' : undefined}
             required
             autoComplete="name"
             placeholder={`${dict.form.name} *`}
@@ -109,7 +115,7 @@ export function ConsultationForm({
           </label>
           <input
             id="consult-email"
-            name="email"
+            name="email" aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'consult-errors' : undefined}
             type="email"
             required
             autoComplete="email"
@@ -119,38 +125,38 @@ export function ConsultationForm({
           />
 
           <label className="sr-only" htmlFor="consult-phone">
-            Phone number
+            {dict.form.phone}
           </label>
           <input
             id="consult-phone"
-            name="phone"
+            name="phone" aria-invalid={Boolean(errors.phone)} aria-describedby={errors.phone ? 'consult-errors' : undefined}
             type="tel"
             autoComplete="tel"
             inputMode="tel"
-            placeholder="Phone Number"
+            placeholder={dict.form.phone}
             className={input}
           />
 
           <fieldset className="mt-4">
-            <legend className="text-base text-ink-900 dark:text-foreground">Choose one hiring model</legend>
+            <legend className="text-base text-ink-900 dark:text-foreground">{dict.form.hiringModel}</legend>
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
               {MODELS.map((model) => (
                 <label key={model} className="flex min-h-11 items-center gap-2 text-sm text-ink-900 dark:text-foreground">
-                  <input type="radio" name="model" value={model} className="size-[18px] accent-primary" />
-                  {model}
+                  <input type="radio" name="model" value={{ fullTime: 'Full Time', partTime: 'Part Time', hourly: 'Hourly Time' }[model]} className="size-[18px] accent-primary" />
+                  {dict.form.hiringModels[model]}
                 </label>
               ))}
             </div>
           </fieldset>
 
           <label className="mt-4 flex min-h-11 items-start gap-3 text-sm text-muted-foreground">
-            <input type="checkbox" name="consent" required className="mt-0.5 size-5" />
+            <input type="checkbox" name="consent" aria-invalid={Boolean(errors.consent)} aria-describedby={errors.consent ? 'consult-errors' : undefined} required className="mt-0.5 size-5" />
             <span>{dict.form.consent}</span>
           </label>
 
           {status === 'error' ? (
-            <p role="alert" className="text-sm font-medium text-danger-600">
-              {dict.form.error}
+            <p id="consult-errors" role="alert" className="text-sm font-medium text-danger-600">
+              {Object.keys(errors).length ? Object.values(errors).map((code, index) => <span key={index} className="block">{dict.form.errors[code as keyof typeof dict.form.errors] ?? dict.form.error}</span>) : dict.form.error}
             </p>
           ) : null}
 
@@ -159,7 +165,7 @@ export function ConsultationForm({
             disabled={status === 'sending'}
             className="mt-4 min-h-11 w-full rounded-[10px] bg-primary text-base text-primary-foreground transition-colors hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            {status === 'sending' ? dict.form.submitting : 'Hire Developers'}
+            {status === 'sending' ? dict.form.submitting : dict.form.hireDevelopers}
           </button>
         </form>
       )}

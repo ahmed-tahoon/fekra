@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
+import { BidiText } from '@/components/BidiText'
 import { cn } from '@/lib/cn'
 
 const CELL = 'col-start-1 row-start-1 -my-[0.16em] py-[0.16em]'
@@ -70,7 +71,7 @@ export function RotatingWords({ words, intervalMs = 5000 }: { words: string[]; i
           predict rendered width, and mobile phrases can wrap to two lines. */}
       {words.map((word, i) => (
         <span key={i} aria-hidden className={cn(CELL, 'invisible')}>
-          {word}
+          <BidiText>{word}</BidiText>
         </span>
       ))}
       {/* Nothing inside a `background-clip: text` span may animate — Chrome
@@ -80,14 +81,14 @@ export function RotatingWords({ words, intervalMs = 5000 }: { words: string[]; i
         aria-hidden
         className={cn(CELL, 'bg-[linear-gradient(137.53deg,#12cbb4_0%,#375bc7_100%)] bg-clip-text text-transparent')}
       >
-        {shown}
+        <BidiText>{shown}</BidiText>
         {enabled ? <span className={cn(CARET, 'invisible')} /> : null}
       </span>
       {/* ...and the blinking caret rides a transparent copy of the same text
           on top, so both layers centre and wrap identically. */}
       {enabled ? (
         <span aria-hidden className={cn(CELL, 'text-transparent')}>
-          {shown}
+          <BidiText>{shown}</BidiText>
           <span className={cn(CARET, 'fk-caret bg-[linear-gradient(180deg,#12cbb4,#375bc7)]')} />
         </span>
       ) : null}
