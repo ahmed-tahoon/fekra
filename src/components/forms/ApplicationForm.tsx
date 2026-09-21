@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/Button'
@@ -11,6 +11,7 @@ import type { Locale } from '@/i18n/routing'
 import { localeHref } from '@/i18n/routing'
 import { EVENTS, captureAttribution, track } from '@/lib/analytics'
 import { applicationSchema, CV, validateCv } from '@/lib/validation'
+import careersCopy from '@/i18n/careers.json'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
@@ -20,13 +21,22 @@ export function ApplicationForm({
   dict,
   locale,
   disabled,
+  kind,
 }: {
   jobId: string | number
   jobTitle: string
   dict: Dictionary
   locale: Locale
   disabled?: boolean
+  kind?: 'job' | 'internship' | 'future'
 }) {
+  const formId = useId()
+  const copy = careersCopy[locale]
+  const [cvName, setCvName] = useState('')
+  const extraFields = kind === 'internship'
+    ? ['university', 'graduation', 'location', 'interest'] as const
+    : kind === 'future' ? ['desiredRole', 'skills', 'location'] as const
+      : kind === 'job' ? ['location'] as const : []
   const [status, setStatus] = useState<Status>('idle')
   const [errors, setErrors] = useState<Record<string, string>>({})
   // Render must stay pure — the render timestamp is stamped after mount.
@@ -48,6 +58,10 @@ export function ApplicationForm({
     const form = event.currentTarget
     const formData = new FormData(form)
     const values = Object.fromEntries(formData)
+    if (kind) {
+      formData.set('coverNote', extraFields.map((key) => `${careersCopy.en[key]}: ${String(values[key] ?? '').trim()}`).join('\n'))
+      values.coverNote = formData.get('coverNote')!
+    }
 
     const parsed = applicationSchema.safeParse({
       ...values,
@@ -55,6 +69,9 @@ export function ApplicationForm({
       consent: values.consent === 'on',
     })
     const nextErrors: Record<string, string> = {}
+    for (const key of extraFields) {
+      if (!String(values[key] ?? '').trim()) nextErrors[key] = 'required'
+    }
     if (!parsed.success) {
       for (const issue of parsed.error.issues) {
         const field = String(issue.path[0] ?? 'form')
@@ -113,6 +130,7 @@ export function ApplicationForm({
       // 22.7 — no candidate PII in the event payload, only the role.
       track(EVENTS.applicationSubmit, { job: jobTitle, locale })
       form.reset()
+      setCvName('')
       setStatus('success')
     } catch {
       setStatus('error')
@@ -150,31 +168,40 @@ export function ApplicationForm({
       noValidate
       encType="multipart/form-data"
       aria-busy={status === 'sending'}
+      data-career-form={kind}
       className="@container flex flex-col gap-4 @md:gap-5"
     >
       <div aria-hidden className="sr-only">
-        <label htmlFor="apply-website">Website</label>
-        <input id="apply-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <label htmlFor={`${formId}-website`}>Website</label>
+        <input id={`${formId}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <div className="grid gap-4 @md:grid-cols-2 @md:gap-5">
-        <Field label={dict.form.name} required error={messageFor('fullName')}>
+      <div className={kind ? 'grid gap-4' : 'grid gap-4 @md:grid-cols-2 @md:gap-5'}>
+        <Field label={dict.form.name} hideLabel={Boolean(kind)} required error={messageFor('fullName')}>
           {(props) => <Input {...props} name="fullName" autoComplete="name" />}
         </Field>
-        <Field label={dict.form.email} required error={messageFor('email')}>
+        <Field label={dict.form.email} hideLabel={Boolean(kind)} required error={messageFor('email')}>
           {(props) => <Input {...props} name="email" type="email" autoComplete="email" />}
         </Field>
-        <Field label={dict.form.phone} required error={messageFor('phone')}>
+        <Field label={dict.form.phone} hideLabel={Boolean(kind)} required error={messageFor('phone')}>
           {(props) => <Input {...props} name="phone" type="tel" autoComplete="tel" dir="ltr" />}
         </Field>
-        <Field label={dict.form.linkedin} error={messageFor('linkedin')}>
+        {!kind ? <Field label={dict.form.linkedin} error={messageFor('linkedin')}>
           {(props) => (
             <Input {...props} name="linkedin" type="url" dir="ltr" placeholder="https://" />
           )}
-        </Field>
+        </Field> : null}
+        {extraFields.map((key) => <Field key={key} label={copy[key]} hideLabel required error={messageFor(key)}>
+          {(props) => <Input {...props} name={key} maxLength={500} inputMode={key === 'graduation' ? 'numeric' : undefined} />}
+        </Field>)}
       </div>
 
-      <Field label={dict.form.cv} required hint={dict.form.cvHint} error={messageFor('cv')}>
+      {kind ? <Field label={dict.form.cv} hideLabel required hint={dict.form.cvHint} error={messageFor('cv')}>
+        {(props) => <label className="career-upload" htmlFor={props.id}>
+          <span>{cvName || copy.attach}</span>
+          <input {...props} className="sr-only" name="cv" type="file" accept={[...CV.mimeTypes, ...CV.extensions].join(',')} onChange={(event) => setCvName(event.target.files?.[0]?.name ?? '')} />
+        </label>}
+      </Field> : <Field label={dict.form.cv} required hint={dict.form.cvHint} error={messageFor('cv')}>
         {(props) => (
           <Input
             {...props}
@@ -189,11 +216,11 @@ export function ApplicationForm({
             )}
           />
         )}
-      </Field>
+      </Field>}
 
-      <Field label={dict.form.message} error={messageFor('coverNote')}>
+      {!kind ? <Field label={dict.form.message} error={messageFor('coverNote')}>
         {(props) => <Textarea {...props} name="coverNote" rows={4} />}
-      </Field>
+      </Field> : null}
 
       <label className="flex min-h-11 items-start gap-3 text-sm text-muted-foreground">
         <input
@@ -201,14 +228,14 @@ export function ApplicationForm({
           name="consent"
           required
           aria-invalid={Boolean(errors.consent)}
-          aria-describedby={errors.consent ? 'application-consent-error' : undefined}
+          aria-describedby={errors.consent ? `${formId}-consent-error` : undefined}
           className="mt-0.5 size-5 accent-primary"
         />
         <span>
           {dict.form.consent}
           {errors.consent ? (
             <span
-              id="application-consent-error"
+              id={`${formId}-consent-error`}
               role="alert"
               className="mt-1 block text-xs font-medium text-danger-600"
             >
@@ -230,7 +257,7 @@ export function ApplicationForm({
         disabled={status === 'sending'}
         className="w-full @md:w-auto @md:self-start"
       >
-        {status === 'sending' ? dict.form.submitting : dict.form.apply}
+        {status === 'sending' ? dict.form.submitting : kind ? copy.submit : dict.form.apply}
       </Button>
       <p className="sr-only" role="status" aria-live="polite">
         {status === 'sending' ? dict.form.submitting : ''}

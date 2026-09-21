@@ -64,7 +64,14 @@ export async function POST(request: Request) {
 
   let uploadedId: string | number | null = null
   try {
-    const job = await payload.findByID({ collection: 'jobs', id: jobId, depth: 0 })
+    // `select` skips the joins across every localized/rich-text column — only
+    // three fields decide whether the role accepts applications.
+    const job = await payload.findByID({
+      collection: 'jobs',
+      id: jobId,
+      depth: 0,
+      select: { title: true, roleStatus: true, _status: true },
+    })
     if (!job || job.roleStatus !== 'open' || job._status !== 'published') {
       return NextResponse.json({ error: 'closed', fields: { cv: 'required' } }, { status: 409 })
     }
@@ -81,6 +88,8 @@ export async function POST(request: Request) {
     const uploaded = await payload.create({
       collection: 'applicant-files',
       overrideAccess: true,
+      depth: 0,
+      disableTransaction: true, // one row + one S3 PUT — see api/contact
       data: { originalName: file.name },
       file: { data: buffer, name: safeName, mimetype: file.type, size: file.size },
     })
@@ -89,6 +98,7 @@ export async function POST(request: Request) {
     await payload.create({
       collection: 'job-applications',
       overrideAccess: true,
+      depth: 0, // nothing reads the populated job/cv back — skip the re-fetch
       disableTransaction: true, // single flat INSERT — see api/contact
       data: {
         fullName: data.fullName,

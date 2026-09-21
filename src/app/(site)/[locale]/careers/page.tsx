@@ -1,15 +1,14 @@
-import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { ArrowRight, Globe2, BookOpen, Users, Sparkles } from 'lucide-react'
+import { ArrowRight, Users } from 'lucide-react'
 
 import { getDictionary } from '@/i18n/getDictionary'
-import { isLocale, localeHref } from '@/i18n/routing'
+import { isLocale } from '@/i18n/routing'
 import { findDocs } from '@/lib/payload'
 import { buildMetadata } from '@/lib/seo'
 
 import type { JobDoc } from '../page-types'
-import { CareersCta, HiringProcess, RoleRow, SectionLabel } from './parts'
+import { LegacyCareers } from './LegacyCareers'
 
 export const revalidate = 900
 
@@ -39,19 +38,6 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
       where: { roleStatus: { equals: 'open' } },
     }),
   ])
-
-  /*
-   * Grouped by team, but only once there are enough roles for grouping to help.
-   * Below that it is a heading per role, which is noise, not structure.
-   */
-  const byTeam = new Map<string, JobDoc[]>()
-  for (const job of docs) {
-    const team = job.department?.trim() || dict.careers.allDepartments
-    const bucket = byTeam.get(team)
-    if (bucket) bucket.push(job)
-    else byTeam.set(team, [job])
-  }
-  const grouped = docs.length >= 5 && byTeam.size > 1
 
   return (
     <>
@@ -84,78 +70,7 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
         </div>
       </section>
 
-      {/* Open roles lead — it is what people came for. */}
-      <section id="open-roles" className="section scroll-mt-28 pt-14 md:pt-20">
-        <div className="container-site">
-          <SectionLabel eyebrow={dict.careers.title} heading={dict.careers.openRoles} />
-
-          {docs.length ? (
-            grouped ? (
-              <div className="mt-8 flex flex-col gap-10">
-                {[...byTeam.entries()].map(([team, roles]) => (
-                  <div key={team}>
-                    <h3 className="text-xs font-semibold tracking-[0.16em] text-ink-500 uppercase dark:text-muted-foreground">
-                      {team}
-                    </h3>
-                    <ul className="mt-1 divide-y divide-border border-t border-border">
-                      {roles.map((job) => (
-                        <RoleRow key={job.id} job={job} locale={locale} dict={dict} />
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <ul className="mt-8 divide-y divide-border border-y border-border">
-                {docs.map((job) => (
-                  <RoleRow key={job.id} job={job} locale={locale} dict={dict} />
-                ))}
-              </ul>
-            )
-          ) : (
-            <div className="mt-8 border-y border-border py-16 text-center">
-              <p className="text-ink-500 dark:text-muted-foreground">{dict.careers.empty}</p>
-              <Link
-                href={localeHref(locale, '/contact')}
-                className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
-              >
-                {dict.careers.noFitCta}
-                <ArrowRight className="icon-flip size-4" aria-hidden />
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="section bg-background-subtle">
-        <div className="container-site">
-          <SectionLabel eyebrow={dict.careers.whyEyebrow} heading={dict.careers.whyTitle} />
-          <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              [dict.careers.why1Title, dict.careers.why1Body],
-              [dict.careers.why2Title, dict.careers.why2Body],
-              [dict.careers.why3Title, dict.careers.why3Body],
-              [dict.careers.why4Title, dict.careers.why4Body],
-            ].map(([title, body], index) => {
-              const Icon = [Globe2, BookOpen, Users, Sparkles][index]!
-              return (
-              <article
-                key={title}
-                className="rounded-panel border border-border bg-card p-6 shadow-card"
-              >
-                <span aria-hidden className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" /></span>
-                <h3 className="mt-6 font-display text-lg font-bold text-navy-800 dark:text-foreground">
-                  {title}
-                </h3>
-                <p className="mt-3 text-sm/6 text-ink-500 dark:text-muted-foreground">{body}</p>
-              </article>
-            )})}
-          </div>
-        </div>
-      </section>
-
-      <HiringProcess dict={dict} />
-      <CareersCta dict={dict} locale={locale} />
+      <LegacyCareers jobs={docs} dict={dict} locale={locale} />
     </>
   )
 }

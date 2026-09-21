@@ -3,8 +3,6 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 import { JsonLd } from '@/components/JsonLd'
-import { RichText } from '@/components/RichText'
-import { ApplicationForm } from '@/components/forms/ApplicationForm'
 import { getDictionary } from '@/i18n/getDictionary'
 import { isLocale, localeHref } from '@/i18n/routing'
 import { breadcrumbSchema, jobPostingSchema } from '@/lib/jsonld'
@@ -12,7 +10,9 @@ import { findDoc, findDocs, getGlobal, staticSlugs } from '@/lib/payload'
 import { buildMetadata, notFoundMetadata } from '@/lib/seo'
 
 import type { JobDoc, SettingsLite } from '../../page-types'
-import { HiringProcess, JobMeta, RoleRow, SectionLabel } from '../parts'
+import { JobMeta, RoleRow, SectionLabel } from '../parts'
+import { CareerApplication, CareerDescription } from '../LegacyCareers'
+import styles from '../careers.module.css'
 
 export const revalidate = 900
 
@@ -50,6 +50,7 @@ export default async function JobPage({ params }: { params: Promise<{ locale: st
   ])
   if (!job) notFound()
 
+  const isTalentPool = slug === 'future-opportunities'
   const isOpen = job.roleStatus !== 'closed'
 
   // Other open roles, this one dropped. Fetched one over the display count so a
@@ -61,7 +62,7 @@ export default async function JobPage({ params }: { params: Promise<{ locale: st
     sort: '-publishedAt',
     where: { roleStatus: { equals: 'open' } },
   })
-  const related = siblings.filter((other) => other.slug !== job.slug).slice(0, 3)
+  const related = siblings.filter((other) => other.slug !== job.slug && other.slug !== 'future-opportunities').slice(0, 3)
 
   return (
     <>
@@ -111,45 +112,14 @@ export default async function JobPage({ params }: { params: Promise<{ locale: st
         </div>
       </section>
 
-      <div className="section pt-10 md:pt-14">
-        <div className="container-site grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">
-          <div className="min-w-0">
-            <div className="flex flex-col gap-10 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-navy-800 dark:[&_h2]:text-foreground [&_h3]:font-display [&_h3]:text-lg [&_h3]:font-bold">
-              <RichText data={job.description} />
-              {job.requirements ? <RichText data={job.requirements} /> : null}
-              {job.benefits ? <RichText data={job.benefits} /> : null}
-            </div>
-
-            {/* What happens next — the same four steps as the index, compact.
-                Answers the question every candidate has before they upload. */}
-            <div className="mt-14 border-t border-border pt-8">
-              <h2 className="font-display text-lg font-bold text-navy-800 dark:text-foreground">
-                {dict.careers.whatNextTitle}
-              </h2>
-              <div className="mt-6">
-                <HiringProcess dict={dict} compact />
-              </div>
+      <div className={styles.careers}>
+        <div className={`${styles.container} ${styles.detailWrap}`}>
+          <div className={styles.jobBody}>
+            <CareerDescription job={job} />
+            <div id="apply" className="scroll-mt-28">
+              <CareerApplication job={job} dict={dict} locale={locale} kind={slug === 'internship-program' ? 'internship' : slug === 'future-opportunities' ? 'future' : 'job'} />
             </div>
           </div>
-
-          <aside
-            id="apply"
-            className="h-fit scroll-mt-28 rounded-panel border border-border bg-card p-6 lg:sticky lg:top-28"
-          >
-            <h2 className="font-display text-2xl font-bold text-navy-800 dark:text-foreground">
-              {dict.careers.applyNow}
-            </h2>
-            <p className="mt-2 text-sm/6 text-ink-500 dark:text-muted-foreground">{dict.careers.applyAside}</p>
-            <div className="mt-6">
-              <ApplicationForm
-                jobId={job.id}
-                jobTitle={job.title}
-                dict={dict}
-                locale={locale}
-                disabled={!isOpen}
-              />
-            </div>
-          </aside>
         </div>
       </div>
 
@@ -168,7 +138,7 @@ export default async function JobPage({ params }: { params: Promise<{ locale: st
 
       <JsonLd
         data={[
-          ...(isOpen
+          ...(isOpen && !isTalentPool
             ? [
                 jobPostingSchema({
                   title: job.title,
