@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { ArrowRight, Users } from 'lucide-react'
+import { Users } from 'lucide-react'
 
 import { getDictionary } from '@/i18n/getDictionary'
 import { isLocale } from '@/i18n/routing'
@@ -8,7 +8,9 @@ import { findDocs } from '@/lib/payload'
 import { buildMetadata } from '@/lib/seo'
 
 import type { JobDoc } from '../page-types'
+import careersCopy from '@/i18n/careers.json'
 import { LegacyCareers } from './LegacyCareers'
+import styles from './careers.module.css'
 
 export const revalidate = 900
 
@@ -39,6 +41,10 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
     }),
   ])
 
+  const copy = careersCopy[locale]
+  const hasInternship = docs.some((job) => job.slug === 'internship-program')
+  const hasFuture = docs.some((job) => job.slug === 'future-opportunities')
+
   return (
     <>
       {/* A team-led hero with a direct jump to the current openings. */}
@@ -49,16 +55,17 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
         />
         <div className="container-site grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <div className="max-w-[680px]">
-            <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
-              {dict.careers.eyebrow}
-            </p>
-            <h1 className="mt-4 font-display text-[clamp(2rem,4.8vw,3.5rem)] leading-[1.08] font-bold tracking-[-0.5px] text-balance text-navy-800 md:tracking-[-1px] dark:text-foreground">
+            <h1 className="font-display text-[clamp(2rem,4.8vw,3.5rem)] leading-[1.08] font-bold tracking-[-0.5px] text-balance text-navy-800 md:tracking-[-1px] dark:text-foreground">
               {dict.careers.heroTitle}
             </h1>
             <p className="mt-5 text-[15px]/7 text-ink-500 md:text-lg/8 dark:text-muted-foreground">
               {dict.careers.heroBody}
             </p>
-            <a href="#open-roles" className="mt-7 inline-flex min-h-12 items-center gap-3 rounded-pill bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">{dict.careers.openRoles}<ArrowRight className="icon-flip size-4" aria-hidden /></a>
+            <nav className={`${styles.shortcuts} mt-7`} aria-label={dict.careers.title}>
+              <a href="#open-roles">{dict.careers.openRoles}</a>
+              {hasInternship ? <a href="#internship-program">{copy.internship.replace(/\.+$/, '')}</a> : null}
+              {hasFuture ? <a href="#future-opportunities">{copy.future.replace(/\.+$/, '')}</a> : null}
+            </nav>
           </div>
           <div className="grid grid-cols-2 items-center gap-4" aria-hidden>
             <Image src="/images/team/team-planning-session.webp" alt="" width={360} height={440} priority className="aspect-[4/5] w-full rounded-tl-[64px] rounded-br-[32px] object-cover" />

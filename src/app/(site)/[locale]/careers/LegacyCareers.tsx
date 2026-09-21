@@ -56,11 +56,6 @@ export function LegacyCareers({ jobs, dict, locale }: { jobs: JobDoc[]; dict: Di
   const openings = jobs.filter((job) => !['internship-program', 'future-opportunities'].includes(job.slug))
   return <div className={styles.careers}>
     <div className={styles.container}>
-      <nav className={styles.shortcuts} aria-label={dict.careers.title}>
-        <a href="#open-roles">{dict.careers.openRoles}</a>
-        {internship ? <a href="#internship-program">{copy.internship.replace(/\.+$/, '')}</a> : null}
-        {future ? <a href="#future-opportunities">{copy.future.replace(/\.+$/, '')}</a> : null}
-      </nav>
       <section className={styles.team} aria-labelledby="team-title">
         <h2 id="team-title">{copy.teamTitle}</h2>
         <p className={styles.teamIntro}>{copy.teamBody}</p>
