@@ -69,16 +69,31 @@ if (process.env.MIGRATE_ACCEPT_DATA_LOSS === 'true') args.push('--force-accept-w
  * already landed and a genuine failure still fails, three times, with its own
  * error on the log.
  *
- * ponytail: fixed 30s backoff. The structural fix is to point migrations at the
- * session pooler (port 5432), which is what Supabase recommends for them and
- * what stayed responsive here while 6543 stalled — set DATABASE_URL to that for
- * the build if these retries ever stop being enough.
+ * Retries alone stopped being enough (27 Sep 2026: three straight 60s
+ * checkout timeouts on 6543 while production traffic held the pool). So the
+ * migration goes through the session pooler (5432) — what Supabase recommends
+ * for migrations — on two connections, with two minutes of patience per
+ * checkout. Migrations are serial (the second covers a query outside the transaction), and
+ * it keeps us far under the session-mode client cap.
+ *
+ * ponytail: fixed 30s backoff; raise the Supabase pool size if this still stalls.
  */
+const migrateUrl = new URL(url)
+if (migrateUrl.hostname.endsWith('.pooler.supabase.com') && migrateUrl.port === '6543') {
+  migrateUrl.port = '5432'
+}
+
 let result
 for (let attempt = 1; attempt <= 3; attempt++) {
   result = spawnSync('payload', args, {
     stdio: ['ignore', 'inherit', 'inherit'],
-    env: { ...process.env, NODE_OPTIONS: '--no-deprecation' },
+    env: {
+      ...process.env,
+      NODE_OPTIONS: '--no-deprecation',
+      DATABASE_URL: migrateUrl.toString(),
+      DATABASE_POOL_MAX: '2',
+      DATABASE_CONNECT_TIMEOUT_MS: '120000',
+    },
     shell: true,
   })
 

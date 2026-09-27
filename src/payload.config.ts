@@ -237,7 +237,10 @@ export default buildConfig({
        * during a prerender nobody is waiting and the cost of giving up is the
        * whole deploy.
        */
-      connectionTimeoutMillis: process.env.NEXT_PHASE === 'phase-production-build' ? 60_000 : 15_000,
+      connectionTimeoutMillis: Number(
+        process.env.DATABASE_CONNECT_TIMEOUT_MS ??
+          (process.env.NEXT_PHASE === 'phase-production-build' ? 60_000 : 15_000),
+      ),
     },
     // Only ever auto-push against a local throwaway database (see isLocalDatabase).
     push: process.env.NODE_ENV !== 'production' && isLocalDatabase(),
