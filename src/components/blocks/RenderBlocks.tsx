@@ -2,6 +2,7 @@ import type { Dictionary } from '@/i18n/getDictionary'
 import type { Locale } from '@/i18n/routing'
 import { findDoc } from '@/lib/payload'
 import { findSharedSection } from '@/lib/shared-sections'
+import { certificationHeading, talentStatement } from '@/i18n/qa-copy'
 
 import { BookingSection } from './BookingSection'
 import { ContactSection } from './ContactSection'
@@ -65,6 +66,15 @@ export async function RenderBlocks({
   if (!blocks?.length) return null
 
   let layout = await resolveShared(blocks, locale)
+  layout = layout.map((block) => {
+    if (block.blockType !== 'logoCloud') return block
+    if (block.variant === 'badges' && ['& Certifications', 'وشهاداتنا', 'والشهادات', '& Zertifizierungen', 'y certificaciones'].includes(block.heading ?? '')) return { ...block, eyebrow: null, heading: certificationHeading[locale] }
+    // Correct the reviewed split sentence as a unit, not individual words.
+    if (block.statement && locale in talentStatement && ['50+ Unternehmen setzen auf unsere', "Plus de 50 entreprises s'appuient sur nos", 'Más de 50 empresas confían en nuestro'].includes(block.statement.before ?? '')) {
+      return { ...block, statement: talentStatement[locale as keyof typeof talentStatement] }
+    }
+    return block
+  })
   // All service layouts reuse the current home testimonials, including future
   // service pages. Remove old copies so the shared section is rendered once.
   if (context?.servicePage || blocks.some((block) => block.blockType === 'serviceHero')) {

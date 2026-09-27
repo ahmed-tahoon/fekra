@@ -39,6 +39,9 @@ export function BlogIndex({
 }) {
   const [active, setActive] = useState('all')
   const [query, setQuery] = useState('')
+  const articleWord = locale === 'ar'
+    ? (posts.length === 2 ? 'مقالتين' : posts.length % 100 >= 3 && posts.length % 100 <= 10 ? 'مقالات' : 'مقالة')
+    : posts.length === 1 ? ({ en: 'article', de: 'Artikel', fr: 'article', es: 'artículo' }[locale]) : dict.blog.heroWord
   // Keeps typing responsive when the list is long.
   const deferredQuery = useDeferredValue(query)
 
@@ -61,9 +64,9 @@ export function BlogIndex({
         <div className="container-wide py-14 sm:py-20">
           <div className="grid items-start gap-8 lg:grid-cols-[1.5fr_minmax(0,1fr)]">
             <h1 className="text-[clamp(2rem,4vw,3.25rem)] leading-[1.12] font-extrabold tracking-tight text-slate-900 dark:text-white">
-              {dict.blog.heroPre} <span className="text-blog-500">{posts.length}+</span>
+              {dict.blog.heroPre} <span className="text-blog-500">{new Intl.NumberFormat(locale).format(posts.length)}</span>
               <br />
-              <span className="text-blog-500">{dict.blog.heroWord}</span> {dict.blog.heroPost}
+              <span className="text-blog-500">{articleWord}</span> {dict.blog.heroPost}
             </h1>
 
             <div className="relative w-full max-w-md lg:justify-self-end">

@@ -86,7 +86,7 @@
     "categories": "Categories",
     "allCategories": "All",
     "by": "By",
-    "heroPre": "We have published over",
+    "heroPre": "We have published",
     "heroWord": "articles",
     "heroPost": "on various topics",
     "searchPlaceholder": "Search articles…",
@@ -167,9 +167,9 @@
     }
   },
   "contact": {
-    "title": "Let's talk business",
+    "title": "Let's Talk Business",
     "subtitle": "Tell us what you're building and we'll get back within one business day.",
-    "offices": "Our locations",
+    "offices": "Our Locations",
     "headquarters": "Headquarters"
   },
   "meeting": {

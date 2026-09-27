@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Urbanist } from 'next/font/google'
+import { inter as sans, urbanist as display } from '@/fonts'
 
 import '../(site)/globals.css'
 
@@ -7,9 +7,6 @@ import '../(site)/globals.css'
  * Standalone shell for the holding page. Deliberately not the site layout: no
  * header, no footer, no navigation to pages that are not ready yet.
  */
-const display = Urbanist({ subsets: ['latin'], weight: ['500', '600', '700'], variable: '--font-urbanist' })
-const sans = Inter({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-inter' })
-
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },

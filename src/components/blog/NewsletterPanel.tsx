@@ -57,7 +57,7 @@ export function NewsletterPanel({ dict, locale }: { dict: Dictionary; locale: Lo
             {dict.form.success}
           </p>
         ) : (
-          <form onSubmit={onSubmit} onChange={onFieldEvent} onBlur={onFieldEvent} className="mx-auto mt-6 flex max-w-md flex-wrap gap-3">
+          <form method="post" action="/api/newsletter" onSubmit={onSubmit} onChange={onFieldEvent} onBlur={onFieldEvent} className="mx-auto mt-6 flex max-w-md flex-wrap gap-3">
             {/* Honeypot — same trap as every other form (11.3). */}
             <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
 

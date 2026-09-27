@@ -87,6 +87,8 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
 
   return (
     <form
+      method="post"
+      action="/api/contact"
       onSubmit={onSubmit}
       onChange={onFieldEvent}
       onBlur={onFieldEvent}
@@ -95,7 +97,7 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
       className="@container flex flex-col gap-5"
     >
       {/* Honeypot — hidden from users and screen readers, irresistible to bots. */}
-      <div aria-hidden className="sr-only">
+      <div aria-hidden hidden>
         <label htmlFor="contact-website">Website</label>
         <input id="contact-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>

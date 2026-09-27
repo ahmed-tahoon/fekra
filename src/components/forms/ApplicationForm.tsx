@@ -173,6 +173,8 @@ export function ApplicationForm({
 
   return (
     <form
+      method="post"
+      action="/api/apply"
       onSubmit={onSubmit}
       onChange={onFieldEvent}
       onBlur={onFieldEvent}
@@ -182,7 +184,7 @@ export function ApplicationForm({
       data-career-form={kind}
       className="@container flex flex-col gap-4 @md:gap-5"
     >
-      <div aria-hidden className="sr-only">
+      <div aria-hidden hidden>
         <label htmlFor={`${formId}-website`}>Website</label>
         <input id={`${formId}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>

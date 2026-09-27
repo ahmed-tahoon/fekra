@@ -52,7 +52,7 @@ export function buildMetadata({
   const unbrandedTitle = title.replace(/(?:\s*\|\s*FEKRA)+$/i, '').trim()
   const brandedTitle = `${unbrandedTitle} | FEKRA`
   const ogImage = image?.url
-    ? [{ url: image.url, width: image.width ?? 1200, height: image.height ?? 630, alt: image.alt ?? title }]
+    ? [{ url: new URL(image.url, base).toString(), width: image.width ?? 1200, height: image.height ?? 630, alt: image.alt ?? title }]
     : undefined
 
   return {

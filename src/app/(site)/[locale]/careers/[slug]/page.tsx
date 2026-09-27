@@ -13,6 +13,7 @@ import type { JobDoc, SettingsLite } from '../../page-types'
 import { JobMeta, RoleRow, SectionLabel } from '../parts'
 import { CareerApplication, CareerDescription } from '../LegacyCareers'
 import styles from '../careers.module.css'
+import { englishJobNotice, jobCopyLanguage } from '@/i18n/job-copy'
 
 export const revalidate = 900
 
@@ -88,12 +89,13 @@ export default async function JobPage({ params }: { params: Promise<{ locale: st
               <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">{job.department}</p>
             ) : null}
             <h1 className="mt-3 font-display text-[clamp(1.875rem,4.4vw,3.25rem)] leading-[1.08] font-bold tracking-[-0.5px] text-balance text-navy-800 md:tracking-[-1px] dark:text-foreground">
-              {job.title}
+              <span lang={jobCopyLanguage(job, locale)}>{job.title}</span>
             </h1>
             {job.summary ? (
               <p className="mt-4 text-[15px]/6 text-ink-500 md:text-lg/7 dark:text-muted-foreground">{job.summary}</p>
             ) : null}
             <JobMeta job={job} dict={dict} className="mt-6" />
+            {jobCopyLanguage(job, locale) !== locale ? <p className="mt-4 text-sm text-muted-foreground">{englishJobNotice[locale]}</p> : null}
 
             {isOpen ? (
               <a
@@ -115,7 +117,7 @@ export default async function JobPage({ params }: { params: Promise<{ locale: st
       <div className={styles.careers}>
         <div className={`${styles.container} ${styles.detailWrap}`}>
           <div className={styles.jobBody}>
-            <CareerDescription job={job} />
+            <CareerDescription job={job} locale={locale} />
             <div id="apply" className="scroll-mt-28">
               <CareerApplication job={job} dict={dict} locale={locale} kind={slug === 'internship-program' ? 'internship' : slug === 'future-opportunities' ? 'future' : 'job'} />
             </div>

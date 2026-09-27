@@ -3,6 +3,9 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { DEFAULT_LOCALE, LOCALES, isLocale, isPublicLocale, negotiateLocale } from '@/i18n/routing'
 import { isLocaleDocumentRequest } from '@/i18n/navigation'
 import { isComingSoon } from '@/lib/site-mode'
+import { cmsRoute, routeExists } from '@/lib/route-existence'
+import { getDictionary } from '@/i18n/getDictionary'
+import { dir, localeHref } from '@/i18n/routing'
 
 const LOCALE_COOKIE = 'NEXT_LOCALE'
 
@@ -43,8 +46,11 @@ const SOON_PATH = '/coming-soon'
  * requests are *rewritten* (URL stays clean) and /en/* is *redirected* away so
  * only one indexable URL exists per page (18.3).
  */
-export default function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
+  const requestHeaders = new Headers(request.headers)
+  // Overwrite rather than trust a client-supplied value.
+  requestHeaders.set('x-fekra-pathname', pathname)
 
   if (COMING_SOON) {
     // Rewrite, not redirect: every URL keeps working and starts serving the
@@ -70,9 +76,28 @@ export default function proxy(request: NextRequest) {
     return withGuards(NextResponse.redirect(new URL((pathname.slice(segment.length + 1) || '/') + search, request.url), 307), request)
   }
 
+  const route = cmsRoute(pathname)
+  // Draft previews keep their existing authenticated render path. Public
+  // misses are answered before the layout can stream a misleading HTTP 200.
+  if (route && !request.cookies.has('__prerender_bypass')) {
+    const locale = isLocale(segment) ? segment : DEFAULT_LOCALE
+    let timer: ReturnType<typeof setTimeout> | undefined
+    try {
+      const exists = await Promise.race([
+        routeExists(route.collection, route.slug, locale),
+        new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error('route_lookup_timeout')), 2000) }),
+      ])
+      if (!exists) return await missingResponse(locale, 404)
+    } catch {
+      return await missingResponse(locale, 503)
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
   // Already a prefixed locale (/ar/..., /de/...) — render as-is.
   if (isLocale(segment) && segment !== DEFAULT_LOCALE) {
-    return withGuards(remember(NextResponse.next(), segment, request), request)
+    return withGuards(remember(NextResponse.next({ request: { headers: requestHeaders } }), segment, request), request)
   }
 
   // Bare "/" with a remembered or negotiated non-default locale -> send there once.
@@ -89,8 +114,17 @@ export default function proxy(request: NextRequest) {
   // Unprefixed path -> render the English tree without changing the visible URL.
   // Remember the default locale too — otherwise a stale /ar cookie bounces "/"
   // back to Arabic forever and switching to English never sticks.
-  const response = NextResponse.rewrite(new URL(`/${DEFAULT_LOCALE}${pathname}${search}`, request.url))
+  const response = NextResponse.rewrite(new URL(`/${DEFAULT_LOCALE}${pathname}${search}`, request.url), { request: { headers: requestHeaders } })
   return withGuards(remember(response, DEFAULT_LOCALE, request), request)
+}
+
+async function missingResponse(locale: typeof DEFAULT_LOCALE | 'ar' | 'de' | 'fr' | 'es', status: 404 | 503) {
+  const dict = await getDictionary(locale)
+  const copy = status === 404 ? dict.notFound : { ...dict.error, cta: dict.notFound.cta }
+  const escape = (value: string) => value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
+  return new NextResponse(`<!doctype html><html lang="${locale}" dir="${dir(locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${status} | FEKRA</title></head><body style="margin:0;background:#f2fafb;color:#153c48;font:18px Arial,sans-serif"><main style="min-height:100dvh;display:grid;place-content:center;padding:24px;text-align:center"><p style="font-size:64px;margin:0;font-weight:bold">${status}</p><h1>${escape(copy.title)}</h1><p>${escape(copy.body)}</p><a style="padding:16px;color:#075e70;font-weight:bold" href="${localeHref(locale, '/')}">${escape(copy.cta)}</a></main></body></html>`, {
+    status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow', ...(status === 503 ? { 'Retry-After': '5' } : {}) },
+  })
 }
 
 /** Staging must never be indexable (3.4) — enforced at the edge, not in a meta tag. */

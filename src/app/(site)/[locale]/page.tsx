@@ -5,6 +5,7 @@ import { getDictionary } from '@/i18n/getDictionary'
 import { isLocale } from '@/i18n/routing'
 import { findDoc, getGlobal } from '@/lib/payload'
 import { buildMetadata } from '@/lib/seo'
+import { homeDescription } from '@/i18n/qa-copy'
 
 import type { PageDoc, SettingsLite } from './page-types'
 
@@ -17,11 +18,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!page) return {}
   return buildMetadata({
     title: page.meta?.title ?? page.title,
-    description: page.meta?.description,
+    description: page.meta?.description?.trim() || homeDescription[locale],
     path: '/',
     locale,
     availableLocales: page.availableLocales,
-    image: page.meta?.image?.url ? { url: page.meta.image.url } : null,
+    image: page.meta?.image?.url ? { url: page.meta.image.url } : {
+      url: '/images/hero/egypt-team-discussion.webp', width: 1050, height: 600,
+      alt: 'FEKRA — technology teams and engineering talent',
+    },
     noindex: page.meta?.noindex,
     canonicalOverride: page.meta?.canonicalOverride,
   })

@@ -15,7 +15,7 @@ const CARET = 'ms-[0.08em] inline-block h-[0.8em] w-[0.055em] min-w-[2px] transl
  *
  * The first word is server-rendered in full inside the heading, so the H1 is
  * complete text for crawlers and for anyone with JS off (19.2). Screen readers
- * get the whole current word, never the half-typed one.
+ * get one stable complete phrase, never duplicate layers or half-typed words.
  *
  * Honours prefers-reduced-motion by not rotating at all: a word changing under
  * you every few seconds is exactly the kind of motion that setting exists for
@@ -66,7 +66,7 @@ export function RotatingWords({ words, intervalMs = 5000 }: { words: string[]; i
 
   return (
     <span className="relative inline-grid max-w-full align-top text-center leading-[1.15] text-primary">
-      <span className="sr-only">{current}</span>
+      <span className="sr-only">{words[0]}</span>
       {/* Measure every phrase in the same grid cell: character count does not
           predict rendered width, and mobile phrases can wrap to two lines. */}
       {words.map((word, i) => (

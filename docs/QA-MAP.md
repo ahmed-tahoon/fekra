@@ -249,7 +249,7 @@ three structural WordPress patterns.
 ## 21. Security & privacy — ✅ / 🔧
 
 HSTS, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`
-and a CSP (report-only until the third-party inventory is frozen — flip `CSP_ENFORCE=true`).
+and an enforced CSP (production excludes `unsafe-eval`; integrations must match its allow-list).
 Server-side validation on every endpoint. CVs are private with signed 5-minute URLs. Errors
 return a digest, never a stack trace. Admin and `/cms-api` are `noindex` and CORS-locked.
 ⬜ Privacy/cookie policy content (21.7) and an agreed data-retention period (21.12).

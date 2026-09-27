@@ -102,9 +102,9 @@ export function ConsultationForm({
           {dict.form.success}
         </p>
       ) : (
-        <form onSubmit={onSubmit} onChange={onFieldEvent} onBlur={onFieldEvent} noValidate className="@container mt-4 flex flex-col gap-2">
+        <form method="post" action="/api/contact" onSubmit={onSubmit} onChange={onFieldEvent} onBlur={onFieldEvent} noValidate className="@container mt-4 flex flex-col gap-2">
           {/* Honeypot — hidden from users and screen readers, irresistible to bots. */}
-          <div aria-hidden className="sr-only">
+          <div aria-hidden hidden>
             <label htmlFor="consult-website">Website</label>
             <input id="consult-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
           </div>

@@ -43,7 +43,7 @@ export function NewsletterForm({ dict, locale }: { dict: Dictionary; locale: Loc
   }
 
   return (
-    <form onSubmit={onSubmit} onChange={onFieldEvent} onBlur={onFieldEvent} className="flex w-full max-w-md flex-wrap gap-2">
+    <form method="post" action="/api/newsletter" onSubmit={onSubmit} onChange={onFieldEvent} onBlur={onFieldEvent} className="flex w-full max-w-md flex-wrap gap-2">
       <label htmlFor="newsletter-email" className="sr-only">
         {dict.form.email}
       </label>

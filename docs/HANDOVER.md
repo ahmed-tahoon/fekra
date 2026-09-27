@@ -57,7 +57,7 @@ settings; nothing secret is committed. Summary:
 | `S3_ENDPOINT` | prod | `https://<project-ref>.supabase.co/storage/v1/s3`. Omit only for real AWS. |
 | `S3_PUBLIC_HOST` | prod | Added to `next/image` `remotePatterns`. |
 | `RESEND_API_KEY`, `EMAIL_FROM` | prod | Without it, submissions still save but no email is sent. |
-| `CSP_ENFORCE` | prod | `false` = report-only. Flip to `true` after verifying on staging. |
+| CSP | automatic | Enforced in `next.config.ts`; production excludes `unsafe-eval`. Review the allow-list when adding an integration. |
 
 ## 4. Deploy (3.7 / 25.1 / 25.3)
 

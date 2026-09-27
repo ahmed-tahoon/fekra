@@ -42,17 +42,16 @@ const S3_HOST = process.env.S3_PUBLIC_HOST // e.g. media.fekra-egy.com or <bucke
 
 /**
  * Baseline security headers (checklist 21.5).
- * CSP ships report-only until the real third-party inventory is frozen; flip
- * CSP_ENFORCE=true once GTM/Calendly/analytics hosts are confirmed on staging.
+ * Enforce the reviewed policy. Development alone needs eval for React's
+ * debugging runtime; production never enables it.
  */
 const CSP = [
   "default-src 'self'",
-  // next/script + GTM require inline+eval; Payload admin requires blob:.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com https://snap.licdn.com https://challenges.cloudflare.com",
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''} blob: https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com https://snap.licdn.com https://challenges.cloudflare.com`,
   "style-src 'self' 'unsafe-inline' https://assets.calendly.com",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.calendly.com https://px.ads.linkedin.com",
+  `connect-src 'self'${process.env.NODE_ENV === 'development' ? ' ws: wss:' : ''} https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.calendly.com https://px.ads.linkedin.com https://challenges.cloudflare.com${S3_HOST ? ` https://${S3_HOST}` : ''}`,
   "frame-src 'self' https://calendly.com https://*.calendly.com https://www.googletagmanager.com https://challenges.cloudflare.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
@@ -62,7 +61,7 @@ const CSP = [
    * Only when enforcing: browsers ignore upgrade-insecure-requests in a
    * report-only policy and log a console warning for it on every page load.
    */
-  ...(process.env.CSP_ENFORCE === 'true' ? ['upgrade-insecure-requests'] : []),
+  ...(SITE_URL.startsWith('https:') && process.env.NODE_ENV === 'production' ? ['upgrade-insecure-requests'] : []),
 ].join('; ')
 
 const securityHeaders = [
@@ -72,7 +71,7 @@ const securityHeaders = [
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
   {
-    key: process.env.CSP_ENFORCE === 'true' ? 'Content-Security-Policy' : 'Content-Security-Policy-Report-Only',
+    key: 'Content-Security-Policy',
     value: CSP,
   },
 ]
@@ -97,7 +96,9 @@ const nextConfig: NextConfig = {
    */
   // Keep prerendered routes in the client cache for five minutes. Dynamic
   // routes use Next's default so the Payload CMS does not delay transitions or its admin.
-  experimental: { cpus: 2, staticGenerationMaxConcurrency: 1, staleTimes: { static: 300 } },
+  experimental: { globalNotFound: true, cpus: 2, staticGenerationMaxConcurrency: 1, staleTimes: { static: 300 } },
+  // Isolated output allows QA builds without interfering with an open dev server.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   // Trailing-slash policy is a canonical signal — keep it fixed forever (18.1/18.3).
   trailingSlash: false,
 

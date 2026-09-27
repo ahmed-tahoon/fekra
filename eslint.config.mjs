@@ -27,7 +27,7 @@ const eslintConfig = [
     // The last two are screenshot output from scripts/check-viewports.mjs — it
     // drops a whole headless Chrome profile there, which is ~2800 lint findings
     // in vendored extension code if it is left in scope.
-    ignores: ['src/migrations/**', '.next/', 'src/payload-types.ts', 'src/payload-generated-schema.ts', 'viewport-shots/', '.lighthouse/'],
+    ignores: ['src/migrations/**', '.next/', '.next-qa-review/', 'src/payload-types.ts', 'src/payload-generated-schema.ts', 'viewport-shots/', '.lighthouse/'],
   },
 ]
 

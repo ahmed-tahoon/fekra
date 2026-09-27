@@ -2,6 +2,7 @@ node_modules
 .pnpm-store
 
 .next
+.next-qa-review
 out
 build
 dist

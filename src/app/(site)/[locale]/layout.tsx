@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next'
-import { IBM_Plex_Sans_Arabic, Inter, Tajawal, Urbanist } from 'next/font/google'
 import { notFound } from 'next/navigation'
 
 import { mediaUrl } from '@/components/blocks/types'
@@ -19,54 +18,10 @@ import { PUBLIC_LOCALES, dir, isLocale } from '@/i18n/routing'
 import { organizationSchema, websiteSchema } from '@/lib/jsonld'
 import { findDocs, getGlobal } from '@/lib/payload'
 import { isComingSoon } from '@/lib/site-mode'
+import { inter, plexArabic, tajawal, urbanist } from '@/fonts'
 import { siteUrl } from '@/lib/urls'
 
 import '../globals.css'
-
-/**
- * 17.6 — only the weights the design actually uses. `display: swap` keeps text
- * visible during load; `preload` is on for the two Latin faces that render
- * above the fold and off for Arabic, which most visitors never download.
- */
-const urbanist = Urbanist({
-  subsets: ['latin'],
-  // 600 carries the comp's SemiBold headings; 500/700 are the existing
-  // medium and bold steps the rest of the site already sets.
-  weight: ['500', '600', '700'],
-  variable: '--font-urbanist',
-  display: 'swap',
-})
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-inter',
-  display: 'swap',
-})
-
-/*
- * Arabic pairing modelled on squadio.com, the reference the client pointed at.
- * Squadio sets Arabic in DIN Next(TM) Arabic — a commercial Monotype face we
- * cannot ship without a license. Tajawal is the standard free substitute: its
- * Latin is DIN-derived and the Arabic carries the same geometric, low-contrast
- * look. Their secondary face, IBM Plex Sans Arabic, is our body face already.
- * Both stay unpreloaded — most visitors never download an Arabic glyph.
- */
-const tajawal = Tajawal({
-  subsets: ['arabic'],
-  weight: ['500', '700', '800'],
-  variable: '--font-tajawal',
-  display: 'swap',
-  preload: false,
-})
-
-const plexArabic = IBM_Plex_Sans_Arabic({
-  subsets: ['arabic'],
-  weight: ['400', '500', '700'],
-  variable: '--font-plex-arabic',
-  display: 'swap',
-  preload: false,
-})
 
 export const viewport: Viewport = {
   themeColor: '#ffffff',
@@ -195,7 +150,7 @@ export default async function SiteLayout({
             socials={settings.socialProfiles}
           />
 
-          <TalkToFika locale={locale} dict={dict} />
+          <TalkToFika locale={locale} dict={dict} consentRequired={(settings.consentMode ?? 'opt-in') === 'opt-in'} />
           <ConsentBanner dict={dict} locale={locale} enabled={(settings.consentMode ?? 'opt-in') === 'opt-in'} />
           <Analytics
             gtmId={settings.gtmContainerId}

@@ -8,15 +8,16 @@ import { ApplicationForm } from '@/components/forms/ApplicationForm'
 import type { Dictionary } from '@/i18n/getDictionary'
 import { localeHref, type Locale } from '@/i18n/routing'
 import careersCopy from '@/i18n/careers.json'
+import { englishJobNotice, jobCopyLanguage } from '@/i18n/job-copy'
 import type { JobDoc } from '../page-types'
 import styles from './careers.module.css'
 
 const people = [
-  ['ESLAM', 'إسلام', 'Group-1086580-1.png', '#12cce6'],
+  ['Eslam', 'إسلام', 'Group-1086580-1.png', '#12cce6'],
   ['Mohamed', 'محمد', 'Group-1086581-1.png', '#eebd3d'],
   ['Motaz', 'معتز', 'Group-1086582-1.png', '#fab483'],
   ['Sally', 'سالي', 'Group-1086583-1.png', '#f89ab1'],
-  ['MAGDY', 'مجدي', 'Group-1171277761.png', '#9dc000'],
+  ['Magdy', 'مجدي', 'Group-1171277761.png', '#9dc000'],
   ['Reem', 'ريم', 'Group-1086587-1.png', '#617db5'],
   ['Mai', 'مي', 'Group-1086586-1.png', '#407f88'],
 ] as const
@@ -41,8 +42,8 @@ export function CareerApplication({ job, dict, locale, kind = 'job' }: {
   </aside>
 }
 
-export function CareerDescription({ job }: { job: JobDoc }) {
-  return <div className={styles.description}>
+export function CareerDescription({ job, locale }: { job: JobDoc; locale: Locale }) {
+  return <div className={styles.description} lang={jobCopyLanguage(job, locale)}>
     <RichText data={job.description} />
     <RichText data={job.requirements} />
     <RichText data={job.benefits} />
@@ -77,6 +78,7 @@ export function LegacyCareers({ jobs, dict, locale }: { jobs: JobDoc[]; dict: Di
         <span id="current-openings" className={styles.anchor} />
         <h2 id="openings-title">{copy.openings}</h2>
         <p className={styles.subtitle}>{copy.openingsBody}</p>
+        {locale !== 'en' && openings.some((job) => jobCopyLanguage(job, locale) === 'en') ? <p className={styles.subtitle}>{englishJobNotice[locale]}</p> : null}
         <div className={styles.jobs}>
           {openings.length ? openings.map((job, index) => {
             const meta = sourceDetails[job.slug]
@@ -84,7 +86,7 @@ export function LegacyCareers({ jobs, dict, locale }: { jobs: JobDoc[]; dict: Di
               <summary>
                 <span className={styles.number} style={{ backgroundColor: jobColors[index % jobColors.length] }}>{index + 1}</span>
                 <div className={styles.jobSummary}>
-                  <h3><BidiText>{job.title}</BidiText>{meta ? <span className={styles.badge}>{meta.urgent ? copy.urgent : copy.new}</span> : null}</h3>
+                  <h3><span lang={jobCopyLanguage(job, locale)}><BidiText>{job.title}</BidiText></span>{meta ? <span className={styles.badge}>{meta.urgent ? copy.urgent : copy.new}</span> : null}</h3>
                   <div className={styles.meta}>
                     {meta?.years ? <span>{copy.experience} <bdi dir="ltr">{meta.years}+</bdi> {copy.years}</span> : <span>{job.location}</span>}
                     {meta?.positions ? <span>{copy.positions} <bdi>{meta.positions}</bdi></span> : null}
@@ -93,7 +95,7 @@ export function LegacyCareers({ jobs, dict, locale }: { jobs: JobDoc[]; dict: Di
                 <span className={styles.applyButton}>{dict.careers.applyNow}<ArrowRightCircle size={16} aria-hidden className="icon-flip" /></span>
               </summary>
               <div className={styles.jobBody}>
-                <div><CareerDescription job={job} /><Link className={styles.detailsLink} href={localeHref(locale, `/careers/${job.slug}`)}>{copy.fullDetails}</Link></div>
+                <div><CareerDescription job={job} locale={locale} /><Link className={styles.detailsLink} href={localeHref(locale, `/careers/${job.slug}`)}>{copy.fullDetails}</Link></div>
                 <CareerApplication job={job} locale={locale} dict={dict} />
               </div>
             </details>

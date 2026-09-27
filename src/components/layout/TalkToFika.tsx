@@ -8,14 +8,17 @@ import { useState } from 'react'
 import type { Dictionary } from '@/i18n/getDictionary'
 import { type Locale } from '@/i18n/routing'
 import { BOOKING_URL } from '@/lib/booking'
+import { useConsent } from '@/lib/useConsent'
 
 /**
  * Figma 1:14136 — the floating "Talk to Fika" bubble. There is no chat backend,
  * so the bubble is an invitation that links to the booking page; the close
  * button collapses it to the avatar, which can re-expand it.
  */
-export function TalkToFika({ dict }: { locale: Locale; dict: Dictionary }) {
-  const [open, setOpen] = useState(true)
+export function TalkToFika({ dict, consentRequired = true }: { locale: Locale; dict: Dictionary; consentRequired?: boolean }) {
+  const [open, setOpen] = useState(false)
+  const consent = useConsent()
+  if (consentRequired && !consent) return null
 
   const avatar = (
     <span className="relative inline-block size-9 shrink-0 sm:size-12">
@@ -34,7 +37,7 @@ export function TalkToFika({ dict }: { locale: Locale; dict: Dictionary }) {
     // Bottom corner on phones — parked mid-viewport it sat on top of the hero
     // CTA. Desktop sits 50px above centre, which is what clears the hero
     // collage instead of crowding the tile directly beneath it.
-    'fixed end-4 bottom-4 z-40 rounded-2xl bg-white p-2.5 shadow-[0_0_20px_rgba(0,0,0,0.08)] lg:top-1/2 lg:bottom-auto lg:end-6 lg:translate-y-[calc(-50%-50px)] lg:p-4 dark:bg-card'
+    'fixed end-4 bottom-4 z-40 rounded-2xl border border-border bg-white p-2 shadow-lift dark:bg-card'
 
   if (!open) {
     return (
@@ -42,6 +45,7 @@ export function TalkToFika({ dict }: { locale: Locale; dict: Dictionary }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={dict.chat.open}
+        aria-expanded={false}
         className={`${card} cursor-pointer transition-transform hover:scale-105`}
       >
         {avatar}
@@ -55,7 +59,7 @@ export function TalkToFika({ dict }: { locale: Locale; dict: Dictionary }) {
         type="button"
         onClick={() => setOpen(false)}
         aria-label={dict.chat.close}
-        className="absolute -end-4 -top-4 hidden size-11 cursor-pointer place-items-center rounded-full text-white lg:grid"
+        className="absolute -end-2 -top-10 grid size-11 cursor-pointer place-items-center rounded-full border border-border bg-card text-foreground shadow-sm"
       >
         <span className="grid size-6 place-items-center rounded-full bg-[#8fd0dd] transition-colors hover:bg-primary">
           <X className="size-3.5" aria-hidden />
@@ -63,7 +67,7 @@ export function TalkToFika({ dict }: { locale: Locale; dict: Dictionary }) {
       </button>
       <Link href={BOOKING_URL} className="flex min-h-11 min-w-11 items-center justify-center gap-2.5 sm:gap-[15px]">
         {avatar}
-        <span className="hidden pe-1 font-display text-lg font-bold text-navy-800 lg:inline dark:text-foreground">
+        <span className="pe-1 font-display text-base font-bold text-navy-800 dark:text-foreground">
           {dict.chat.talk}
         </span>
       </Link>

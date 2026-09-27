@@ -5,6 +5,8 @@ import { getPayload, type SelectType, type Where } from 'payload'
 import configPromise from '@payload-config'
 
 import type { Locale } from '@/i18n/routing'
+import { correctQaDocument } from '@/i18n/qa-copy'
+import { localizeJobLocation } from '@/i18n/job-copy'
 import { isComingSoon } from './site-mode'
 
 /** One Payload instance per server process. */
@@ -145,7 +147,13 @@ export async function findDocs<T = unknown>({
       }),
   )
 
-  return { docs: result.docs as T[] }
+  const docs = correctQaDocument(result.docs, locale)
+  if (collection === 'jobs') {
+    for (const doc of docs) {
+      if ('location' in doc && typeof doc.location === 'string') doc.location = localizeJobLocation(doc.location, locale) ?? doc.location
+    }
+  }
+  return { docs: docs as T[] }
 }
 
 /*
@@ -183,9 +191,9 @@ export const getGlobal = cache(async function getGlobal<T = unknown>(
   locale: Locale,
 ): Promise<T> {
   const payload = await payloadClient()
-  return (await devMemo(JSON.stringify(['global', slug, locale]), () =>
+  return correctQaDocument(await devMemo(JSON.stringify(['global', slug, locale]), () =>
     payload.findGlobal({ slug, locale, fallbackLocale: 'en', depth: 1 }),
-  )) as T
+  ), locale) as T
 })
 
 /**
