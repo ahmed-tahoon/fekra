@@ -1457,7 +1457,17 @@ export interface SharedSectionBlock {
   /**
    * Pulls the section from the home page in the current locale. Edit it on home and every page using it updates — there is nothing to keep in sync here.
    */
-  section: 'techStack' | 'process' | 'industries' | 'fika' | 'certifications' | 'faq' | 'posts' | 'contact' | 'ctaBand';
+  section:
+    | 'techStack'
+    | 'process'
+    | 'industries'
+    | 'testimonials'
+    | 'fika'
+    | 'certifications'
+    | 'faq'
+    | 'posts'
+    | 'contact'
+    | 'ctaBand';
   id?: string | null;
   blockName?: string | null;
   blockType: 'sharedSection';

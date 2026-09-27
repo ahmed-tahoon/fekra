@@ -18,6 +18,7 @@ import * as migration_20260825_235511_about_page_blocks from './20260825_235511_
 import * as migration_20260826_145238_stats_item_icon from './20260826_145238_stats_item_icon';
 import * as migration_20260829_202349_fika_page_blocks from './20260829_202349_fika_page_blocks';
 import * as migration_20260831_133059_shared_section_block from './20260831_133059_shared_section_block';
+import * as migration_20260927_225525_shared_section_testimonials from './20260927_225525_shared_section_testimonials';
 
 export const migrations = [
   {
@@ -118,6 +119,11 @@ export const migrations = [
   {
     up: migration_20260831_133059_shared_section_block.up,
     down: migration_20260831_133059_shared_section_block.down,
-    name: '20260831_133059_shared_section_block'
+    name: '20260831_133059_shared_section_block',
+  },
+  {
+    up: migration_20260927_225525_shared_section_testimonials.up,
+    down: migration_20260927_225525_shared_section_testimonials.down,
+    name: '20260927_225525_shared_section_testimonials'
   },
 ];

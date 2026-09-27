@@ -7,6 +7,7 @@
  *   pnpm tsx scripts/use-shared-sections.ts            # dry run, about + fika
  *   pnpm tsx scripts/use-shared-sections.ts --write
  *   pnpm tsx scripts/use-shared-sections.ts blog-index --write
+ *   pnpm tsx scripts/use-shared-sections.ts hire-dedicated-developers --collection=services --only=faq,posts --write
  *
  * Edits the layout in place rather than rebuilding the page: block ids on
  * everything that stays are preserved, so the four other locales keep their
@@ -20,10 +21,13 @@ import type { BlockProps } from '../src/components/blocks/types'
 import { SHARED_SECTIONS, type SharedSectionKey } from '../src/lib/shared-sections'
 
 /** Only sections a page can be *carrying a copy of* — home's own blocks. */
-const REPLACEABLE: SharedSectionKey[] = ['faq', 'posts', 'contact', 'ctaBand', 'techStack', 'process', 'industries', 'fika', 'certifications']
+const REPLACEABLE: SharedSectionKey[] = ['faq', 'posts', 'contact', 'ctaBand', 'techStack', 'process', 'industries', 'testimonials', 'fika', 'certifications']
 
 const args = process.argv.slice(2)
 const write = args.includes('--write')
+const flag = (name: string) => args.find((a) => a.startsWith(`--${name}=`))?.split('=')[1]
+const collection = (flag('collection') ?? 'pages') as 'pages' | 'services'
+const only = flag('only')?.split(',')
 const slugs = args.filter((a) => !a.startsWith('--'))
 const pages = slugs.length ? slugs : ['about', 'fika']
 
@@ -31,7 +35,7 @@ const payload = await getPayload({ config })
 let changed = 0
 
 for (const slug of pages) {
-  const doc = (await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, limit: 1, depth: 0 })).docs[0]
+  const doc = (await payload.find({ collection, where: { slug: { equals: slug } }, limit: 1, depth: 0 })).docs[0]
   if (!doc) {
     console.log(`\n/${slug}: not found — skipped`)
     continue
@@ -41,7 +45,7 @@ for (const slug of pages) {
   let hits = 0
 
   const next = layout.map((block) => {
-    const key = REPLACEABLE.find((k) => SHARED_SECTIONS[k].match(block))
+    const key = REPLACEABLE.find((k) => (!only || only.includes(k)) && SHARED_SECTIONS[k].match(block))
     if (!key) return block
     hits++
     console.log(`    ${block.blockType} "${block.heading ?? ''}" -> shared "${SHARED_SECTIONS[key].label}"`)
@@ -53,7 +57,7 @@ for (const slug of pages) {
   if (!hits || !write) continue
 
   await payload.update({
-    collection: 'pages',
+    collection,
     id: doc.id,
     locale: 'en',
     data: { layout: next, _status: 'published' } as never,

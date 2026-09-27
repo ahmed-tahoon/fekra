@@ -26,6 +26,10 @@ export const SHARED_SECTIONS = {
     label: 'Our Industry Expertises',
     match: (b: BlockProps) => b.blockType === 'industries',
   },
+  testimonials: {
+    label: 'Industry Leaders',
+    match: (b: BlockProps) => b.blockType === 'testimonials',
+  },
   fika: {
     label: 'Meet Fika',
     match: (b: BlockProps) => b.blockType === 'cta' && b.tone === 'feature',
