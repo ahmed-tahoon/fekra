@@ -54,14 +54,16 @@ export function ContactSection({
           ) : null}
         </div>
 
-        <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,489fr)_minmax(0,655fr)]">
+        <div className={block.showForm === false ? 'mx-auto w-full max-w-3xl' : 'grid items-center gap-14 lg:grid-cols-[minmax(0,489fr)_minmax(0,655fr)]'}>
           {block.showForm !== false ? <ContactForm dict={dict} locale={locale} /> : null}
 
           {block.showOffices !== false && offices?.length ? (
             <div className="relative">
               {/* One map and one set of localized overlays in both themes. */}
               <div data-presence-map className="relative">
-                <Image src="/images/decor/global-presence-map.png" alt="" aria-hidden width={1449} height={881} className="h-auto w-full" />
+                {/* The source includes an English caption. Mask that artwork
+                    transparently so the localized label needs no cover card. */}
+                <Image src="/images/decor/global-presence-map.png" alt="" aria-hidden width={1449} height={881} className="fk-presence-map-art h-auto w-full" />
                 {[
                   { code: 'US', left: 11, top: 1.2, width: 14.2 },
                   { code: 'GB', left: 45.5, top: 11.2, width: 14 },
@@ -75,8 +77,8 @@ export function ContactSection({
                     <span className="text-center text-[clamp(0.5rem,1.05vw,0.9375rem)] leading-tight">{office?.city}</span>
                   </div>
                 })}
-                <p className="absolute inset-x-[25%] top-[76%] grid h-[9%] place-items-center bg-background text-center text-[clamp(0.625rem,1.1vw,1rem)] font-semibold text-navy-800 dark:text-foreground">{dict.contact.offices}</p>
               </div>
+              <p className="text-center text-[clamp(1rem,1.6vw,1.375rem)] font-semibold text-navy-800 dark:text-foreground">{dict.contact.offices}</p>
               <ul className="sr-only">
                 {offices.map((office) => (
                   <li key={`${office.city}-${office.country}`}>

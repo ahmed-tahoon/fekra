@@ -3,7 +3,8 @@ import { NextResponse, after } from 'next/server'
 import { notify } from '@/lib/notify'
 import { payloadClient } from '@/lib/payload'
 import { clientIp, rateLimit } from '@/lib/rate-limit'
-import { MIN_FILL_SECONDS, contactSchema } from '@/lib/validation'
+import { MIN_FILL_SECONDS, contactSchema, consultationSchema } from '@/lib/validation'
+import { verifyBot } from '@/lib/bot-protection'
 
 export const runtime = 'nodejs'
 
@@ -26,6 +27,15 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
   if (!body) return NextResponse.json({ error: 'bad_request' }, { status: 400 })
 
+  const consultation = body.formKind === 'consultation'
+  const consultationResult = consultation ? consultationSchema.safeParse(body) : null
+  if (consultationResult && !consultationResult.success) {
+    const fields = Object.fromEntries(consultationResult.error.issues.map((issue) => {
+      const key = String(issue.path[0])
+      return [key, key === 'phone' ? 'phone' : key === 'email' ? 'email' : 'required']
+    }))
+    return NextResponse.json({ error: 'invalid', fields }, { status: 422 })
+  }
   const parsed = contactSchema.safeParse(body)
   if (!parsed.success) {
     const fields: Record<string, string> = {}
@@ -41,6 +51,10 @@ export async function POST(request: Request) {
   // Honeypot filled, or submitted faster than a human can type: silently accept.
   const tooFast = data.startedAt ? (Date.now() - data.startedAt) / 1000 < MIN_FILL_SECONDS : false
   if (data.website || tooFast) return NextResponse.json({ ok: true })
+
+  if (!await verifyBot(request, body, consultation ? 'consultation' : 'contact')) {
+    return NextResponse.json({ error: 'verification_failed', fields: { botToken: 'required' } }, { status: 422 })
+  }
 
   const payload = await payloadClient()
 

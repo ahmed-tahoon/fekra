@@ -1,6 +1,6 @@
 import testimonialCopy from '@/i18n/testimonials.json'
 import { BidiText } from '@/components/BidiText'
-import { Award, Check, Clock, FilePenLine, Star } from 'lucide-react'
+import { Award, Check, Clock, FilePenLine, Star, BadgeCheck, ListChecks, Workflow } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -24,6 +24,13 @@ import { RotatingWords } from './RotatingWords'
 import { TechTabs } from './TechTabs'
 import type { BlockProps, MediaDoc } from './types'
 import { mediaAlt, mediaUrl } from './types'
+
+// These checked-in originals have transparent backgrounds and consistent
+// crops; use them for both the home strip and the compliance rows.
+const certificationSource = (image: MediaDoc) => {
+  const name = image.url?.match(/(cert-(?:soc2|iso-27001|iso-9001|gdpr|istqb))(?:\.[a-z]+)$/)?.[1]
+  return name ? `/images/certs/${name}.png` : mediaUrl(image)
+}
 
 /* Reference pastels in light mode; quieter brand hues in dark mode. */
 const STAT_TONE = {
@@ -441,8 +448,8 @@ export function HeroSection({
                  Back to a wrapped inline row at md, where they fit on a line. */
               className="fk-enter mx-auto grid w-full grid-cols-3 items-stretch md:flex md:w-auto md:flex-wrap md:items-center md:justify-center md:gap-x-8 md:gap-y-3"
             >
-              {block.bullets.map((bullet) => {
-                const icon = bullet.icon as MediaDoc | undefined
+              {block.bullets.map((bullet, index) => {
+                const FeatureIcon = [BadgeCheck, ListChecks, Workflow][index % 3]!
                 return (
                   <li
                     key={bullet.text}
@@ -450,26 +457,7 @@ export function HeroSection({
                        gap-x-8 already separates them. */
                     className="flex flex-col items-center justify-start gap-1.5 border-s border-border px-2 text-center text-[11px] leading-tight text-ink-500 first:border-0 sm:text-sm md:flex-row md:gap-1 md:border-0 md:px-0 md:text-start md:leading-normal dark:text-muted-foreground"
                   >
-                    {icon?.url ? (
-                      <Image
-                        src={mediaUrl(icon)}
-                        alt=""
-                        width={21}
-                        height={20}
-                        aria-hidden
-                        /*
-                         * 20px box, not the comp's 17 — these SVGs carry their
-                         * own padding (the star only draws across ~74% of its
-                         * 16-unit viewBox), so a 16px frame renders a ~12px
-                         * glyph against 14px text and reads as undersized.
-                         * Sized so the drawn glyph matches the text, and kept
-                         * on the source's 16.67:16 ratio rather than squared.
-                         */
-                        className="fk-mono-icon h-4 w-[17px] shrink-0 sm:h-5 sm:w-[21px]"
-                      />
-                    ) : (
-                      <span aria-hidden className="size-1.5 shrink-0 rounded-pill bg-primary" />
-                    )}
+                    <FeatureIcon data-hero-feature-icon aria-hidden className="size-5 shrink-0 text-primary" strokeWidth={1.8} />
                     {bullet.text}
                   </li>
                 )
@@ -628,16 +616,16 @@ export function LogoCloudSection({ block, locale }: { block: BlockProps; locale:
               const image = badge.image as MediaDoc | undefined
               if (!image?.url) return null
               return (
-                <li key={badge.name} className="fk-art-surface flex items-center justify-center rounded-2xl bg-white p-3">
+                <li key={badge.name} className={cn('flex h-32 items-center justify-center p-3', certificationSource(image).includes('istqb') ? 'w-52' : 'w-36 sm:w-44')}>
                   {/* Heights are equalised, widths left to each badge: the row
                       mixes a wide lockup with four round seals. */}
                   <Image
-                    src={mediaUrl(image)}
+                    src={certificationSource(image)}
                     alt={badge.name}
                     width={296}
                     height={125}
                     style={{ width: 'auto' }}
-                    className="fk-art-image h-[92px] w-auto object-contain sm:h-[125px]"
+                    className="max-h-[104px] max-w-full object-contain"
                   />
                 </li>
               )
@@ -681,9 +669,9 @@ export function LogoCloudSection({ block, locale }: { block: BlockProps; locale:
              not bold, which is what made it read heavier than the design. */
           <p className="mx-auto max-w-md text-center font-display text-2xl leading-[1.35] font-semibold text-navy-800 lg:mx-0 lg:my-auto lg:w-[430px] lg:max-w-none lg:shrink-0 lg:text-start lg:text-[30px] dark:text-foreground">
             {locale === 'en' && statement?.before === '50+ companies rely on our' ? <>
-              <span className="lg:block">50+ companies rely</span>{' '}
-              <span className="lg:block">on our <span className="text-primary">top 3%</span> talent to</span>{' '}
-              <span className="lg:block">scale their dev teams.</span>
+              <span className="lg:block">50+ companies rely on our</span>{' '}
+              <span className="lg:block"><span className="text-primary">top 3%</span> talent to scale their</span>{' '}
+              <span className="lg:block">dev teams.</span>
             </> : <>{statement?.before}{' '}
             {statement?.highlight ? (
               <span className="text-primary">{statement.highlight}</span>
@@ -699,7 +687,7 @@ export function LogoCloudSection({ block, locale }: { block: BlockProps; locale:
         {logos.length ? (
           /* Compared three- and four-column boards: three preserves the
              reference's balance and keeps the detailed lockups legible. */
-          <ul data-client-logos className="mx-auto grid w-full max-w-[34rem] grid-cols-3 gap-x-6 gap-y-5 lg:mx-0 lg:min-w-0">
+          <ul data-client-logos className="mx-auto grid w-full max-w-[38rem] grid-cols-3 gap-x-4 gap-y-5 sm:gap-x-6 lg:mx-0 lg:min-w-0">
             {logos.map((logo) => {
               const image = logo.image as MediaDoc | undefined
               if (!image?.url) return null
@@ -714,14 +702,14 @@ export function LogoCloudSection({ block, locale }: { block: BlockProps; locale:
                  */
                 <li
                   key={logo.name}
-                  className="fk-art-surface group/client-logo relative mx-auto flex h-20 w-full max-w-[9rem] items-center justify-center rounded-lg bg-white p-3"
+                  className="fk-art-surface group/client-logo relative mx-auto flex h-24 w-full max-w-[11rem] items-center justify-center rounded-lg bg-white p-2 sm:h-28"
                 >
-                  <span className="relative block" style={logoMarkSize(image.width, image.height, 120 / 56) ?? { width: '100%', height: '100%' }}>
+                  <span className="relative block" style={logoMarkSize(image.width, image.height, 160 / 88) ?? { width: '100%', height: '100%' }}>
                     <Image
                       src={mediaUrl(image)}
                       alt={logo.name ?? image.alt ?? ''}
                       fill
-                      sizes="120px"
+                      sizes="(max-width: 640px) 28vw, 160px"
                       className="fk-art-image object-contain grayscale transition-[filter] duration-200 group-hover/client-logo:grayscale-0 dark:grayscale-0 motion-reduce:transition-none"
                     />
                   </span>
@@ -847,21 +835,15 @@ export function CardGridSection({ block, locale }: { block: BlockProps; locale: 
                          wordmark (157x56) sits bare, and a circle behind a
                          wide lockup reads wrong. Derived from the art rather
                          than a CMS flag: no new field, no migration. */
-                      <span
-                        style={{ '--fk-tint': tint.disc } as React.CSSProperties}
-                        className={cn(
-                          'fk-art-surface grid size-[120px] shrink-0 place-items-center overflow-hidden rounded-full dark:p-2',
-                          (icon.width ?? 1) / (icon.height ?? 1) > 1.5 ? 'dark:rounded-lg' : 'bg-[var(--fk-tint)]',
-                        )}
-                      >
+                      <span className="grid h-[120px] w-[184px] shrink-0 place-items-center p-2">
                         <Image
-                          src={mediaUrl(icon)}
+                          src={certificationSource(icon)}
                           alt=""
                           width={120}
                           height={120}
                           aria-hidden
                           style={{ width: 'auto' }}
-                          className="fk-art-image max-h-[120px] w-auto max-w-full object-contain"
+                          className="max-h-[104px] w-auto max-w-full object-contain"
                         />
                       </span>
                     ) : null}

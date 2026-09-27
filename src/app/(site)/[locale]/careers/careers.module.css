@@ -15,7 +15,10 @@
 .shortcuts a { padding: 10px 18px; border-radius: 50px; background: #f16122; color: white; font-size: 14px; font-weight: 500; }
 .shortcuts a:nth-child(2) { background: #489bc2; }
 .shortcuts a:nth-child(3) { background: #263a6f; }
-.shortcuts a:hover { filter: brightness(.92); }
+.shortcuts a:hover { background: white; color: #d94d0e; box-shadow: inset 0 0 0 1px #f16122; }
+.shortcuts a:nth-child(2):hover { color: #28789f; box-shadow: inset 0 0 0 1px #489bc2; }
+.shortcuts a:nth-child(3):hover { color: #263a6f; box-shadow: inset 0 0 0 1px #263a6f; }
+.shortcuts a:active { filter: brightness(.85); }
 .teamIntro { max-width: 840px; margin-top: 8px; font-size: 16px; line-height: 1.6; color: #777; }
 .family { position: relative; margin: 28px 70px; padding: 28px 66px 34px; border-radius: 24px; background: #fff; box-shadow: 0 0 5px 2px #0003; }
 .family > h2 { text-align: center; margin-bottom: 28px; }
@@ -27,7 +30,7 @@
 .personCaption h3 { font-size: 21px; line-height: 1.2; font-weight: 500; }
 .personCaption p { font-size: 16px; line-height: 1.12; margin-top: 8px; }
 .you { display: flex; align-items: center; justify-content: center; padding: 18px; border-radius: 20px; background: #8b7df8; text-align: center; color: #fff; }
-.you a { display: block; }
+.you > div { display: block; cursor: default; }
 .you h3 { font-size: 32px; font-weight: 400; }
 .you p { font-size: 15px; line-height: 1.5; }
 .coffeeLeft, .coffeeRight { position: absolute; width: 80px; height: auto; pointer-events: none; }

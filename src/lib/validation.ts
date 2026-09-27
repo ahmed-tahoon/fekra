@@ -11,6 +11,7 @@ const phone = z
   .string()
   .trim()
   .regex(/^\+?[\d\s().-]{7,20}$/, 'phone')
+  .refine((value) => value.replace(/\D/g, '').length >= 7, 'phone')
 
 const attribution = z.object({
   locale: z.string().max(5).optional(),
@@ -50,6 +51,14 @@ export const contactSchema = z
 export const newsletterSchema = z
   .object({ email: z.email().max(254), path: z.string().max(512).optional(), locale: z.string().max(5).optional() })
   .merge(botTraps)
+
+export const consultationSchema = z.object({
+  fullName: z.string().trim().min(2).max(120),
+  email: z.email().max(254),
+  phone,
+  model: z.enum(['Full Time', 'Part Time', 'Hourly Time']),
+  consent: z.literal(true),
+})
 
 export const applicationSchema = z
   .object({

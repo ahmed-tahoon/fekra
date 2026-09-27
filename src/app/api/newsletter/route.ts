@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { payloadClient } from '@/lib/payload'
 import { clientIp, rateLimit } from '@/lib/rate-limit'
 import { newsletterSchema } from '@/lib/validation'
+import { verifyBot } from '@/lib/bot-protection'
 
 export const runtime = 'nodejs'
 
@@ -11,9 +12,11 @@ export async function POST(request: Request) {
   const limit = rateLimit(`newsletter:${clientIp(request)}`, 5, 60_000)
   if (!limit.ok) return NextResponse.json({ error: 'rate_limited' }, { status: 429 })
 
-  const parsed = newsletterSchema.safeParse(await request.json().catch(() => null))
+  const body = await request.json().catch(() => null)
+  const parsed = newsletterSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: 'invalid' }, { status: 422 })
   if (parsed.data.website) return NextResponse.json({ ok: true })
+  if (!await verifyBot(request, body, 'newsletter')) return NextResponse.json({ error: 'verification_failed' }, { status: 422 })
 
   const payload = await payloadClient()
   try {

@@ -68,7 +68,7 @@ export function LegacyCareers({ jobs, dict, locale }: { jobs: JobDoc[]; dict: Di
               <div className={styles.portrait}><Image src={`/images/careers/${asset}`} alt="" fill sizes="(max-width: 600px) 40vw, 210px" /></div>
               <div className={styles.personCaption}><h3>{locale === 'ar' ? arabicName : name}</h3><p>{copy.roles[index]}</p></div>
             </li>)}
-            <li className={styles.you}><a href="#open-roles"><h3>{copy.you}</h3><p>{copy.join}</p></a></li>
+            <li className={styles.you}><div><h3>{copy.you}</h3><p>{copy.join}</p></div></li>
           </ul>
         </div>
       </section>
@@ -112,12 +112,6 @@ export function LegacyCareers({ jobs, dict, locale }: { jobs: JobDoc[]; dict: Di
         </div>
       </section> : null)}
 
-      <section className={styles.presence}>
-        <h2>{copy.presence}</h2>
-        <ul>{['icon1.jpg', 'icon4.jpg', 'icon2.jpg', 'icon3.jpg', 'icon5.png'].map((asset, index) => <li key={asset}>
-          <div><Image src={`/images/careers/${asset}`} alt="" fill sizes="(max-width: 600px) 40vw, 200px" /></div><h3>{copy.cities[index]}</h3>
-        </li>)}</ul>
-      </section>
     </div>
   </div>
 }

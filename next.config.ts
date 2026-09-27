@@ -48,12 +48,12 @@ const S3_HOST = process.env.S3_PUBLIC_HOST // e.g. media.fekra-egy.com or <bucke
 const CSP = [
   "default-src 'self'",
   // next/script + GTM require inline+eval; Payload admin requires blob:.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com https://snap.licdn.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com https://snap.licdn.com https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://assets.calendly.com",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.calendly.com https://px.ads.linkedin.com",
-  "frame-src 'self' https://calendly.com https://*.calendly.com https://www.googletagmanager.com",
+  "frame-src 'self' https://calendly.com https://*.calendly.com https://www.googletagmanager.com https://challenges.cloudflare.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",

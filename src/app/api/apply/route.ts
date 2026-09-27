@@ -6,6 +6,7 @@ import { notify } from '@/lib/notify'
 import { payloadClient } from '@/lib/payload'
 import { clientIp, rateLimit } from '@/lib/rate-limit'
 import { MIN_FILL_SECONDS, applicationSchema, validateCv } from '@/lib/validation'
+import { verifyBot } from '@/lib/bot-protection'
 
 export const runtime = 'nodejs'
 export const maxDuration = 30
@@ -58,6 +59,10 @@ export async function POST(request: Request) {
   const fileProblem = validateCv(file)
   if (fileProblem) {
     return NextResponse.json({ error: 'invalid', fields: { cv: fileProblem } }, { status: 422 })
+  }
+
+  if (!await verifyBot(request, raw, 'application')) {
+    return NextResponse.json({ error: 'verification_failed', fields: { botToken: 'required' } }, { status: 422 })
   }
 
   const payload = await payloadClient()

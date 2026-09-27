@@ -383,6 +383,30 @@
 }
 
 @layer utilities {
+  .fk-presence-map-art {
+    mask-image: linear-gradient(black 72%, transparent 77%), linear-gradient(to right, black 36%, transparent 40%, transparent 70%, black 75%);
+  }
+  /* Consistent feedback for custom CTAs, tabs, filters and navigation controls. */
+  button:not(:disabled), a[class*="rounded-pill"], a[class*="rounded-full"], [role="tab"], summary {
+    transition-property: color, background-color, border-color, box-shadow, filter;
+    transition-duration: 180ms;
+  }
+  @media (hover: hover) {
+    button:not(:disabled):hover, a[class*="rounded-pill"]:hover, a[class*="rounded-full"]:hover, summary:hover {
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 45%, transparent);
+      filter: brightness(0.94);
+    }
+  }
+  button:not(:disabled):active, a[class*="rounded-pill"]:active, a[class*="rounded-full"]:active {
+    filter: brightness(0.84);
+  }
+  button[aria-selected="true"], button[aria-pressed="true"] {
+    box-shadow: inset 0 -3px 0 currentColor;
+  }
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
   /* Opt in by asset role: monochrome glyphs can be lifted, while logos and
    * artwork with baked-in dark text keep their original colours on a pure
    * white ground in both themes. Do not tint or blend brand assets. */

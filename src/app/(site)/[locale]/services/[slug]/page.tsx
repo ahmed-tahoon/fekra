@@ -85,7 +85,7 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
         blocks={service.layout}
         locale={locale}
         dict={dict}
-        context={{ offices: settings.offices, calendlyUrl: settings.calendlyUrl }}
+        context={{ offices: settings.offices, calendlyUrl: settings.calendlyUrl, servicePage: true }}
       />
 
       {service.relatedServices?.length ? (

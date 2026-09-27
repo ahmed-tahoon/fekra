@@ -4,7 +4,9 @@ import { Users } from 'lucide-react'
 
 import { getDictionary } from '@/i18n/getDictionary'
 import { isLocale } from '@/i18n/routing'
-import { findDocs } from '@/lib/payload'
+import { findDocs, getGlobal } from '@/lib/payload'
+import { ContactSection } from '@/components/blocks/ContactSection'
+import type { SettingsLite } from '../page-types'
 import { buildMetadata } from '@/lib/seo'
 
 import type { JobDoc } from '../page-types'
@@ -30,7 +32,7 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
   const { locale } = await params
   if (!isLocale(locale)) notFound()
 
-  const [dict, { docs }] = await Promise.all([
+  const [dict, { docs }, settings] = await Promise.all([
     getDictionary(locale),
     findDocs<JobDoc>({
       collection: 'jobs',
@@ -39,6 +41,7 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
       sort: '-publishedAt',
       where: { roleStatus: { equals: 'open' } },
     }),
+    getGlobal<SettingsLite>('site-settings', locale),
   ])
 
   const copy = careersCopy[locale]
@@ -78,6 +81,7 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
       </section>
 
       <LegacyCareers jobs={docs} dict={dict} locale={locale} />
+      <ContactSection block={{ blockType: 'contact', heading: dict.contact.offices, showForm: false }} locale={locale} dict={dict} offices={settings?.offices as never} />
     </>
   )
 }

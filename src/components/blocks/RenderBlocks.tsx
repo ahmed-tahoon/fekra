@@ -60,11 +60,20 @@ export async function RenderBlocks({
   blocks?: BlockProps[] | null
   locale: Locale
   dict: Dictionary
-  context?: { offices?: unknown[]; calendlyUrl?: string | null }
+  context?: { offices?: unknown[]; calendlyUrl?: string | null; servicePage?: boolean }
 }) {
   if (!blocks?.length) return null
 
-  const layout = await resolveShared(blocks, locale)
+  let layout = await resolveShared(blocks, locale)
+  // All service layouts reuse the current home testimonials, including future
+  // service pages. Remove old copies so the shared section is rendered once.
+  if (context?.servicePage || blocks.some((block) => block.blockType === 'serviceHero')) {
+    const home = await findDoc<{ layout?: BlockProps[] }>('pages', 'home', locale)
+    const testimonials = home?.layout?.find((block) => block.blockType === 'testimonials')
+    if (testimonials) layout = layout.filter((block) => block.blockType !== 'testimonials').flatMap((block) =>
+      block.blockType === 'industries' ? [block, { ...testimonials, id: 'shared-industry-leaders' }] : [block],
+    )
+  }
 
   return (
     <>

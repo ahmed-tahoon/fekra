@@ -43,16 +43,19 @@ const BARS = [328, 288, 248, 208, 168] as const
  *
  * Auto-advance starts from step 1 only once the funnel scrolls into view — a
  * cycle that begins on page load would already be mid-way when the visitor
- * arrives. It pauses on hover or keyboard focus and never starts at all under
- * prefers-reduced-motion.
+ * arrives. Selecting any stage restarts its full dwell, even when it is already
+ * selected. Reduced-motion users can select stages without automatic motion.
  */
 export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[]; completed: Step; resultLabel: string }) {
   const [active, setActive] = useState(0)
   const [auto, setAuto] = useState(false)
   const [started, setStarted] = useState(false)
-  const [hovered, setHovered] = useState(false)
-  const [focused, setFocused] = useState(false)
-  const held = hovered || focused
+  const [selection, setSelection] = useState(0)
+  const selectStep = (index: number) => {
+    setActive(index)
+    setStarted(true)
+    setSelection((value) => value + 1)
+  }
   const root = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -87,12 +90,12 @@ export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[
    * beat the outcome is never part of the journey.
    */
   useEffect(() => {
-    if (!auto || !started || held || steps.length < 2) return
+    if (!auto || !started || steps.length < 2) return
     const id = setTimeout(() => {
       setActive((i) => (i + 1) % (steps.length + 1))
     }, DWELL_MS)
     return () => clearTimeout(id)
-  }, [auto, started, steps.length, active, held])
+  }, [auto, started, steps.length, active, selection])
 
   if (!steps.length) return null
   const resultActive = active === steps.length
@@ -102,11 +105,7 @@ export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[
     <div
       ref={root}
       className="flex w-full flex-col items-center justify-center gap-8 lg:flex-row lg:items-center lg:gap-10"
-      onFocusCapture={() => setFocused(true)}
-      onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}
     >
-      {/* The pause covers only the clickable bars — a cursor parked anywhere
-          else (most cursors, after scrolling) must not stall the cycle. */}
       <ol
         /* ps reserves room for the number gutter that hangs off the bars'
            start edge — without it the active ribbon clips at the viewport. */
@@ -114,8 +113,6 @@ export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[
            stacked up; at 4px they read as one narrowing funnel, which is the
            whole point of the graphic. */
         className="flex w-full max-w-[544px] flex-col gap-1 ps-10 [--fs:0.58] min-[400px]:[--fs:0.72] sm:ps-0 sm:[--fs:1]"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
       >
         {steps.map((s, i) => {
           const on = i === active
@@ -129,8 +126,12 @@ export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[
                  * banner tail; the clip-path is physical-left, so the shape
                  * span mirrors under RTL while the digit on top does not.
                  */}
-                <span
-                  aria-hidden
+                <button
+                  type="button"
+                  onClick={() => selectStep(i)}
+                  aria-label={`${i + 1} — ${s.title}`}
+                  data-process-number={i}
+                  aria-current={on ? 'step' : undefined}
                   className={cn(
                     'absolute end-full flex h-full w-12 items-center justify-center text-xl font-bold transition-colors duration-200 sm:w-24 sm:text-2xl',
                     on ? 'text-primary-foreground' : 'text-primary',
@@ -152,11 +153,11 @@ export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[
                     />
                   ) : null}
                   <span className="relative">{i + 1}</span>
-                </span>
+                </button>
 
                 <button
                   type="button"
-                  onClick={() => setActive(i)}
+                  onClick={() => selectStep(i)}
                   aria-current={on ? 'step' : undefined}
                   /* Icon size and gap ride --fs with the bar widths, so the row
                      can never outgrow its bar at any scale. */
@@ -199,7 +200,7 @@ export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[
          * so it mirrors under RTL while its content does not.
          */}
         <li className="flex h-11 justify-center sm:h-16">
-          <button type="button" onClick={() => setActive(steps.length)} aria-label={`${completed.title} ${completed.body}`} aria-pressed={resultActive} className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
+          <button type="button" onClick={() => selectStep(steps.length)} aria-label={`${completed.title} ${completed.body}`} aria-pressed={resultActive} className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
             <span
               className={cn(
                 'absolute inset-0 bg-border transition-opacity duration-500 [clip-path:polygon(0_0,100%_0,calc(100%_-_var(--fs)*21px)_100%,calc(var(--fs)*21px)_100%)] dark:bg-card',

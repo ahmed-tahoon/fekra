@@ -150,16 +150,6 @@ const approvedArabicGroups: Record<string, { title: string; roles: string[] }> =
   },
 }
 
-const roleSlugs: Record<string, string> = {
-  'Vue.js': 'hire-vuejs-developers',
-  'Next.js': 'hire-nextjs-developers',
-  'Node.js': 'hire-nodejs-developers',
-  '.NET': 'hire-dotnet-core-developers',
-  'ASP.NET Core': 'hire-aspnet-developers',
-  'Manual QA': 'hire-manual-qa-testers',
-  'Automation QA': 'hire-automation-qa-engineers',
-}
-
 const roleTitle = (technology: string, engineer: boolean, locale: Locale) => {
   const titles = {
     en: `${technology} ${engineer ? 'Engineers' : 'Developers'}`,
@@ -184,34 +174,18 @@ export function buildServicesMenu(services: Service[], locale: Locale): Services
         {
           title: translate(approved.title),
           slug: group.slug,
-          roles: approved.roles.map((label) => {
-            const technology = label.replace(/ (Developers|Engineers|Designers)$/, '')
-            const slug =
-              roleSlugs[technology] ??
-              `hire-${technology.toLowerCase().replaceAll(' ', '-')}-developers`
-            return { title: translate(label), slug: bySlug.has(slug) ? slug : group.slug }
-          }),
+          roles: approved.roles.map((label) => ({ title: translate(label), slug: group.slug })),
         },
       ]
     }
     const roles = group.roles.length
       ? group.roles.map((technology) => {
-          const slug =
-            roleSlugs[technology] ??
-            `hire-${technology.toLowerCase().replaceAll(' ', '-')}-developers`
           return {
             title: roleTitle(technology, group.slug === 'hire-qa-engineers', locale),
-            slug: bySlug.has(slug) ? slug : group.slug,
+            slug: group.slug,
           }
         })
-      : (service.menuRoles ?? []).map((role) => {
-          const target = services.find(
-            (candidate) =>
-              candidate.title.toLowerCase().replace(/^hire /, '') ===
-              role.label.toLowerCase().replace(/^hire /, ''),
-          )
-          return { title: role.label, slug: target?.slug ?? group.slug }
-        })
+      : (service.menuRoles ?? []).map((role) => ({ title: role.label, slug: group.slug }))
     return [{ title: service.title, slug: service.slug, roles }]
   })
 }

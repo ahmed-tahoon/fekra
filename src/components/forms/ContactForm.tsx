@@ -7,12 +7,16 @@ import { Button } from '@/components/ui/Button'
 import type { Dictionary } from '@/i18n/getDictionary'
 import type { Locale } from '@/i18n/routing'
 import { EVENTS, captureAttribution, track } from '@/lib/analytics'
+import { BotVerification } from './BotVerification'
+import { useFormValidation } from './useFormValidation'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
 export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   const [status, setStatus] = useState<Status>('idle')
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const { errors, setErrors, valid, validate, onFieldEvent } = useFormValidation('contact')
+  const [botReady, setBotReady] = useState(false)
+  const [verification, setVerification] = useState(0)
   // Render must stay pure — the render timestamp is stamped after mount.
   const startedAt = useRef(0)
   useEffect(() => {
@@ -22,6 +26,7 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = event.currentTarget
+    if (!validate(form) || !botReady || status === 'sending') return
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>
 
     setStatus('sending')
@@ -45,6 +50,8 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
         const body = (await res.json().catch(() => ({}))) as { fields?: Record<string, string> }
         const nextErrors = body.fields ?? {}
         setErrors(nextErrors)
+        setBotReady(false)
+        setVerification((value) => value + 1)
         setStatus(Object.keys(nextErrors).length ? 'idle' : 'error')
         const firstInvalid = Object.keys(nextErrors)[0]
         if (firstInvalid) {
@@ -59,6 +66,8 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
       form.reset()
       setStatus('success')
     } catch {
+      setBotReady(false)
+      setVerification((value) => value + 1)
       setStatus('error')
     }
   }
@@ -79,6 +88,8 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
   return (
     <form
       onSubmit={onSubmit}
+      onChange={onFieldEvent}
+      onBlur={onFieldEvent}
       noValidate
       aria-busy={status === 'sending'}
       className="@container flex flex-col gap-5"
@@ -134,10 +145,11 @@ export function ContactForm({ dict, locale }: { dict: Dictionary; locale: Locale
         </p>
       ) : null}
 
+      <BotVerification key={verification} locale={locale} action="contact" onReady={setBotReady} error={errors.botToken} />
       <Button
         type="submit"
         size="lg"
-        disabled={status === 'sending'}
+        disabled={status === 'sending' || !valid || !botReady}
         className="w-full justify-center"
       >
         {status === 'sending' ? dict.form.submitting : dict.form.submit}

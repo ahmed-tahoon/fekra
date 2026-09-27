@@ -15,10 +15,10 @@ const base =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-primary-foreground hover:bg-primary-hover',
+  primary: 'bg-primary text-primary-foreground hover:bg-primary-hover hover:shadow-md active:brightness-90',
   // The comp's outlined pill: navy hairline, transparent fill, navy label.
   secondary:
-    'border border-navy-800 bg-transparent text-navy-800 hover:bg-navy-800/5 dark:border-foreground dark:text-foreground dark:hover:bg-foreground/10',
+    'border border-navy-800 bg-transparent text-navy-800 hover:bg-navy-800 hover:text-white active:bg-primary active:border-primary dark:border-foreground dark:text-foreground dark:hover:bg-foreground dark:hover:text-background',
   ghost: 'text-foreground hover:bg-background-subtle',
 }
 

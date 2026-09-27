@@ -12,6 +12,8 @@ import { localeHref } from '@/i18n/routing'
 import { EVENTS, captureAttribution, track } from '@/lib/analytics'
 import { applicationSchema, CV, validateCv } from '@/lib/validation'
 import careersCopy from '@/i18n/careers.json'
+import { BotVerification } from './BotVerification'
+import { useFormValidation } from './useFormValidation'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
@@ -38,7 +40,9 @@ export function ApplicationForm({
     : kind === 'future' ? ['desiredRole', 'skills', 'location'] as const
       : kind === 'job' ? ['location'] as const : []
   const [status, setStatus] = useState<Status>('idle')
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const { errors, setErrors, valid, validate, onFieldEvent } = useFormValidation('application', extraFields, jobId)
+  const [botReady, setBotReady] = useState(false)
+  const [verification, setVerification] = useState(0)
   // Render must stay pure — the render timestamp is stamped after mount.
   const startedAt = useRef(0)
   useEffect(() => {
@@ -56,6 +60,7 @@ export function ApplicationForm({
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = event.currentTarget
+    if (!validate(form) || !botReady || status === 'sending') return
     const formData = new FormData(form)
     const values = Object.fromEntries(formData)
     if (kind) {
@@ -120,6 +125,8 @@ export function ApplicationForm({
         const body = (await res.json().catch(() => ({}))) as { fields?: Record<string, string> }
         const nextErrors = body.fields ?? {}
         setErrors(nextErrors)
+        setBotReady(false)
+        setVerification((value) => value + 1)
         setStatus(Object.keys(nextErrors).length ? 'idle' : 'error')
         requestAnimationFrame(() => {
           const firstField = Object.keys(nextErrors)[0]
@@ -133,6 +140,8 @@ export function ApplicationForm({
       setCvName('')
       setStatus('success')
     } catch {
+      setBotReady(false)
+      setVerification((value) => value + 1)
       setStatus('error')
     }
   }
@@ -165,6 +174,8 @@ export function ApplicationForm({
   return (
     <form
       onSubmit={onSubmit}
+      onChange={onFieldEvent}
+      onBlur={onFieldEvent}
       noValidate
       encType="multipart/form-data"
       aria-busy={status === 'sending'}
@@ -251,10 +262,11 @@ export function ApplicationForm({
         </p>
       ) : null}
 
+      <BotVerification key={verification} locale={locale} action="application" onReady={setBotReady} error={errors.botToken} />
       <Button
         type="submit"
         size="lg"
-        disabled={status === 'sending'}
+        disabled={status === 'sending' || !valid || !botReady}
         className="w-full @md:w-auto @md:self-start"
       >
         {status === 'sending' ? dict.form.submitting : kind ? copy.submit : dict.form.apply}

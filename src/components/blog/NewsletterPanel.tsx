@@ -5,16 +5,22 @@ import { useState } from 'react'
 import type { Dictionary } from '@/i18n/getDictionary'
 import type { Locale } from '@/i18n/routing'
 import { EVENTS, track } from '@/lib/analytics'
+import { BotVerification } from '@/components/forms/BotVerification'
+import { useFormValidation } from '@/components/forms/useFormValidation'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
 /** Brand panel wrapping the same /api/newsletter endpoint the footer uses. */
 export function NewsletterPanel({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   const [status, setStatus] = useState<Status>('idle')
+  const { errors, valid, validate, onFieldEvent } = useFormValidation('newsletter')
+  const [botReady, setBotReady] = useState(false)
+  const [verification, setVerification] = useState(0)
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = event.currentTarget
+    if (!validate(form) || !botReady || status === 'sending') return
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>
     setStatus('sending')
     try {
@@ -28,6 +34,8 @@ export function NewsletterPanel({ dict, locale }: { dict: Dictionary; locale: Lo
       form.reset()
       setStatus('success')
     } catch {
+      setBotReady(false)
+      setVerification((value) => value + 1)
       setStatus('error')
     }
   }
@@ -49,7 +57,7 @@ export function NewsletterPanel({ dict, locale }: { dict: Dictionary; locale: Lo
             {dict.form.success}
           </p>
         ) : (
-          <form onSubmit={onSubmit} className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
+          <form onSubmit={onSubmit} onChange={onFieldEvent} onBlur={onFieldEvent} className="mx-auto mt-6 flex max-w-md flex-wrap gap-3">
             {/* Honeypot — same trap as every other form (11.3). */}
             <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
 
@@ -60,6 +68,8 @@ export function NewsletterPanel({ dict, locale }: { dict: Dictionary; locale: Lo
               id="blog-newsletter-email"
               type="email"
               name="email"
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? 'blog-newsletter-email-error' : undefined}
               required
               autoComplete="email"
               placeholder={dict.form.email}
@@ -67,11 +77,13 @@ export function NewsletterPanel({ dict, locale }: { dict: Dictionary; locale: Lo
             />
             <button
               type="submit"
-              disabled={status === 'sending'}
+              disabled={status === 'sending' || !valid || !botReady}
               className="h-12 shrink-0 rounded-full bg-white px-6 text-sm font-bold text-blog-700 transition-transform hover:scale-[1.03] disabled:opacity-70"
             >
               {status === 'sending' ? dict.form.submitting : dict.form.submit}
             </button>
+            {errors.email ? <p id="blog-newsletter-email-error" role="alert" className="w-full text-start text-sm text-white">{dict.form.errors.email}</p> : null}
+            <div className="w-full text-start"><BotVerification key={verification} locale={locale} action="newsletter" onReady={setBotReady} /></div>
           </form>
         )}
 
