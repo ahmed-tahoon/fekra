@@ -78,7 +78,7 @@ export function NewsletterPanel({ dict, locale }: { dict: Dictionary; locale: Lo
             <button
               type="submit"
               disabled={status === 'sending' || !valid || !botReady}
-              className="h-12 shrink-0 rounded-full bg-white px-6 text-sm font-bold text-blog-700 transition-transform hover:scale-[1.03] disabled:opacity-70"
+              className="fk-button fk-button--inverse h-12 shrink-0 rounded-full bg-white px-6 text-sm font-bold text-blog-700 transition-transform disabled:opacity-70"
             >
               {status === 'sending' ? dict.form.submitting : dict.form.submit}
             </button>

@@ -148,7 +148,7 @@ export function ConsultationForm({
           <button
             type="submit"
             disabled={status === 'sending' || !valid || !botReady}
-            className="mt-4 min-h-11 w-full rounded-[10px] bg-primary text-base text-primary-foreground transition-colors hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="fk-button fk-button--primary mt-4 min-h-11 w-full rounded-[10px] bg-primary text-base text-primary-foreground transition-colors disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             {status === 'sending' ? dict.form.submitting : dict.form.hireDevelopers}
           </button>

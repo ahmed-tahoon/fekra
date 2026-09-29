@@ -108,7 +108,7 @@ export function Footer({
                       target="_blank"
                       rel="noopener noreferrer me"
                       aria-label={s.platform}
-                      className="inline-grid size-11 place-items-center rounded-lg bg-card text-navy-800 shadow-card transition-colors hover:text-primary dark:text-foreground"
+                      className="fk-button fk-button--secondary inline-grid size-11 place-items-center rounded-lg bg-card text-navy-800 shadow-card transition-colors dark:text-foreground"
                     >
                       {path ? (
                         <svg viewBox={viewBoxFor(s.platform)} fill="currentColor" className="size-[18px]" aria-hidden>
@@ -244,7 +244,7 @@ export function Footer({
                         target="_blank"
                         rel="noopener noreferrer me"
                         aria-label={s.platform}
-                        className="inline-grid size-11 place-items-center transition-colors hover:text-foreground"
+                        className="fk-button fk-button--secondary inline-grid size-11 place-items-center transition-colors"
                       >
                         <svg viewBox={viewBoxFor(s.platform)} fill="currentColor" className="size-4" aria-hidden>
                           <path d={path} />

@@ -245,7 +245,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
                 <p className="text-lg leading-snug font-bold">{dict.blog.sidebarCtaTitle}</p>
                 <Link
                   href={localeHref(locale, '/contact')}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-blog-700 transition-transform hover:scale-[1.03]"
+                  className="fk-button fk-button--inverse mt-4 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-blog-700 transition-transform"
                 >
                   {dict.blog.sidebarCtaButton}
                   <span aria-hidden>→</span>

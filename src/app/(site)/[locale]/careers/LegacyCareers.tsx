@@ -92,7 +92,7 @@ export function LegacyCareers({ jobs, dict, locale }: { jobs: JobDoc[]; dict: Di
                     {meta?.positions ? <span>{copy.positions} <bdi>{meta.positions}</bdi></span> : null}
                   </div>
                 </div>
-                <span className={styles.applyButton}>{dict.careers.applyNow}<ArrowRightCircle size={16} aria-hidden className="icon-flip" /></span>
+                <span className={`${styles.applyButton} fk-button fk-button--career`}>{dict.careers.applyNow}<ArrowRightCircle size={16} aria-hidden className="icon-flip" /></span>
               </summary>
               <div className={styles.jobBody}>
                 <div><CareerDescription job={job} locale={locale} /><Link className={styles.detailsLink} href={localeHref(locale, `/careers/${job.slug}`)}>{copy.fullDetails}</Link></div>

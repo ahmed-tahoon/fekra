@@ -40,7 +40,7 @@ export function CookiePreferences({ locale }: { locale: Locale }) {
           <input type="checkbox" checked={choice[category]} onChange={(event) => setChoice((state) => ({ ...state, [category]: event.target.checked }))} className="size-5 accent-primary" />
         </label>)}
       </div>
-      <button type="button" onClick={save} className="min-h-11 w-full rounded-pill bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">{labels.save}</button>
+      <button type="button" onClick={save} className="fk-button fk-button--primary min-h-11 w-full rounded-pill bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">{labels.save}</button>
     </dialog>
   </>
 }

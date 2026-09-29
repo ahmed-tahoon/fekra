@@ -7,6 +7,7 @@
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
+import { serviceHighlights } from '../src/seed/service-designs'
 import { seedApprovedServices, type ServiceSeed } from '../src/seed/services'
 
 const stripIds = (value: unknown): unknown => {
@@ -41,11 +42,7 @@ const run = async () => {
         heroTone: service.tone,
         body: service.body,
         closer: service.summary,
-        highlights: [
-          { text: 'Save 30% to 60% per talent hired through FEKRA.' },
-          { text: 'Start with an individual or complete team in 6 to 14 days.' },
-          { text: 'Access a vetted, highly skilled international talent pool.' },
-        ],
+        highlights: serviceHighlights.map((text) => ({ text })),
         formTitle: 'Get Free Consultation',
       },
       ...rest,

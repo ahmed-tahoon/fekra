@@ -4,7 +4,7 @@ import { Check, Link2 } from 'lucide-react'
 import { useState } from 'react'
 
 const BUTTON =
-  'flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-colors hover:border-blog-500 hover:bg-blog-500 hover:text-white dark:border-white/10 dark:bg-white/5 dark:text-slate-300'
+  'fk-button fk-button--secondary flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-colors dark:border-white/10 dark:bg-white/5 dark:text-slate-300'
 
 /**
  * Brand marks are inline paths: lucide dropped its brand icon set, and pulling

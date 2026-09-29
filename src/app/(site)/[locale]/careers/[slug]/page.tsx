@@ -100,7 +100,7 @@ export default async function JobPage({ params }: { params: Promise<{ locale: st
             {isOpen ? (
               <a
                 href="#apply"
-                className="mt-8 inline-flex items-center gap-2 rounded-pill bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
+                className="fk-button fk-button--primary mt-8 inline-flex items-center gap-2 rounded-pill bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors"
               >
                 {dict.careers.applyNow}
                 <ArrowRight className="icon-flip size-4" aria-hidden />

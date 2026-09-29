@@ -43,6 +43,7 @@ export function ServiceHeroSection({
 
   return (
     <section
+      data-service-hero
       id={block.anchor ?? undefined}
       className={cn('mt-2.5 lg:mb-10 dark:bg-background-subtle', HERO_TONE[block.heroTone ?? 'mint'])}
     >
@@ -53,7 +54,7 @@ export function ServiceHeroSection({
           </Title>
 
           {paragraphs.length ? (
-            <div className="mt-6 flex flex-col text-base/6 text-[#001033] dark:text-muted-foreground">
+            <div className="mt-3 flex flex-col text-base/6 text-[#001033] dark:text-muted-foreground">
               {paragraphs.map((text, i) => (
                 <p key={i}><BidiText>{text}</BidiText></p>
               ))}
@@ -65,17 +66,18 @@ export function ServiceHeroSection({
           ) : null}
 
           {block.highlights?.length ? (
-            <ul className="mt-14 grid gap-2.5 sm:grid-cols-3">
-              {block.highlights.map((item) => {
+            <ul className="mt-10 grid gap-2.5 sm:grid-cols-3">
+              {block.highlights.map((item, index) => {
                 const icon = item.icon as MediaDoc | undefined
+                const iconSrc = icon?.url ? mediaUrl(icon) : ['/images/services/icon-cost.svg', '/images/services/icon-speed.png', '/images/services/icon-talent.svg'][index]
                 return (
                   <li
                     key={item.text}
                     className="flex min-h-[95px] items-center gap-3 rounded-[15px] border border-[#001033]/20 bg-white/30 p-2.5 dark:border-border dark:bg-card"
                   >
-                    {icon?.url ? (
+                    {iconSrc ? (
                       <span className="flex size-8 shrink-0 items-center justify-center">
-                        <Image src={mediaUrl(icon)} alt="" width={31} height={31} aria-hidden className="fk-mono-icon size-[31px]" />
+                        <Image src={iconSrc} alt="" width={31} height={31} aria-hidden className="fk-mono-icon size-[31px]" />
                       </span>
                     ) : null}
                     <span className="text-sm/[21px] text-[#001033] dark:text-foreground"><BidiText>{item.text}</BidiText></span>
@@ -86,9 +88,8 @@ export function ServiceHeroSection({
           ) : null}
         </div>
 
-        {/* No overhang: the card's depth varies per service, so a fixed -mb
-            left some pages with the card flush against the band's bottom edge. */}
-        <div>
+        {/* Offset the 48px band padding plus the design’s 50px overhang. */}
+        <div className="lg:-mb-[98px]">
           <ConsultationForm
             title={block.formTitle ?? 'Get Free Consultation'}
             service={block.heading ?? 'our services'}

@@ -9,17 +9,17 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-pill font-semibold whitespace-nowrap transition-colors duration-200 ' +
+  'fk-button inline-flex items-center justify-center gap-2 rounded-pill font-semibold whitespace-nowrap transition-colors duration-200 ' +
   // 16.6 — 44px minimum touch target on every size.
-  'min-h-11 disabled:pointer-events-none disabled:opacity-50 ' +
+  'min-h-11 disabled:opacity-50 ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-primary-foreground hover:bg-primary-hover hover:shadow-md active:brightness-90',
+  primary: 'fk-button--primary bg-primary text-primary-foreground',
   // The comp's outlined pill: navy hairline, transparent fill, navy label.
   secondary:
-    'border border-navy-800 bg-transparent text-navy-800 hover:bg-navy-800 hover:text-white active:bg-primary active:border-primary dark:border-foreground dark:text-foreground dark:hover:bg-foreground dark:hover:text-background',
-  ghost: 'text-foreground hover:bg-background-subtle',
+    'fk-button--secondary border border-navy-800 bg-transparent text-navy-800 dark:border-foreground dark:text-foreground',
+  ghost: 'fk-button--secondary text-foreground',
 }
 
 const sizes: Record<ButtonSize, string> = {

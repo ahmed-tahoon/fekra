@@ -65,9 +65,9 @@ export default async function CareersIndex({ params }: { params: Promise<{ local
               {dict.careers.heroBody}
             </p>
             <nav className={`${styles.shortcuts} mt-7`} aria-label={dict.careers.title}>
-              <a href="#open-roles">{dict.careers.openRoles}</a>
-              {hasInternship ? <a href="#internship-program">{copy.internship.replace(/\.+$/, '')}</a> : null}
-              {hasFuture ? <a href="#future-opportunities">{copy.future.replace(/\.+$/, '')}</a> : null}
+              <a className="fk-button fk-button--career" href="#open-roles">{dict.careers.openRoles}</a>
+              {hasInternship ? <a className="fk-button fk-button--career" href="#internship-program">{copy.internship.replace(/\.+$/, '')}</a> : null}
+              {hasFuture ? <a className="fk-button fk-button--career" href="#future-opportunities">{copy.future.replace(/\.+$/, '')}</a> : null}
             </nav>
           </div>
           <div className="grid grid-cols-2 items-center gap-4" aria-hidden>

@@ -132,7 +132,7 @@ export function LanguageSwitcher({
                   startTransition(() => router.push(localeHref(locale, rest) + window.location.search + window.location.hash))
                 }}
                 className={cn(
-                  'flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-background-subtle',
+                  'fk-button fk-button--secondary flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors',
                   locale === current && 'font-semibold text-primary',
                 )}
               >

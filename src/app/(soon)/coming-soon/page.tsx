@@ -61,14 +61,14 @@ export default function ComingSoonPage() {
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <a
             href="mailto:info@fekra-egy.com"
-            className="inline-flex min-h-12 items-center gap-2 rounded-pill bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
+            className="fk-button fk-button--primary inline-flex min-h-12 items-center gap-2 rounded-pill bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors"
           >
             <Mail className="size-4" aria-hidden />
             info@fekra-egy.com
           </a>
           <a
             href="tel:+201101133572"
-            className="inline-flex min-h-12 items-center gap-2 rounded-pill border border-border bg-card px-6 text-sm font-semibold transition-colors hover:bg-background-subtle"
+            className="fk-button fk-button--secondary inline-flex min-h-12 items-center gap-2 rounded-pill border border-border bg-card px-6 text-sm font-semibold transition-colors"
           >
             <Phone className="size-4" aria-hidden />
             <span dir="ltr">+20 110 113 3572</span>

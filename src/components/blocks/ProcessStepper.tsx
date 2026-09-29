@@ -127,7 +127,7 @@ export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[
                  * span mirrors under RTL while the digit on top does not.
                  */}
                 <button
-                  type="button"
+                  data-process-control type="button"
                   onClick={() => selectStep(i)}
                   aria-label={`${i + 1} — ${s.title}`}
                   data-process-number={i}
@@ -156,7 +156,7 @@ export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[
                 </button>
 
                 <button
-                  type="button"
+                  data-process-control type="button"
                   onClick={() => selectStep(i)}
                   aria-current={on ? 'step' : undefined}
                   /* Icon size and gap ride --fs with the bar widths, so the row
@@ -200,7 +200,7 @@ export function ProcessStepper({ steps, completed, resultLabel }: { steps: Step[
          * so it mirrors under RTL while its content does not.
          */}
         <li className="flex h-11 justify-center sm:h-16">
-          <button type="button" onClick={() => selectStep(steps.length)} aria-label={`${completed.title} ${completed.body}`} aria-pressed={resultActive} className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
+          <button data-process-control type="button" onClick={() => selectStep(steps.length)} aria-label={`${completed.title} ${completed.body}`} aria-pressed={resultActive} className="relative h-full" style={{ width: 'calc(var(--fs) * 128px)' }}>
             <span
               className={cn(
                 'absolute inset-0 bg-border transition-opacity duration-500 [clip-path:polygon(0_0,100%_0,calc(100%_-_var(--fs)*21px)_100%,calc(var(--fs)*21px)_100%)] dark:bg-card',

@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BrandLogo } from '@/components/layout/BrandLogo'
 import { LinkButton } from '@/components/ui/Button'
 import type { Dictionary } from '@/i18n/getDictionary'
-import { isActivePath } from '@/i18n/routing'
+import { isActivePath, localeHref, splitLocale } from '@/i18n/routing'
 import { cn } from '@/lib/cn'
 import type { ResolvedLink } from '@/lib/resolveLink'
 
@@ -69,7 +69,7 @@ export function MobileNav({
         {open ? (
           <div className="flex h-full flex-col">
             <div className="flex h-20 shrink-0 items-center justify-between border-b border-border px-5">
-              <BrandLogo />
+              <Link href={localeHref(splitLocale(pathname).locale, '/')} aria-label="FEKRA" onClick={() => setOpen(false)}><BrandLogo /></Link>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -126,6 +126,9 @@ export function MobileNav({
                               </li>
                             ) : null,
                           )}
+                          {(item.link.activeHref ?? item.link.href) === localeHref(splitLocale(pathname).locale, '/services') ? (
+                            <li><LinkButton link={{ href: localeHref(splitLocale(pathname).locale, '/contact'), label: dict.nav.hireNow, external: false, newTab: false }} className="mt-3 w-full" /></li>
+                          ) : null}
                         </ul>
                       ) : null}
                     </li>

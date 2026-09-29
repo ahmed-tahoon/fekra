@@ -90,7 +90,7 @@ export function BotVerification({ locale, action, onReady, error }: {
     <input type="hidden" name="botChallenge" value={challenge?.challenge ?? ''} />
     {challenge ? <div>
       <label htmlFor={id} className="block text-sm">{copy.question}: <bdi dir="ltr">{challenge.a} + {challenge.b} = ?</bdi></label>
-      <input id={id} name="botAnswer" value={answer} onChange={(event) => setAnswer(event.target.value.replace(/[٠-٩]/g, (digit) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit))))} inputMode="numeric" autoComplete="off" required aria-invalid={Boolean(answer && !correct)} aria-describedby={answer && !correct ? `${id}-error` : undefined} className="mt-2 min-h-11 w-24 rounded-lg border border-input bg-background px-3 text-foreground" />
+      <input id={id} name="botAnswer" value={answer} onChange={(event) => setAnswer(event.target.value.replace(/[٠-٩]/g, (digit) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit))))} inputMode="numeric" autoComplete="off" required aria-invalid={Boolean(answer && !correct)} aria-describedby={answer && !correct ? `${id}-error` : undefined} className="mt-2 min-h-12 w-24 rounded-lg border-2 border-[#85858f] bg-background px-3 text-lg text-foreground focus:border-primary dark:border-[#898794]" />
       {answer && !correct ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm text-danger-600">{copy.invalid}</p> : null}
     </div> : null}
     {failed || !sitekey ? <div role="alert" className="text-sm text-danger-600">{copy.unavailable}

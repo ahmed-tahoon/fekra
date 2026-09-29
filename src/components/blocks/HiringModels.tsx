@@ -88,7 +88,7 @@ export function HiringModelsSection({ block, locale }: { block: BlockProps; loca
       {/* Benefits band — full-bleed grey, tucked 50px under the stat cards. */}
       {benefits.length || ctas.length ? (
         <>
-          <div className="-mt-[50px] bg-[#eee] pt-[130px] pb-12 dark:bg-background-subtle">
+          <div className="-mt-[50px] bg-[#eee] pt-[82px] pb-10 dark:bg-background-subtle">
             <div className="container-site">
               {block.benefitsTitle ? (
                 <p className="flex items-center gap-3 font-display text-[22px] font-medium text-ink-900 dark:text-foreground">

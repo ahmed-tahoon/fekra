@@ -158,7 +158,7 @@ export function ApplicationForm({
         </p>
         <Link
           href={localeHref(locale, '/careers')}
-          className="mt-5 inline-flex min-h-11 items-center rounded-pill border border-navy-800 px-5 text-sm font-semibold text-navy-800 transition-colors hover:bg-navy-800/5 dark:border-foreground dark:text-foreground"
+          className="fk-button fk-button--secondary mt-5 inline-flex min-h-11 items-center rounded-pill border border-navy-800 px-5 text-sm font-semibold text-navy-800 transition-colors dark:border-foreground dark:text-foreground"
         >
           {dict.careers.backToRoles}
         </Link>
@@ -210,7 +210,7 @@ export function ApplicationForm({
       </div>
 
       {kind ? <Field label={dict.form.cv} hideLabel required hint={dict.form.cvHint} error={messageFor('cv')}>
-        {(props) => <label className="career-upload" htmlFor={props.id}>
+        {(props) => <label className="career-upload fk-button fk-button--secondary" htmlFor={props.id}>
           <span>{cvName || copy.attach}</span>
           <input {...props} className="sr-only" name="cv" type="file" accept={[...CV.mimeTypes, ...CV.extensions].join(',')} onChange={(event) => setCvName(event.target.files?.[0]?.name ?? '')} />
         </label>}

@@ -4,6 +4,8 @@ import Lenis from 'lenis'
 import { usePathname } from 'next/navigation'
 import { useEffect, useLayoutEffect, useRef } from 'react'
 
+import { splitLocale } from '@/i18n/routing'
+
 /** Keeps route changes deterministic: every page opens at its beginning. */
 export function SmoothScroll() {
   const pathname = usePathname()
@@ -41,6 +43,21 @@ export function SmoothScroll() {
       lenis.current = null
       instance.destroy()
     }
+  }, [])
+
+  useEffect(() => {
+    const returnHome = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      const anchor = (event.target as Element).closest<HTMLAnchorElement>('a[href]')
+      if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return
+      const target = new URL(anchor.href, location.href)
+      if (target.origin !== location.origin || target.pathname !== location.pathname || splitLocale(target.pathname).rest !== '/' || target.hash) return
+      if (lenis.current) lenis.current.scrollTo(0, { immediate: true, force: true })
+      else window.scrollTo({ top: 0, behavior: 'instant' })
+    }
+    // Capture runs before Next Link handles an already-active route.
+    document.addEventListener('click', returnHome, true)
+    return () => document.removeEventListener('click', returnHome, true)
   }, [])
 
   useLayoutEffect(() => {

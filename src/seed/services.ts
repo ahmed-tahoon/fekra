@@ -7,6 +7,8 @@
  * services seed one source of truth.
  */
 
+import { serviceDesigns } from './service-designs'
+
 export type ServiceTone =
   'mint' | 'blue' | 'blush' | 'amber' | 'sky' | 'coral' | 'teal' | 'gold' | 'lilac'
 
@@ -224,7 +226,12 @@ async function upsertService(payload: PayloadLike, slug: string, data: Record<st
   return payload.create({ ...common, data: { ...data, slug } } as never)
 }
 
-export async function seedApprovedServices(payload: PayloadLike, makeLayout: LayoutFactory) {
+export async function seedApprovedServices(payload: PayloadLike, layoutFactory: LayoutFactory) {
+  // Family metadata must never replace a page's reviewed copy or band color.
+  const makeLayout: LayoutFactory = (service) => {
+    const design = serviceDesigns.find((entry) => entry.slug === service.slug)
+    return layoutFactory(design ? { ...service, title: design.title, body: design.body, summary: design.summary, tone: design.heroTone } : service)
+  }
   const roots = new Map<string, { id: number | string }>()
   let order = 20
 

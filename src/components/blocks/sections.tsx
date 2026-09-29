@@ -1557,7 +1557,7 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
           {/* The comp's wide solid pill — 340px, label only, no arrow. Capped
               at 100% so it cannot overflow a narrow phone. */}
           <Ctas
-            ctas={block.ctas}
+            ctas={block.ctas?.map((cta) => ({ ...cta, link: { ...cta.link, type: 'route', route: '/fika' } }))}
             locale={locale}
             withArrow={false}
             className="min-w-[min(340px,100%)]"
@@ -1593,7 +1593,7 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
             ctas={block.ctas}
             locale={locale}
             size="md"
-            className="border-white text-white hover:bg-white/10 dark:border-white dark:text-white dark:hover:bg-white/10"
+            className="fk-button--on-dark border-white text-white dark:border-white dark:text-white"
           />
         </div>
       </section>
@@ -1686,7 +1686,7 @@ export function CtaSection({ block, locale }: { block: BlockProps; locale: Local
               ctas={block.ctas}
               locale={locale}
               size="md"
-              className="shrink-0 border-0 bg-white py-2 ps-6 pe-2 text-[15px] text-navy-800 hover:bg-white/90 dark:text-navy-800 [&_svg]:size-8 [&_svg]:rounded-pill [&_svg]:bg-navy-800 [&_svg]:p-2 [&_svg]:text-white"
+              className="fk-button--inverse shrink-0 border-0 bg-white py-2 ps-6 pe-2 text-[15px] text-navy-800 dark:text-navy-800 [&_svg]:size-8 [&_svg]:rounded-pill [&_svg]:bg-navy-800 [&_svg]:p-2 [&_svg]:text-white"
             />
           </div>
         </div>

@@ -98,7 +98,7 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
                 <li key={item.id}>
                   <Link
                     href={localeHref(locale, `/services/${item.slug}`)}
-                    className="rounded-pill border border-border px-4 py-2 text-sm hover:bg-background-subtle"
+                    className="fk-button fk-button--secondary rounded-pill border border-border px-4 py-2 text-sm"
                   >
                     {item.title}
                   </Link>

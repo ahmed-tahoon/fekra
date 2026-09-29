@@ -386,27 +386,6 @@
   .fk-presence-map-art {
     mask-image: linear-gradient(black 72%, transparent 77%), linear-gradient(to right, black 36%, transparent 40%, transparent 70%, black 75%);
   }
-  /* Consistent feedback for custom CTAs, tabs, filters and navigation controls. */
-  button:not(:disabled), a[class*="rounded-pill"], a[class*="rounded-full"], [role="tab"], summary {
-    transition-property: color, background-color, border-color, box-shadow, filter;
-    transition-duration: 180ms;
-  }
-  @media (hover: hover) {
-    button:not(:disabled):hover, a[class*="rounded-pill"]:hover, a[class*="rounded-full"]:hover, summary:hover {
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 45%, transparent);
-      filter: brightness(0.94);
-    }
-  }
-  button:not(:disabled):active, a[class*="rounded-pill"]:active, a[class*="rounded-full"]:active {
-    filter: brightness(0.84);
-  }
-  button[aria-selected="true"], button[aria-pressed="true"] {
-    box-shadow: inset 0 -3px 0 currentColor;
-  }
-  button:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
   /* Opt in by asset role: monochrome glyphs can be lifted, while logos and
    * artwork with baked-in dark text keep their original colours on a pure
    * white ground in both themes. Do not tint or blend brand assets. */
@@ -751,4 +730,67 @@
     translate: none !important;
     filter: none !important;
   }
+}
+
+/* One interaction system. Use buttonClass/LinkButton for new CTAs and
+   fk-button with a variant for custom links. Native controls opt in by default. */
+.dark { --control-hover-bg: #fff; --control-hover-ink: #273969; }
+.fk-button--primary, .fk-button--career {
+  --button-hover-bg: #fff;
+  --button-hover-ink: #146c80;
+  --button-hover-border: #20a2bc;
+}
+.fk-button--secondary, .fk-button--inverse {
+  --button-hover-bg: #273969;
+  --button-hover-ink: #fff;
+  --button-hover-border: #273969;
+}
+.dark .fk-button--secondary {
+  --button-hover-bg: #fff;
+  --button-hover-ink: #273969;
+  --button-hover-border: #fff;
+}
+.dark .fk-button--inverse {
+  --button-hover-bg: #273969;
+  --button-hover-ink: #fff;
+  --button-hover-border: #273969;
+}
+.fk-button--on-dark {
+  --button-hover-bg: #fff;
+  --button-hover-ink: #273969;
+  --button-hover-border: #fff;
+}
+:is(button, .fk-button, [role="button"], summary) {
+  cursor: pointer;
+  transition: color 180ms, background-color 180ms, border-color 180ms, box-shadow 180ms, filter 180ms;
+}
+:is(button, a, summary, [tabindex]):focus:not(:focus-visible) { outline: none; }
+@media (hover: hover) {
+  :is(button:not([role="tab"]):not([data-process-control]), .fk-button, [role="button"]):not(:disabled):not([aria-disabled="true"]):hover,
+  summary:hover .fk-button {
+    background-color: var(--button-hover-bg, var(--control-hover-bg, #273969));
+    background-image: none;
+    color: var(--button-hover-ink, var(--control-hover-ink, #fff));
+    border-color: var(--button-hover-border, var(--control-hover-bg, #273969));
+    box-shadow: inset 0 0 0 1px var(--button-hover-border, var(--control-hover-bg, #273969));
+  }
+  button[data-process-control]:hover { filter: brightness(0.75); }
+  button[role="tab"]:hover { color: var(--foreground); background-color: color-mix(in srgb, var(--primary) 15%, var(--card)); }
+  summary:hover { background-color: color-mix(in srgb, var(--primary) 12%, var(--card)); }
+}
+/* Also visible on touch devices, where there is no hover. */
+:is(button:not([role="tab"]):not([data-process-control]), .fk-button, [role="button"]):not(:disabled):not([aria-disabled="true"]):active,
+summary:active .fk-button {
+  background-color: var(--button-hover-bg, var(--control-hover-bg, #273969));
+  background-image: none;
+  color: var(--button-hover-ink, var(--control-hover-ink, #fff));
+  border-color: var(--button-hover-border, var(--control-hover-bg, #273969));
+  box-shadow: inset 0 0 0 1px var(--button-hover-border, var(--control-hover-bg, #273969));
+  filter: brightness(0.85);
+}
+:is(button[data-process-control], button[role="tab"], summary):active { filter: brightness(0.85); }
+:is(button:disabled, .fk-button[aria-disabled="true"], [role="button"][aria-disabled="true"]) {
+  cursor: not-allowed;
+  opacity: 0.5;
+  filter: none;
 }

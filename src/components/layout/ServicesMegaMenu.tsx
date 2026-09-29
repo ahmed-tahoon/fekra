@@ -29,7 +29,7 @@ export function ServicesMegaMenu({ services, locale, dict }: { services: Service
         </div>)}
         <div className="col-start-5 row-start-2 self-center rounded-[20px] border border-primary px-3 pt-4 text-center">
           <p className="text-sm/5 text-navy-800 dark:text-foreground"><BidiText>{dict.nav.buildTeam}</BidiText></p>
-          <Link href={localeHref(locale, '/services/hire-dedicated-developers')} className="relative -mb-4 mt-3 inline-flex min-h-11 items-center rounded-pill bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">{dict.nav.hireNow}</Link>
+          <Link href={localeHref(locale, '/contact')} className="fk-button fk-button--primary relative -mb-4 mt-3 inline-flex min-h-11 items-center rounded-pill bg-primary px-6 text-sm font-semibold text-primary-foreground">{dict.nav.hireNow}</Link>
         </div>
       </div>
     </div>
